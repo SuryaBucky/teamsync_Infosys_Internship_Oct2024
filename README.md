@@ -62,10 +62,9 @@ npm run start
 
 ## Configuration
 
-- The server expects a `config.env` file in the `/server/config/` directory. You should define the following variables:
+- The server expects a `config.env` file in the `/backend/config/` directory. You should define the following variables:
 - `MONGODB_URI`: MongoDB connection URI
 - `JWT_SECRET`: Secret key for JSON Web Tokens
-- `NODE_ENV`: Either "development" or "production"
 - `PORT`: Port number for the server (default is 3001)
 
 ## Contributing
