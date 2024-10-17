@@ -7,6 +7,8 @@ import Features from './components/Features'
 import Testimonials from './components/Testimonials'
 import Benefits from './components/Benifits'
 import About from './components/About'
+import SignUp from '../../components/SignUp'
+import SignIn from '../../components/SignIn'
 
 import Faq from './components/Faq'
 
@@ -48,13 +50,15 @@ const Content = styled.div`
 `
 
 const Home = () => {
+    const [SignInOpen, setSignInOpen] = React.useState(false);
+    const [SignUpOpen, setSignUpOpen] = React.useState(false);
 
     return (
         <Body>
             <Container>
                 <Top>
-                    <Navbar/>
-                    <Hero/>
+                    <Navbar setSignInOpen={setSignInOpen} />
+                    <Hero setSignInOpen={setSignInOpen} />
                 </Top>
                 <Content>
                     <Features /> 
@@ -66,6 +70,12 @@ const Home = () => {
                         <Footer />
                     </div>
                 </Content>
+                {SignUpOpen && (
+                    <SignUp setSignUpOpen={setSignUpOpen} setSignInOpen={setSignInOpen} />
+                )}
+                {SignInOpen && (
+                    <SignIn setSignInOpen={setSignInOpen} setSignUpOpen={setSignUpOpen} />
+                )}
                 
             </Container>
         </Body>
