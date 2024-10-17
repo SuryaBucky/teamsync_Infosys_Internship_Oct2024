@@ -164,8 +164,13 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
         //generate a new otp of 6 digit  number and make it string and update that otp in db
         userOne.registration_otp=Math.floor(100000 + Math.random() * 900000).toString();
         await userOne.save();
+        //generate new jwt token
+        const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+            expiresIn: "12h",
+        });
         return res.status(200).json({
             message: "User verified successfully.",
+            token,
         });
     }
 })
