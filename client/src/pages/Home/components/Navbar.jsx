@@ -154,7 +154,7 @@ const Navbar = ({ setSignInOpen }) => {
           <MenuItem href="#about">About Us</MenuItem>
         </Menu>
         <Button onClick={() => setSignInOpen(true)}>
-          <AccountCircleOutlinedIcon /> Sign In
+          <AccountCircleOutlinedIcon /> Get Started
         </Button>
         <HamburgerMenu onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <CloseIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
@@ -174,7 +174,7 @@ const Navbar = ({ setSignInOpen }) => {
           About Us
         </MobileMenuItem>
         <Button onClick={() => setSignInOpen(true)}>
-          <AccountCircleOutlinedIcon /> Sign In
+          <AccountCircleOutlinedIcon /> Get Started
         </Button>
       </MobileMenu>
     </>
