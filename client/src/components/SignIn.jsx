@@ -188,7 +188,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   
       try {
         // Make the POST request to the /user/signin route
-        const res = await axios.post("http://localhost:3001/user/signin", {
+        const res = await axios.post(`${isAdmin?"http://localhost:3001/admin/signin":"http://localhost:3001/user/signin"}`, {
           email, 
           password
         });
@@ -417,15 +417,19 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 </IconButton>
               </OutlinedBox>
               <OutlinedBox style={{ marginTop: "10px" }}>
-                  <input
-                    type="checkbox"
-                    id="admin"
-                    checked={isAdmin}
-                    onChange={() => setIsAdmin(!isAdmin)}
-                  />
-                  <label htmlFor="admin" style={{ paddingLeft: "12px" }}>
-                    Admin
-                  </label>
+              <input
+                type="checkbox"
+                id="admin"
+                checked={isAdmin}
+                onChange={(e) => { 
+                  setIsAdmin(e.target.checked); 
+                  console.log(e.target.checked);
+                }}
+              />
+              <label htmlFor="admin" style={{ paddingLeft: "12px" }}>
+                Admin
+              </label>
+
                 </OutlinedBox>
 
               <Error error={credentialError}>{credentialError}</Error>
