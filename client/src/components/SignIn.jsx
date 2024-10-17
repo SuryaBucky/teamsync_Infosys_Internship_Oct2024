@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import validator from "validator";
 import { signIn, findUserByEmail, resetPassword } from "../api/index";
 import OTP from "./OTP";
+import axios from "axios";
 
 
 const Container = styled.div`
@@ -179,62 +180,69 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
     if (!disabled) {
       dispatch(loginStart());
       setDisabled(true);
       setLoading(true);
+  
       try {
-        signIn({ email, password }).then((res) => {
-          if (res.status === 200) {
-            dispatch(loginSuccess(res.data));
-            setLoading(false);
-            setDisabled(false);
-            setSignInOpen(false);
-            dispatch(
-              openSnackbar({
-                message: "Logged In Successfully",
-                severity: "success",
-              })
-            );
-          } else if (res.status === 203) {
-            dispatch(loginFailure());
-            setLoading(false);
-            setDisabled(false);
-            setcredentialError(res.data.message);
-            dispatch(
-              openSnackbar({
-                message: "Account Not Verified",
-                severity: "error",
-              })
-            );
-          } else {
-            dispatch(loginFailure());
-            setLoading(false);
-            setDisabled(false);
-            setcredentialError(`Invalid Credentials : ${res.data.message}`);
-          }
+        // Make the POST request to the /user/signin route
+        const res = await axios.post("http://localhost:3001/user/signin", {
+          email, 
+          password
         });
+  
+        if (res.status === 200) {
+          // Success: Set token in local storage and proceed
+          localStorage.setItem('token', res.data.token);
+          dispatch(loginSuccess(res.data));
+          setLoading(false);
+          setDisabled(false);
+          setSignInOpen(false);
+          dispatch(openSnackbar({
+            message: "Logged In Successfully",
+            severity: "success"
+          }));
+        } else if (res.status === 400) {
+          // Error: Show error message sent in response
+          dispatch(loginFailure());
+          setLoading(false);
+          setDisabled(false);
+          setcredentialError(res.data.erros[0]);
+          dispatch(openSnackbar({
+            message: `Error: ${res.data.errors[0]}`,
+            severity: "error"
+          }));
+        } else {
+          // Handle any other status codes
+          dispatch(loginFailure());
+          setLoading(false);
+          setDisabled(false);
+          setcredentialError(`Unexpected Error: ${res.data}`);
+        }
+        
       } catch (err) {
+        // Catch any errors during the request
         dispatch(loginFailure());
         setLoading(false);
         setDisabled(false);
-        dispatch(
-          openSnackbar({
-            message: err.message,
-            severity: "error",
-          })
-        );
+        dispatch(openSnackbar({
+          message: err.message,
+          severity: "error"
+        }));
       }
     }
+  
+    // Check if email or password fields are empty
     if (email === "" || password === "") {
-      dispatch(
-        openSnackbar({
-          message: "Please fill all the fields",
-          severity: "error",
-        })
-      );
+      dispatch(openSnackbar({
+        message: "Please fill all the fields",
+        severity: "error"
+      }));
     }
   };
+  
 
   const [emailError, setEmailError] = useState("");
   const [credentialError, setcredentialError] = useState("");

@@ -1,16 +1,16 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: `BACKEND LINK........` }); 
+const API = axios.create({ baseURL: process.env.API_BASE_URL }); 
 
 
 
 //auth
-export const signIn = async ({ email, password }) => await API.post('/auth/signin', { email, password });
+export const signIn = async ({ email, password }) => await API.post('/user/signin', { email, password });
 export const signUp = async ({
     name,
     email,
     password,
-}) => await API.post('/auth/signup', {
+}) => await API.post('/user/signup', {
     name,
     email,
     password,
