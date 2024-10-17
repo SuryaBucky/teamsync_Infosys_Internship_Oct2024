@@ -168,6 +168,9 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false); // New state to track if the user is admin
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userBlocked, setUserBlocked] = useState(false);
+const [needsOTPVerification, setNeedsOTPVerification] = useState(false);
+const [apiResponse, setApiResponse] = useState(null);
 
 
 
@@ -180,6 +183,20 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     }
   }, [email, password]);
 
+  useEffect(() => {
+    if (otpVerified && needsOTPVerification && apiResponse) {
+      // Complete login after OTP verification
+      localStorage.setItem('token', apiResponse.data.token);
+      dispatch(loginSuccess("Success"));
+      setIsLoggedIn(true);
+      setSignInOpen(false);
+      dispatch(openSnackbar({
+        message: "Logged In Successfully",
+        severity: "success"
+      }));
+    }
+  }, [otpVerified, needsOTPVerification, apiResponse]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     
@@ -187,64 +204,101 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       dispatch(loginStart());
       setDisabled(true);
       setLoading(true);
+      
+      // Reset status states at the start
+      setUserBlocked(false);
+      setNeedsOTPVerification(false);
+      setcredentialError("");
   
       try {
-        // Make the POST request to the /user/signin route
-        const res = await axios.post(`${isAdmin?"http://localhost:3001/admin/signin":"http://localhost:3001/user/signin"}`, {
-          email, 
-          password
-        });
-  
-        if (res.status === 200) {
-          // Success: Set token in local storage and proceed
-          localStorage.setItem('token', res.data.token);
-          dispatch(loginSuccess(res.data));
-          setIsLoggedIn(true);
-          setLoading(false);
-          setDisabled(false);
-          setSignInOpen(false);
+            const res = await axios.post(
+              `${isAdmin ? "http://localhost:3001/admin/signin" : "http://localhost:3001/user/signin"}`,
+              { email, password }
+            );
+
+            setApiResponse(res);
+      
+            // Handle different status codes
+            switch (res.status) {
+              case 200:
+                // Success case
+                localStorage.setItem('token', res.data.token);
+                dispatch(loginSuccess(res.data));
+                setIsLoggedIn(true);
+                setSignInOpen(false);
+                dispatch(openSnackbar({
+                  message: "Logged In Successfully",
+                  severity: "success"
+                }));
+                break;
+      
+              case 401:
+                // Blocked user case
+                setUserBlocked(true);
+                dispatch(loginFailure());
+                setcredentialError("Your account has been blocked. Please contact support.");
+                dispatch(openSnackbar({
+                  message: "Account blocked",
+                  severity: "error"
+                }));
+                break;
+      
+              case 402:
+                // Needs OTP verification
+                setNeedsOTPVerification(true);
+                setShowOTP(true);
+                break;
+      
+              case 400:
+                // Other errors
+                dispatch(loginFailure());
+                setcredentialError(res.data.errors[0]);
+                dispatch(openSnackbar({
+                  message: `Error: ${res.data.errors[0]}`,
+                  severity: "error"
+                }));
+                break;
+      
+              default:
+                dispatch(loginFailure());
+                setcredentialError(`Unexpected Error: ${res.data}`);
+            }
+          } catch (err) {
+            if (err.response) {
+              switch (err.response.status) {
+                case 401:
+                  setUserBlocked(true);
+                  setcredentialError("Your account has been blocked. Please contact support.");
+                  break;
+                case 402:
+                  setNeedsOTPVerification(true);
+                  setShowOTP(true);
+                  break;
+                default:
+                  setcredentialError(err.response.data.message || "An error occurred");
+              }
+            } else {
+              setcredentialError("Network error. Please try again.");
+            }
+            
+            dispatch(loginFailure());
+            dispatch(openSnackbar({
+              message: err.message,
+              severity: "error"
+            }));
+          } finally {
+            setLoading(false);
+            setDisabled(false);
+          }
+        }
+      
+        if (email === "" || password === "") {
           dispatch(openSnackbar({
-            message: "Logged In Successfully",
-            severity: "success"
-          }));
-        } else if (res.status === 400) {
-          // Error: Show error message sent in response
-          dispatch(loginFailure());
-          setLoading(false);
-          setDisabled(false);
-          setcredentialError(res.data.erros[0]);
-          dispatch(openSnackbar({
-            message: `Error: ${res.data.errors[0]}`,
+            message: "Please fill all the fields",
             severity: "error"
           }));
-        } else {
-          // Handle any other status codes
-          dispatch(loginFailure());
-          setLoading(false);
-          setDisabled(false);
-          setcredentialError(`Unexpected Error: ${res.data}`);
         }
-        
-      } catch (err) {
-        // Catch any errors during the request
-        dispatch(loginFailure());
-        setLoading(false);
-        setDisabled(false);
-        dispatch(openSnackbar({
-          message: err.message,
-          severity: "error"
-        }));
-      }
-    }
-  
-    // Check if email or password fields are empty
-    if (email === "" || password === "") {
-      dispatch(openSnackbar({
-        message: "Please fill all the fields",
-        severity: "error"
-      }));
-    }
-  };
+      };
   
 
   const [emailError, setEmailError] = useState("");
@@ -382,74 +436,91 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               }}
               onClick={() => setSignInOpen(false)}
             />
-            <>
-              <Title>Sign In</Title>
-              <OutlinedBox style={{ marginTop: "24px" }}>
-                <EmailRounded
-                  sx={{ fontSize: "20px" }}
-                  style={{ paddingRight: "12px" }}
-                />
-                <TextInput
-                  placeholder="Email Id"
-                  type="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </OutlinedBox>
-              <Error error={emailError}>{emailError}</Error>
-              <OutlinedBox>
-                <PasswordRounded
-                  sx={{ fontSize: "20px" }}
-                  style={{ paddingRight: "12px" }}
-                />
-                <TextInput
-                  placeholder="Password"
-                  type={values.showPassword ? "text" : "password"}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <IconButton
-                  color="inherit"
-                  onClick={() =>
-                    setValues({ ...values, showPassword: !values.showPassword })
-                  }
-                >
-                  {values.showPassword ? (
-                    <Visibility sx={{ fontSize: "20px" }} />
-                  ) : (
-                    <VisibilityOff sx={{ fontSize: "20px" }} />
-                  )}
-                </IconButton>
-              </OutlinedBox>
-              <OutlinedBox style={{ marginTop: "10px" }}>
-              <input
-                type="checkbox"
-                id="admin"
-                checked={isAdmin}
-                onChange={(e) => { 
-                  setIsAdmin(e.target.checked); 
-                  console.log(e.target.checked);
-                }}
+            {needsOTPVerification && showOTP ? (
+              <OTP 
+                email={email} 
+                name="User" 
+                otpVerified={otpVerified} 
+                setOtpVerified={setOtpVerified} 
+                reason="LOGIN" 
               />
-              <label htmlFor="admin" style={{ paddingLeft: "12px" }}>
-                Admin
-              </label>
-
+            ) : (
+              <>
+                <Title>Sign In</Title>
+                <OutlinedBox style={{ marginTop: "24px" }}>
+                  <EmailRounded
+                    sx={{ fontSize: "20px" }}
+                    style={{ paddingRight: "12px" }}
+                  />
+                  <TextInput
+                    placeholder="Email Id"
+                    type="email"
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </OutlinedBox>
-
-              <Error error={credentialError}>{credentialError}</Error>
-              <ForgetPassword onClick={() => { setShowForgotPassword(true) }}><b>Forgot password ?</b></ForgetPassword>
-              <OutlinedBox
-                button={true}
-                activeButton={!disabled}
-                style={{ marginTop: "6px" }}
-                onClick={handleLogin}
-              >
-                {Loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : (
-                  "Sign In"
+                <Error error={emailError}>{emailError}</Error>
+                <OutlinedBox>
+                  <PasswordRounded
+                    sx={{ fontSize: "20px" }}
+                    style={{ paddingRight: "12px" }}
+                  />
+                  <TextInput
+                    placeholder="Password"
+                    type={values.showPassword ? "text" : "password"}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <IconButton
+                    color="inherit"
+                    onClick={() =>
+                      setValues({ ...values, showPassword: !values.showPassword })
+                    }
+                  >
+                    {values.showPassword ? (
+                      <Visibility sx={{ fontSize: "20px" }} />
+                    ) : (
+                      <VisibilityOff sx={{ fontSize: "20px" }} />
+                    )}
+                  </IconButton>
+                </OutlinedBox>
+                <OutlinedBox style={{ marginTop: "10px" }}>
+                  <input
+                    type="checkbox"
+                    id="admin"
+                    checked={isAdmin}
+                    onChange={(e) => { 
+                      setIsAdmin(e.target.checked); 
+                      console.log(e.target.checked);
+                    }}
+                  />
+                  <label htmlFor="admin" style={{ paddingLeft: "12px" }}>
+                    Admin
+                  </label>
+                </OutlinedBox>
+  
+                <Error error={credentialError}>{credentialError}</Error>
+                {/* Show blocked account message */}
+                {userBlocked && (
+                  <Error error={credentialError}>
+                    {credentialError}
+                  </Error>
                 )}
-              </OutlinedBox>
-            </>
+                <ForgetPassword onClick={() => { setShowForgotPassword(true) }}>
+                  <b>Forgot password ?</b>
+                </ForgetPassword>
+                <OutlinedBox
+                  button={true}
+                  activeButton={!disabled}
+                  style={{ marginTop: "6px" }}
+                  onClick={handleLogin}
+                >
+                  {Loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : (
+                    "Sign In"
+                  )}
+                </OutlinedBox>
+              </>
+            )}
             <LoginText>
               Don't have an account ?
               <Span
@@ -482,10 +553,12 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               <>
                 <Title>Reset Password</Title>
                 {resettingPassword ?
-                  <div style={{ padding: '12px 26px', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', justifyContent: 'center' }}>Updating password<CircularProgress color="inherit" size={20} /></div>
+                  <div style={{ padding: '12px 26px', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', justifyContent: 'center' }}>
+                    Updating password
+                    <CircularProgress color="inherit" size={20} />
+                  </div>
                   :
                   <>
-
                     <OutlinedBox style={{ marginTop: "24px" }}>
                       <EmailRounded
                         sx={{ fontSize: "20px" }}
@@ -564,17 +637,15 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   </>
                 }
               </>
-
               :
               <OTP email={email} name="User" otpVerified={otpVerified} setOtpVerified={setOtpVerified} reason="FORGOTPASSWORD" />
             }
-
           </Wrapper>
-
         )}
       </Container>
     </Modal>
   );
+  
 };
 
 export default SignIn;
