@@ -3,6 +3,8 @@ import styled from "styled-components";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import { useSelector, useDispatch } from "react-redux"; // Import hooks from Redux
+import { logout } from "../../../redux/userSlice"; // Adjust the import path accordingly
 
 const Container = styled.div`
   width: 100%;
@@ -13,13 +15,20 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: ${({ theme }) => theme.bg}; /* Change to theme.bg */
+  background-color: ${({ theme }) => theme.bg};
   box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   transition: all 0.3s ease-in-out;
   @media (max-width: 768px) {
     padding: 0px 15px !important;
   }
+`;
+
+const UserSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px; // Reduce the gap between Avatar and Button
+  margin-left: auto; // Push the user section to the right
 `;
 
 const Logo = styled.h1`
@@ -100,6 +109,14 @@ const Button = styled.button`
   }
 `;
 
+const Avatar = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 10px; // Add some margin for spacing
+`;
+
 const HamburgerMenu = styled.div`
   display: none;
   @media (max-width: 768px) {
@@ -140,8 +157,15 @@ const MobileMenuItem = styled.a`
   }
 `;
 
+
+
 const Navbar = ({ setSignInOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const dispatch = useDispatch(); // Initialize useDispatch
+  const { currentUser, isLoggedIn } = useSelector((state) => state.user); // Access user state
+
+  console.log("isLoggedIn:", isLoggedIn, "currentUser:", currentUser);
+
 
   return (
     <>
@@ -153,9 +177,18 @@ const Navbar = ({ setSignInOpen }) => {
           <MenuItem href="#benefits">Benefits</MenuItem>
           <MenuItem href="#about">About Us</MenuItem>
         </Menu>
-        <Button onClick={() => setSignInOpen(true)}>
-          <AccountCircleOutlinedIcon /> Sign In
-        </Button>
+        {isLoggedIn ? (
+          <UserSection>
+            <Avatar src="https://i.pravatar.cc/150" alt="User Avatar" /> {/* Default avatar if not set */}
+            <Button onClick={() => dispatch(logout())}>Logout</Button> {/* Logout button */}
+          </UserSection>
+        ) : (
+          <Button onClick={() => setSignInOpen(true)}>
+            <AccountCircleOutlinedIcon /> Sign In
+          </Button>
+        )}
+
+
         <HamburgerMenu onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <CloseIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
         </HamburgerMenu>
@@ -173,9 +206,13 @@ const Navbar = ({ setSignInOpen }) => {
         <MobileMenuItem href="#about" onClick={() => setMenuOpen(false)}>
           About Us
         </MobileMenuItem>
-        <Button onClick={() => setSignInOpen(true)}>
-          <AccountCircleOutlinedIcon /> Sign In
-        </Button>
+        {isLoggedIn ? (
+          <Button onClick={() => dispatch(logout())}>Logout</Button> // Logout button
+        ) : (
+          <Button onClick={() => setSignInOpen(true)}>
+            <AccountCircleOutlinedIcon /> Sign In
+          </Button>
+        )}
       </MobileMenu>
     </>
   );

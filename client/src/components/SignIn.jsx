@@ -167,6 +167,8 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const [resettingPassword, setResettingPassword] = useState(false);
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false); // New state to track if the user is admin
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
 
 
   useEffect(() => {
@@ -197,6 +199,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           // Success: Set token in local storage and proceed
           localStorage.setItem('token', res.data.token);
           dispatch(loginSuccess(res.data));
+          setIsLoggedIn(true);
           setLoading(false);
           setDisabled(false);
           setSignInOpen(false);
