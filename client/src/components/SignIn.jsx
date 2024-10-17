@@ -423,7 +423,8 @@ const [apiResponse, setApiResponse] = useState(null);
 
 
   return (
-    <Modal open={true} onClose={() => setSignInOpen(false)}>
+    !isLoggedIn ? (
+      <Modal open={true} onClose={() => setSignInOpen(false)}>
       <Container>
         {!showForgotPassword ? (
           <Wrapper>
@@ -644,6 +645,7 @@ const [apiResponse, setApiResponse] = useState(null);
         )}
       </Container>
     </Modal>
+    ) : null
   );
   
 };

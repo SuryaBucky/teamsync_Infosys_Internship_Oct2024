@@ -16,7 +16,6 @@ export const userSlice = createSlice({
     },
     loginSuccess: (state, action) => {
       state.loading = false;
-      state.currentUser = action.payload.user;
       state.isLoggedIn = true; // Set isLoggedIn to true on successful login
       localStorage.setItem('token', action.payload.token);
     },
