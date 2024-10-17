@@ -79,13 +79,13 @@ const validateUserSignin = async (req, res, next) => {
 
         // Check if the user is blocked
         if (existingUser.state === 'blocked') {
-            return res.status(400).json({
+            return res.status(401).json({
                 errors: ["This account has been blocked. Please contact support."],
             });
         }
         //if pending
         if (existingUser.state === 'pending') {
-            return res.status(400).json({
+            return res.status(402).json({
                 errors: ["This account has not been verified. Please verify your account."],
             });
         }
