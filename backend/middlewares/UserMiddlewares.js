@@ -77,6 +77,14 @@ const validateUserSignin = async (req, res, next) => {
             });
         }
 
+        // Verify password
+        const passwordMatch = await bcrypt.compare(password, existingUser.password_hash);
+        if (!passwordMatch) {
+            return res.status(400).json({
+                errors: ["Password does not match."],
+            });
+        }
+        
         // Check if the user is blocked
         if (existingUser.state === 'blocked') {
             return res.status(401).json({
@@ -87,14 +95,6 @@ const validateUserSignin = async (req, res, next) => {
         if (existingUser.state === 'pending') {
             return res.status(402).json({
                 errors: ["This account has not been verified. Please verify your account."],
-            });
-        }
-
-        // Verify password
-        const passwordMatch = await bcrypt.compare(password, existingUser.password_hash);
-        if (!passwordMatch) {
-            return res.status(400).json({
-                errors: ["Password does not match."],
             });
         }
 
