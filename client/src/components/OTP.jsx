@@ -205,9 +205,11 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             setDisabled(false);
         }
     };
+    //hello
     
     
 
+    //tst
     useEffect(() => {
         sendOtp();
         clearTimer(getDeadTime());
