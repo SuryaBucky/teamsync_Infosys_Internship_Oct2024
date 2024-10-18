@@ -1,3 +1,7 @@
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import validator from "validator";
+import axios from "axios";
 import {
   CloseRounded,
   EmailRounded,
@@ -5,144 +9,12 @@ import {
   VisibilityOff,
   PasswordRounded,
 } from "@mui/icons-material";
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import { IconButton, Modal } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
-import { useDispatch } from "react-redux";
-import validator from "validator";
 import { signIn, findUserByEmail, resetPassword } from "../api/index";
 import OTP from "./OTP";
-import axios from "axios";
-
-
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #000000a7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Wrapper = styled.div`
-  width: 360px;
-  border-radius: 30px;
-  background-color: ${({ theme }) => theme.bgLighter};
-  color: ${({ theme }) => theme.text};
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
-const Title = styled.div`
-  font-size: 22px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  margin: 16px 28px;
-`;
-const OutlinedBox = styled.div`
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.soft2};
-  color: ${({ theme }) => theme.soft2};
-  ${({ googleButton, theme }) =>
-    googleButton &&
-    `
-    user-select: none; 
-  gap: 16px;`}
-  ${({ button, theme }) =>
-    button &&
-    `
-    user-select: none; 
-  border: none;
-    background: ${theme.soft};
-    color:'${theme.soft2}';`}
-    ${({ activeButton, theme }) =>
-    activeButton &&
-    `
-    user-select: none; 
-  border: none;
-    background: ${theme.primary};
-    color: white;`}
-  margin: 3px 20px;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-  padding: 0px 14px;
-`;
-
-const Divider = styled.div`
-  display: flex;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${({ theme }) => theme.soft};
-  font-size: 14px;
-  font-weight: 600;
-`;
-const Line = styled.div`
-  width: 80px;
-  height: 1px;
-  border-radius: 10px;
-  margin: 0px 10px;
-  background-color: ${({ theme }) => theme.soft};
-`;
-
-const TextInput = styled.input`
-  width: 100%;
-  border: none;
-  font-size: 14px;
-  border-radius: 3px;
-  background-color: transparent;
-  outline: none;
-  color: ${({ theme }) => theme.textSoft};
-`;
-
-const LoginText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.soft2};
-  margin: 20px 20px 30px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-const Span = styled.span`
-  color: ${({ theme }) => theme.primary};
-`;
-
-const Error = styled.div`
-  color: red;
-  font-size: 10px;
-  margin: 2px 26px 8px 26px;
-  display: block;
-  ${({ error, theme }) =>
-    error === "" &&
-    `    display: none;
-    `}
-`;
-
-const ForgetPassword = styled.div`
-  color: ${({ theme }) => theme.soft2};
-  font-size: 13px;
-  margin: 8px 26px;
-  display: block;
-  cursor: pointer;
-  text-align: right;
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-  }
-
-  `;
 
 const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const [email, setEmail] = useState("");
@@ -154,10 +26,8 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     showPassword: false,
   });
 
-  //verify otp
   const [showOTP, setShowOTP] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  //reset password
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [samepassword, setSamepassword] = useState("");
   const [newpassword, setNewpassword] = useState("");
@@ -166,13 +36,13 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const [resetDisabled, setResetDisabled] = useState(true);
   const [resettingPassword, setResettingPassword] = useState(false);
   const dispatch = useDispatch();
-  const [isAdmin, setIsAdmin] = useState(false); // New state to track if the user is admin
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userBlocked, setUserBlocked] = useState(false);
-const [needsOTPVerification, setNeedsOTPVerification] = useState(false);
-const [apiResponse, setApiResponse] = useState(null);
-
-
+  const [needsOTPVerification, setNeedsOTPVerification] = useState(false);
+  const [apiResponse, setApiResponse] = useState(null);
+  const [emailError, setEmailError] = useState("");
+  const [credentialError, setcredentialError] = useState("");
 
   useEffect(() => {
     if (email !== "") validateEmail();
@@ -185,7 +55,6 @@ const [apiResponse, setApiResponse] = useState(null);
 
   useEffect(() => {
     if (otpVerified && needsOTPVerification && apiResponse) {
-      // Complete login after OTP verification
       localStorage.setItem('token', apiResponse.data.token);
       dispatch(loginSuccess("Success"));
       setIsLoggedIn(true);
@@ -205,104 +74,94 @@ const [apiResponse, setApiResponse] = useState(null);
       setDisabled(true);
       setLoading(true);
       
-      // Reset status states at the start
       setUserBlocked(false);
       setNeedsOTPVerification(false);
       setcredentialError("");
   
       try {
-            const res = await axios.post(
-              `${isAdmin ? "http://localhost:3001/admin/signin" : "http://localhost:3001/user/signin"}`,
-              { email, password }
-            );
+        const res = await axios.post(
+          `${isAdmin ? "http://localhost:3001/admin/signin" : "http://localhost:3001/user/signin"}`,
+          { email, password }
+        );
 
-            setApiResponse(res);
-      
-            // Handle different status codes
-            switch (res.status) {
-              case 200:
-                // Success case
-                localStorage.setItem('token', res.data.token);
-                dispatch(loginSuccess(res.data));
-                setIsLoggedIn(true);
-                setSignInOpen(false);
-                dispatch(openSnackbar({
-                  message: "Logged In Successfully",
-                  severity: "success"
-                }));
-                break;
-      
-              case 401:
-                // Blocked user case
-                setUserBlocked(true);
-                dispatch(loginFailure());
-                setcredentialError("Your account has been blocked. Please contact support.");
-                dispatch(openSnackbar({
-                  message: "Account blocked",
-                  severity: "error"
-                }));
-                break;
-      
-              case 402:
-                // Needs OTP verification
-                setNeedsOTPVerification(true);
-                setShowOTP(true);
-                break;
-      
-              case 400:
-                // Other errors
-                dispatch(loginFailure());
-                setcredentialError(res.data.errors[0]);
-                dispatch(openSnackbar({
-                  message: `Error: ${res.data.errors[0]}`,
-                  severity: "error"
-                }));
-                break;
-      
-              default:
-                dispatch(loginFailure());
-                setcredentialError(`Unexpected Error: ${res.data}`);
-            }
-          } catch (err) {
-            if (err.response) {
-              switch (err.response.status) {
-                case 401:
-                  setUserBlocked(true);
-                  setcredentialError("Your account has been blocked. Please contact support.");
-                  break;
-                case 402:
-                  setNeedsOTPVerification(true);
-                  setShowOTP(true);
-                  break;
-                default:
-                  setcredentialError(err.response.data.message || "An error occurred");
-              }
-            } else {
-              setcredentialError("Network error. Please try again.");
-            }
-            
-            dispatch(loginFailure());
+        setApiResponse(res);
+  
+        switch (res.status) {
+          case 200:
+            localStorage.setItem('token', res.data.token);
+            dispatch(loginSuccess(res.data));
+            setIsLoggedIn(true);
+            setSignInOpen(false);
             dispatch(openSnackbar({
-              message: err.message,
+              message: "Logged In Successfully",
+              severity: "success"
+            }));
+            break;
+  
+          case 401:
+            setUserBlocked(true);
+            dispatch(loginFailure());
+            setcredentialError("Your account has been blocked. Please contact support.");
+            dispatch(openSnackbar({
+              message: "Account blocked",
               severity: "error"
             }));
-          } finally {
-            setLoading(false);
-            setDisabled(false);
-          }
-        }
-      
-        if (email === "" || password === "") {
-          dispatch(openSnackbar({
-            message: "Please fill all the fields",
-            severity: "error"
-          }));
-        }
-      };
+            break;
   
-
-  const [emailError, setEmailError] = useState("");
-  const [credentialError, setcredentialError] = useState("");
+          case 402:
+            setNeedsOTPVerification(true);
+            setShowOTP(true);
+            break;
+  
+          case 400:
+            dispatch(loginFailure());
+            setcredentialError(res.data.errors[0]);
+            dispatch(openSnackbar({
+              message: `Error: ${res.data.errors[0]}`,
+              severity: "error"
+            }));
+            break;
+  
+          default:
+            dispatch(loginFailure());
+            setcredentialError(`Unexpected Error: ${res.data}`);
+        }
+      } catch (err) {
+        if (err.response) {
+          switch (err.response.status) {
+            case 401:
+              setUserBlocked(true);
+              setcredentialError("Your account has been blocked. Please contact support.");
+              break;
+            case 402:
+              setNeedsOTPVerification(true);
+              setShowOTP(true);
+              break;
+            default:
+              setcredentialError(err.response.data.message || "An error occurred");
+          }
+        } else {
+          setcredentialError("Network error. Please try again.");
+        }
+        
+        dispatch(loginFailure());
+        dispatch(openSnackbar({
+          message: err.message,
+          severity: "error"
+        }));
+      } finally {
+        setLoading(false);
+        setDisabled(false);
+      }
+    }
+  
+    if (email === "" || password === "") {
+      dispatch(openSnackbar({
+        message: "Please fill all the fields",
+        severity: "error"
+      }));
+    }
+  };
 
   const validateEmail = () => {
     if (validator.isEmail(email)) {
@@ -312,8 +171,6 @@ const [apiResponse, setApiResponse] = useState(null);
     }
   };
 
-
-  //validate password
   const validatePassword = () => {
     if (newpassword.length < 8) {
       setSamepassword("Password must be atleast 8 characters long!");
@@ -412,29 +269,23 @@ const [apiResponse, setApiResponse] = useState(null);
       });
     }
   }
+
   const closeForgetPassword = () => {
     setShowForgotPassword(false)
     setShowOTP(false)
   }
+
   useEffect(() => {
     performResetPassword();
   }, [otpVerified]);
 
-
-
-  return (
-    !isLoggedIn ? (
-      <Modal open={true} onClose={() => setSignInOpen(false)}>
-      <Container>
+  return !isLoggedIn ? (
+    <Modal open={true} onClose={() => setSignInOpen(false)}>
+      <div className="w-full h-full absolute top-0 left-0 bg-black/70 flex items-center justify-center">
         {!showForgotPassword ? (
-          <Wrapper>
+          <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
             <CloseRounded
-              style={{
-                position: "absolute",
-                top: "24px",
-                right: "30px",
-                cursor: "pointer",
-              }}
+              className="absolute top-6 right-8 cursor-pointer"
               onClick={() => setSignInOpen(false)}
             />
             {needsOTPVerification && showOTP ? (
@@ -447,71 +298,57 @@ const [apiResponse, setApiResponse] = useState(null);
               />
             ) : (
               <>
-                <Title>Sign In</Title>
-                <OutlinedBox style={{ marginTop: "24px" }}>
-                  <EmailRounded
-                    sx={{ fontSize: "20px" }}
-                    style={{ paddingRight: "12px" }}
-                  />
-                  <TextInput
+                <div className="text-[22px] font-medium mx-7 my-4">Sign In</div>
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+                  <EmailRounded className="text-xl mr-3" />
+                  <input
+                    className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                     placeholder="Email Id"
                     type="email"
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </OutlinedBox>
-                <Error error={emailError}>{emailError}</Error>
-                <OutlinedBox>
-                  <PasswordRounded
-                    sx={{ fontSize: "20px" }}
-                    style={{ paddingRight: "12px" }}
-                  />
-                  <TextInput
+                </div>
+                {emailError && <div className="text-red-500 text-xs mx-7 my-0.5">{emailError}</div>}
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                  <PasswordRounded className="text-xl mr-3" />
+                  <input
+                    className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                     placeholder="Password"
                     type={values.showPassword ? "text" : "password"}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                   <IconButton
                     color="inherit"
-                    onClick={() =>
-                      setValues({ ...values, showPassword: !values.showPassword })
-                    }
+                    onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
                   >
                     {values.showPassword ? (
-                      <Visibility sx={{ fontSize: "20px" }} />
+                      <Visibility className="text-xl" />
                     ) : (
-                      <VisibilityOff sx={{ fontSize: "20px" }} />
+                      <VisibilityOff className="text-xl" />
                     )}
                   </IconButton>
-                </OutlinedBox>
-                <OutlinedBox style={{ marginTop: "10px" }}>
+                </div>
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 mt-3 flex items-center px-4">
                   <input
                     type="checkbox"
                     id="admin"
                     checked={isAdmin}
-                    onChange={(e) => { 
-                      setIsAdmin(e.target.checked); 
-                      console.log(e.target.checked);
-                    }}
+                    onChange={(e) => setIsAdmin(e.target.checked)}
+                    className="mr-3"
                   />
-                  <label htmlFor="admin" style={{ paddingLeft: "12px" }}>
-                    Admin
-                  </label>
-                </OutlinedBox>
-  
-                <Error error={credentialError}>{credentialError}</Error>
-                {/* Show blocked account message */}
-                {userBlocked && (
-                  <Error error={credentialError}>
-                    {credentialError}
-                  </Error>
-                )}
-                <ForgetPassword onClick={() => { setShowForgotPassword(true) }}>
+                  <label htmlFor="admin">Admin</label>
+                </div>
+                {credentialError && <div className="text-red-500 text-xs mx-7 my-0.5">{credentialError}</div>}
+                {userBlocked && <div className="text-red-500 text-xs mx-7 my-0.5">{credentialError}</div>}
+                <div 
+                  className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
+                  onClick={() => setShowForgotPassword(true)}
+                >
                   <b>Forgot password ?</b>
-                </ForgetPassword>
-                <OutlinedBox
-                  button={true}
-                  activeButton={!disabled}
-                  style={{ marginTop: "6px" }}
+                </div>
+                <div
+                  className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
+                    ${disabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
                   onClick={handleLogin}
                 >
                   {Loading ? (
@@ -519,98 +356,80 @@ const [apiResponse, setApiResponse] = useState(null);
                   ) : (
                     "Sign In"
                   )}
-                </OutlinedBox>
+                </div>
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 flex justify-center items-center">
+                  Don't have an account ?
+                  <span
+                    className="text-blue-500 dark:text-blue-400 ml-1.5 cursor-pointer"
+                    onClick={() => {
+                      setSignUpOpen(true);
+                      setSignInOpen(false);
+                    }}
+                  >
+                    Create Account
+                  </span>
+                </div>
               </>
             )}
-            <LoginText>
-              Don't have an account ?
-              <Span
-                onClick={() => {
-                  setSignUpOpen(true);
-                  setSignInOpen(false);
-                }}
-                style={{
-                  fontWeight: "500",
-                  marginLeft: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Create Account
-              </Span>
-            </LoginText>
-          </Wrapper>
+          </div>
         ) : (
-          <Wrapper>
+          <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
             <CloseRounded
-              style={{
-                position: "absolute",
-                top: "24px",
-                right: "30px",
-                cursor: "pointer",
-              }}
-              onClick={() => { closeForgetPassword() }}
+              className="absolute top-6 right-8 cursor-pointer"
+              onClick={closeForgetPassword}
             />
-            {!showOTP ?
+            {!showOTP ? (
               <>
-                <Title>Reset Password</Title>
-                {resettingPassword ?
-                  <div style={{ padding: '12px 26px', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', justifyContent: 'center' }}>
+                <div className="text-[22px] font-medium mx-7 my-4">Reset Password</div>
+                {resettingPassword ? (
+                  <div className="px-7 pb-5 text-center flex flex-col items-center gap-3.5 justify-center">
                     Updating password
                     <CircularProgress color="inherit" size={20} />
                   </div>
-                  :
+                ) : (
                   <>
-                    <OutlinedBox style={{ marginTop: "24px" }}>
-                      <EmailRounded
-                        sx={{ fontSize: "20px" }}
-                        style={{ paddingRight: "12px" }}
-                      />
-                      <TextInput
+                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+                      <EmailRounded className="text-xl mr-3" />
+                      <input
+                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                         placeholder="Email Id"
                         type="email"
                         onChange={(e) => setEmail(e.target.value)}
                       />
-                    </OutlinedBox>
-                    <Error error={emailError}>{emailError}</Error>
-                    <OutlinedBox>
-                      <PasswordRounded
-                        sx={{ fontSize: "20px" }}
-                        style={{ paddingRight: "12px" }}
-                      />
-                      <TextInput
+                    </div>
+                    {emailError && <div className="text-red-500 text-xs mx-7 my-0.5">{emailError}</div>}
+                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                      <PasswordRounded className="text-xl mr-3" />
+                      <input
+                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                         placeholder="New Password"
                         type="text"
                         onChange={(e) => setNewpassword(e.target.value)}
                       />
-                    </OutlinedBox>
-                    <OutlinedBox>
-                      <PasswordRounded
-                        sx={{ fontSize: "20px" }}
-                        style={{ paddingRight: "12px" }}
-                      />
-                      <TextInput
+                    </div>
+                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                      <PasswordRounded className="text-xl mr-3" />
+                      <input
+                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                         placeholder="Confirm Password"
                         type={values.showPassword ? "text" : "password"}
                         onChange={(e) => setConfirmedpassword(e.target.value)}
                       />
                       <IconButton
                         color="inherit"
-                        onClick={() =>
-                          setValues({ ...values, showPassword: !values.showPassword })
-                        }
+                        onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
                       >
                         {values.showPassword ? (
-                          <Visibility sx={{ fontSize: "20px" }} />
+                          <Visibility className="text-xl" />
                         ) : (
-                          <VisibilityOff sx={{ fontSize: "20px" }} />
+                          <VisibilityOff className="text-xl" />
                         )}
                       </IconButton>
-                    </OutlinedBox>
-                    <Error error={samepassword}>{samepassword}</Error>
-                    <OutlinedBox
-                      button={true}
-                      activeButton={!resetDisabled}
-                      style={{ marginTop: "6px", marginBottom: "24px" }}
+                    </div>
+                    {samepassword && <div className="text-red-500 text-xs mx-7 my-0.5">{samepassword}</div>}
+                    <div
+                      className={`h-11 rounded-xl mx-5 mt-1.5 mb-6 flex items-center justify-center text-sm font-medium cursor-pointer
+                        ${resetDisabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
                       onClick={() => sendOtp()}
                     >
                       {Loading ? (
@@ -618,36 +437,36 @@ const [apiResponse, setApiResponse] = useState(null);
                       ) : (
                         "Submit"
                       )}
-                    </OutlinedBox>
-                    <LoginText>
+                    </div>
+                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 flex justify-center items-center">
                       Don't have an account ?
-                      <Span
+                      <span
+                        className="text-blue-500 dark:text-blue-400 ml-1.5 cursor-pointer"
                         onClick={() => {
                           setSignUpOpen(true);
                           setSignInOpen(false);
                         }}
-                        style={{
-                          fontWeight: "500",
-                          marginLeft: "6px",
-                          cursor: "pointer",
-                        }}
                       >
                         Create Account
-                      </Span>
-                    </LoginText>
+                      </span>
+                    </div>
                   </>
-                }
+                )}
               </>
-              :
-              <OTP email={email} name="User" otpVerified={otpVerified} setOtpVerified={setOtpVerified} reason="FORGOTPASSWORD" />
-            }
-          </Wrapper>
+            ) : (
+              <OTP 
+                email={email} 
+                name="User" 
+                otpVerified={otpVerified} 
+                setOtpVerified={setOtpVerified} 
+                reason="FORGOTPASSWORD" 
+              />
+            )}
+          </div>
         )}
-      </Container>
+      </div>
     </Modal>
-    ) : null
-  );
-  
+  ) : null;
 };
 
 export default SignIn;
