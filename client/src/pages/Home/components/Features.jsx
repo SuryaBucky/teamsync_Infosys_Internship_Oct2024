@@ -1,172 +1,8 @@
-import styled from 'styled-components';
 import HeroBgAnimation from './HeroBgAnimation';
 import Groups3Icon from '@mui/icons-material/Groups3';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import PublicIcon from '@mui/icons-material/Public';
-
-const FeaturesWrapper = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #13111C;
-  padding-bottom: 200px;
-  margin-top: -80px;
-  background: linear-gradient(343.07deg, rgba(23, 92, 230, 0.02) 2.71%, rgba(23, 92, 230, 0.0) 64.83%);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 95%, 0 100%);
-  
-  @media (max-width: 768px) {
-    padding-bottom: 100px;
-    margin-top: -40px;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 98%, 0 100%);
-  }
-`;
-
-const Number = styled.div`
-  width: 70px;
-  height: 70px;
-  font-size: 36px;
-  font-weight: 800;
-  color: #306EE8;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  border: 6px solid #306EE8;
-  background-color: rgba(48, 110, 232, 0.1);
-  margin-bottom: 20px;
-
-  @media (max-width: 768px) {
-    width: 50px;
-    height: 50px;
-    font-size: 32px;
-  }
-`;
-
-const FeaturesTitle = styled.div`
-  font-size: 52px;
-  text-align: center;
-  font-weight: 800;
-  margin-top: 20px;
-  color: #306EE8;
-  
-  @media (max-width: 768px) {
-    margin-top: 12px;
-    font-size: 36px;
-  }
-`;
-
-const FeatureDescription = styled.p`
-  font-size: 20px;
-  line-height: 1.5;
-  font-weight: 600;
-  width: 100%;
-  max-width: 700px;
-  text-align: center;
-  color: hsl(246,  6%, 65%);
-  margin-bottom: 80px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    font-size: 16px;
-    margin-bottom: 60px;
-  }
-`;
-
-const Content = styled.div`
-  position: relative;
-`;
-
-const FeaturesContainer = styled.div`
-  position: relative;
-  z-index: 1;
-  grid-template-columns: repeat(2, 1fr);
-  display: grid;
-  grid-column-gap: 60px;
-  grid-row-gap: 60px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(1, 1fr);
-    grid-column-gap: 30px;
-    grid-row-gap: 30px;
-  }
-`;
-
-const FeatureCard = styled.div`
-  width: 350px;
-  height: 220px;
-  position: relative;
-  background-color: hsl(250, 24%, 9%);
-  border: 0.1px solid #306EE8;
-  border-radius: 16px;
-  padding: 24px 42px;
-  box-shadow: rgba(23, 92, 230, 0.15) 0px 4px 24px;
-  transition: transform 0.2s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align content to the start */
-
-  &:hover {
-    transform: translateY(-10px);
-  }
-
-  @media (max-width: 925px) {
-    width: 300px;
-  }
-
-  @media (max-width: 728px) {
-    padding: 20px 20px;
-  }
-`;
-
-const FeatureIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  color: #306EE8;
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  flex-shrink: 0;
-  border-top-right-radius: 40%;
-  border-top-left-radius: 60%;
-  border-bottom-left-radius: 40%;
-  border-bottom-right-radius: 16px;
-  border: 2px solid hsl(220, 80%, 75%, 30%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  @media (max-width: 925px) {
-    width: 60px;
-    height: 60px;
-  }
-`;
-
-const FeatureTitle = styled.div`
-  font-size: 20px;
-  color: hsl(220, 80%, 75%);
-  margin-bottom: 10px;
-  margin-top: 16px;
-  font-weight: 600;
-`;
-
-const FeatureCardDescription = styled.div`
-  font-size: 16px;
-  line-height: 1.5;
-  color: hsl(246,  6%, 65%);
-`;
-
-const BgImage = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
 
 const featuresData = [
   {
@@ -193,29 +29,48 @@ const featuresData = [
 
 const Features = () => {
   return (
-    <FeaturesWrapper id="features">
-      <Number>1</Number>
-      <FeaturesTitle>Key Features</FeaturesTitle>
-      <FeatureDescription>Discover how our app simplifies project management and makes collaboration effortless.</FeatureDescription>
-      <Content>
-        <FeaturesContainer>
+    <section
+      id="features"
+      className="flex flex-col items-center bg-[#13111C] pb-[200px] -mt-20 bg-gradient-to-t from-transparent via-[rgba(23,92,230,0.02)] to-[rgba(23,92,230,0)] clip-path-polygon-custom lg:pb-[200px] md:pb-[100px]"
+    >
+      <div className="w-[70px] h-[70px] text-[36px] font-extrabold text-[#306EE8] flex justify-center items-center rounded-full border-4 border-[#306EE8] bg-opacity-10 bg-[#306EE8] mb-5 md:w-[50px] md:h-[50px] md:text-[32px]">
+        1
+      </div>
+
+      <h2 className="text-[#306EE8] text-center text-[52px] font-extrabold mt-5 md:text-[36px] md:mt-3">
+        Key Features
+      </h2>
+
+      <p className="text-center text-[20px] leading-relaxed font-semibold text-gray-400 max-w-[700px] mb-20 md:text-[16px] md:mb-12">
+        Discover how our app simplifies project management and makes collaboration effortless.
+      </p>
+
+      <div className="relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-8">
           {featuresData.map((feature, index) => (
-            <FeatureCard key={index}>
+            <div
+              key={index}
+              className="relative w-[380px] h-[260px] bg-[#1E2131] border border-[#306EE8] rounded-lg p-8 shadow-md transition-transform duration-200 ease-in-out hover:translate-y-[-10px] md:w-[320px] md:h-[240px] md:p-6"
+            >
               <div>
-                <FeatureTitle>{feature.title}</FeatureTitle>
-                <FeatureCardDescription>{feature.description}</FeatureCardDescription>
+                <h3 className="text-[22px] font-semibold text-[#65a4f8] mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-[16px] text-gray-400 leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
-              <FeatureIcon>
+              <div className="absolute bottom-2 right-2 w-[50px] h-[50px] flex justify-center items-center border-2 border-[#65a4f8] rounded-[40%_60%_40%_16px] text-[#306EE8] p-3 md:w-[60px] md:h-[60px]">
                 {feature.icon}
-              </FeatureIcon>
-            </FeatureCard>
+              </div>
+            </div>
           ))}
-        </FeaturesContainer>
-        <BgImage>
+        </div>
+        <div className="hidden md:block absolute inset-0 z-0">
           <HeroBgAnimation />
-        </BgImage>
-      </Content>
-    </FeaturesWrapper>
+        </div>
+      </div>
+    </section>
   );
 };
 

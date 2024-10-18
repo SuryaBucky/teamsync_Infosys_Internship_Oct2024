@@ -17,6 +17,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import validator from "validator";
 import { signUp } from "../api/index";
 import OTP from "./OTP";
+import axios from "axios";
 
 const Container = styled.div`
   width: 100%;
@@ -135,47 +136,47 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
 
   const dispatch = useDispatch();
 
-  const createAccount = () => {
+  const createAccount = async () => {
     if (otpVerified) {
-      dispatch(loginStart());
-      setDisabled(true);
-      setLoading(true);
-      try {
-        signUp({ name, email, password }).then((res) => {
-          if (res.status === 200) {
-            dispatch(loginSuccess(res.data));
-            dispatch(
-              openSnackbar({ message: `OTP verified & Account created successfully`, severity: "success" })
-            );
-            setLoading(false);
-            setDisabled(false);
-            setSignUpOpen(false);
-            setSignInOpen(false);
-          } else {
-            dispatch(loginFailure());
-            setcredentialError(`${res.data.message}`);
-            setLoading(false);
-            setDisabled(false);
-          }
-        });
-      } catch (err) {
-        dispatch(loginFailure());
-        setLoading(false);
-        setDisabled(false);
-        dispatch(
-          openSnackbar({
-            message: err.message,
-            severity: "error",
-          })
-        );
-      }
+      
     }
   };
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (!disabled) {
-      setOtpSent(true);
+      dispatch(loginStart());
+      setDisabled(true);
+      setLoading(true);
+
+      try {
+        const res = await axios.post("http://localhost:3001/user/signup", {
+          email,
+          password,
+          name,
+        });
+
+        if (res.status === 201) {
+          dispatch(loginSuccess(res.data));
+          dispatch(openSnackbar({ message: `Account created successfully`, severity: "success" }));
+          setLoading(false);
+          setDisabled(false);
+          setSignUpOpen(false);
+          setSignInOpen(false);
+        } else if (res.status === 400 || res.status === 500) {
+          dispatch(loginFailure());
+          setcredentialError(res.data.errors[0]); // Display only the first error
+          setLoading(false);
+          setDisabled(false);
+          setOtpSent(true);
+        }
+      } catch (err) {
+        dispatch(loginFailure());
+        setLoading(false);
+        setDisabled(false);
+        dispatch(openSnackbar({ message: err.message, severity: "error" }));
+      }
     }
 
     if (name === "" || email === "" || password === "") {
