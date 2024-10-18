@@ -98,6 +98,71 @@ router.put("/edit-user", validateUserUpdate, async (req, res) => {
     }
 });
 
+//post request to send resetotp to users mail id 
+router.post("/reset",async (req,res)=>{
+    //extract email from req body
+    const {email}=req.body;
+    if(!email){
+        return res.status(400).json({
+            errors: ["Email is required."],
+        });
+    }
+    //find user with that email
+    const user=await User.findOne({email});
+    //if no user found send error
+    if(!user){
+        return res.status(400).json({
+            errors: ["No user with this email exists."],
+        });
+    }
+    //if user found check if his state is not blocked
+    if(user.state==="blocked"){
+        return res.status(400).json({
+            errors: ["User is blocked."],
+        });
+    }
+    //if user state is verified send otp to user email
+    //send otp to user email
+    await sendOtpEmail(user.email,user.reset_otp,"Your One Time Password(OTP) for resetting your password is: ");
+    return res.status(200).json({
+        message: "OTP sent to user's email.",
+    });
+})
+
+router.put("/reset",async (req,res)=>{
+    //extract email and otp from req body
+    const {email,resetOtp,password}=req.body;
+    //find user with that email
+    const userOne=await User.findOne({
+        email
+    })
+    //if no user found send error
+    if(!userOne){
+        return res.status(400).json({
+            errors: ["No user with this email exists."],
+        });
+    }
+    //if user found check if his state is not blocked
+    if(userOne.state==="blocked"){
+        return res.status(400).json({
+            errors: ["User is blocked."],
+        });
+    }
+    //if otp is correct update user password
+    if(userOne.reset_otp===resetOtp){
+        userOne.password_hash = await bcrypt.hash(password, 10);
+        //generate a new otp of 6 digit  number and make it string and update that otp in db
+        userOne.reset_otp=Math.floor(100000 + Math.random() * 900000).toString();
+        await userOne.save();
+        return res.status(200).json({
+            message: "Password reset successfully.",
+        });
+    }
+    return res.status(400).json({
+        errors: ["Enter a valid OTP."],
+    });
+})
+
 router.post("/verify",async (req,res)=>{
     //extract email from req body
     const {email}=req.body;
@@ -171,6 +236,10 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
         return res.status(200).json({
             message: "User verified successfully.",
             token,
+        });
+    }else{
+        return res.status(400).json({
+            errors: ["Enter a valid OTP."],
         });
     }
 })
