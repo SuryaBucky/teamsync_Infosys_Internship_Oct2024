@@ -9,7 +9,6 @@ import axios from 'axios';
 import { loginSuccess } from '../redux/userSlice'; // Import loginSuccess action
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirect
 
-// Styled component for the title
 const Title = styled.div`
   font-size: 22px;
   font-weight: 500;
@@ -17,7 +16,6 @@ const Title = styled.div`
   margin: 16px 22px;
 `;
 
-// Styled component for the outlined button
 const OutlinedBox = styled.div`
   height: 44px;
   border-radius: 12px;
@@ -41,22 +39,18 @@ const OutlinedBox = styled.div`
         `user-select: none; border: none; background: ${theme.primary}; color: white;`}
 `;
 
-// Styled component for the login text
 const LoginText = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: ${({ theme }) => theme.soft2};
   margin: 0px 26px 0px 26px;
 `;
-
-// Styled component for the span
 const Span = styled.span`
   color: ${({ theme }) => theme.primary};
   font-size: 12px;
   margin: 0px 26px 0px 26px;
 `;
 
-// Styled component for error messages
 const Error = styled.div`
   color: red;
   font-size: 12px;
@@ -65,7 +59,6 @@ const Error = styled.div`
   ${({ error }) => error === "" && `display: none;`}
 `;
 
-// Styled component for the timer
 const Timer = styled.div`
   color: ${({ theme }) => theme.soft2};
   font-size: 12px;
@@ -73,7 +66,6 @@ const Timer = styled.div`
   display: block;
 `;
 
-// Styled component for the resend option
 const Resend = styled.div`
   color: ${({ theme }) => theme.primary};
   font-size: 14px;
@@ -82,37 +74,23 @@ const Resend = styled.div`
   cursor: pointer;
 `;
 
-/**
- * OTP Component for handling OTP verification.
- * @param {Object} props - Component properties.
- * @param {string} props.email - The user's email address.
- * @param {string} props.name - The user's name.
- * @param {boolean} props.otpVerified - Indicates if the OTP has been verified.
- * @param {Function} props.setOtpVerified - Function to set OTP verified state.
- * @param {string} props.reason - Reason for OTP verification.
- */
-
 const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate()
 
-    const [otp, setOtp] = useState(''); // State for storing OTP input
-    const [otpError, setOtpError] = useState(''); // State for storing OTP error messages
-    const [otpLoading, setOtpLoading] = useState(false); // State to indicate loading status
-    const [disabled, setDisabled] = useState(true); // State to control button enable/disable
-    const [showTimer, setShowTimer] = useState(false); // State to show/hide timer
-    const [otpSent, setOtpSent] = useState(false); // State to indicate if OTP has been sent
-    const [timer, setTimer] = useState('00:00'); // State for timer display
+    const [otp, setOtp] = useState('');
+    const [otpError, setOtpError] = useState('');
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [disabled, setDisabled] = useState(true);
+    const [showTimer, setShowTimer] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [timer, setTimer] = useState('00:00');
 
-    const Ref = useRef(null); // Reference for timer interval
+    const Ref = useRef(null);
 
     
-    /**
-     * Calculate the remaining time until the deadline.
-     * @param {Date} e - The deadline date.
-     * @returns {Object} - Object containing total time and minutes/seconds remaining.
-     */
+
     const getTimeRemaining = (e) => {
         const total = Date.parse(e) - Date.parse(new Date());
         const seconds = Math.floor((total / 1000) % 60);
@@ -120,10 +98,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
         return { total, minutes, seconds };
     };
 
-    /**
-     * Start the timer by calculating remaining time.
-     * @param {Date} e - The deadline date.
-     */
     const startTimer = (e) => {
         let { total, minutes, seconds } = getTimeRemaining(e);
         if (total >= 0) {
@@ -134,10 +108,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
         }
     };
 
-    /**
-     * Clear the existing timer and start a new one.
-     * @param {Date} e - The deadline date.
-     */
     const clearTimer = (e) => {
         setTimer('01:00');
         if (Ref.current) clearInterval(Ref.current);
@@ -147,28 +117,18 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
         Ref.current = id;
     };
 
-    /**
-     * Get the deadline time for OTP expiration.
-     * @returns {Date} - The deadline date object.
-     */
     const getDeadTime = () => {
         let deadline = new Date();
         deadline.setSeconds(deadline.getSeconds() + 60);
         return deadline;
     };
 
-    /**
-     * Resend the OTP and reset the timer.
-     */
     const resendOtp = () => {
         setShowTimer(true);
         clearTimer(getDeadTime());
         sendOtp();
     };
 
-    /**
-     * Send the OTP to the user's email address via an API call.
-     */
     const sendOtp = async () => {
         try {
             const response = await axios.post('http://localhost:3001/user/verify', { email });
@@ -199,9 +159,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
         }
     };
 
-    /**
-     * Validate the entered OTP by sending it to the server for verification.
-     */
     const validateOtp = async () => {
         setOtpLoading(true);
         setDisabled(true);
@@ -248,13 +205,16 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             setDisabled(false);
         }
     };
-    // Effect to send OTP on component mount and start timer
+    //hello
+    
+    
+
+    //tst
     useEffect(() => {
         sendOtp();
         clearTimer(getDeadTime());
     }, []);
 
-    // Effect to manage timer visibility based on countdown
     useEffect(() => {
         if (timer === '00:00') {
             setShowTimer(false);
@@ -263,14 +223,13 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
         }
     }, [timer]);
 
-     // Effect to enable/disable button based on OTP length
     useEffect(() => {
         if (otp.length === 6) {
             setDisabled(false);
         } else {
             setDisabled(true);
         }
-    }, [otp]); // Dependency array: effect runs whenever 'otp' changes
+    }, [otp]);
 
     return (
         <div>
@@ -285,7 +244,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 <div>
                     <OtpInput
                         value={otp}
-                        onChange={setOtp} // Update OTP state on change
+                        onChange={setOtp}
                         numInputs={6}
                         shouldAutoFocus={true}
                         inputStyle={{ fontSize: "22px", width: "38px", height: "38px", borderRadius: "5px", border: "1px solid #ccc", textAlign: "center", margin: "6px 4px", backgroundColor: 'transparent', color: theme.text }}
@@ -296,21 +255,21 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
 
                     <OutlinedBox
                         button={true}
-                        activeButton={!disabled} // Button is active if not
+                        activeButton={!disabled}
                         style={{ marginTop: "12px", marginBottom: "12px" }}
                         onClick={validateOtp}
                     >
                         {otpLoading ? (
                             <CircularProgress color="inherit" size={20} />
                         ) : (
-                            "Submit" // Button text when not loading
+                            "Submit"
                         )}
                     </OutlinedBox>
 
                     {showTimer ? (
                         <Timer>Resend in <b>{timer}</b></Timer>
                     ) : (
-                        <Resend onClick={resendOtp}><b>Resend</b></Resend> // Resend button when timer is not shown
+                        <Resend onClick={resendOtp}><b>Resend</b></Resend>
                     )}
                 </div>
             )}
