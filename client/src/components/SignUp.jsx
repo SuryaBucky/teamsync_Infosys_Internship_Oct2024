@@ -7,7 +7,6 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import { useTheme } from "styled-components";
 import { IconButton, Modal } from "@mui/material";
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
@@ -15,107 +14,10 @@ import { openSnackbar } from "../redux/snackbarSlice";
 import { useDispatch } from "react-redux";
 import CircularProgress from "@mui/material/CircularProgress";
 import validator from "validator";
-import { signUp } from "../api/index";
-import OTP from "./OTP";
 import axios from "axios";
-
-const Container = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #000000a7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Wrapper = styled.div`
-  width: 360px;
-  border-radius: 30px;
-  background-color: ${({ theme }) => theme.bgLighter};
-  color: ${({ theme }) => theme.text};
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
-const Title = styled.div`
-  font-size: 22px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  margin: 16px 28px;
-`;
-const OutlinedBox = styled.div`
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.soft2};
-  color: ${({ theme }) => theme.soft2};
-  ${({ googleButton, theme }) =>
-    googleButton &&
-    `
-    user-select: none; 
-  gap: 16px;`}
-  ${({ button, theme }) =>
-    button &&
-    `
-    user-select: none; 
-  border: none;
-    background: ${theme.itemHover};
-    color: '${theme.soft2}';`}
-    ${({ activeButton, theme }) =>
-    activeButton &&
-    `
-    user-select: none; 
-  border: none;
-    background: ${theme.primary};
-    color: white;`}
-  margin: 3px 20px;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-  padding: 0px 14px;
-`;
-const TextInput = styled.input`
-  width: 100%;
-  border: none;
-  font-size: 14px;
-  border-radius: 3px;
-  background-color: transparent;
-  outline: none;
-  color: ${({ theme }) => theme.textSoft};
-`;
-
-const LoginText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.soft2};
-  margin: 20px 20px 38px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-const Span = styled.span`
-  color: ${({ theme }) => theme.primary};
-`;
-
-const Error = styled.div`
-  color: red;
-  font-size: 10px;
-  margin: 2px 26px 8px 26px;
-  display: block;
-  ${({ error, theme }) =>
-    error === "" &&
-    `    display: none;
-    `}
-`;
+import OTP from "./OTP";
 
 const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
-
   const [nameValidated, setNameValidated] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -123,7 +25,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
   const [Loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [emailError, setEmailError] = useState("");
-  const [credentialError, setcredentialError] = useState("");
+  const [credentialError, setCredentialError] = useState("");
   const [passwordCorrect, setPasswordCorrect] = useState(false);
   const [nameCorrect, setNameCorrect] = useState(false);
   const [values, setValues] = useState({
@@ -136,48 +38,8 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
 
   const dispatch = useDispatch();
 
-  const createAccount = async () => {
-    if (otpVerified) {
-      
-    }
-  };
-
-
   const handleSignUp = async (e) => {
     e.preventDefault();
-    if (!disabled) {
-      dispatch(loginStart());
-      setDisabled(true);
-      setLoading(true);
-
-      try {
-        const res = await axios.post("http://localhost:3001/user/signup", {
-          email,
-          password,
-          name,
-        });
-
-        if (res.status === 201) {
-          dispatch(loginSuccess(res.data));
-          dispatch(openSnackbar({ message: `Account created successfully`, severity: "success" }));
-          setLoading(false);
-          setDisabled(false);
-          setSignUpOpen(false);
-          setSignInOpen(false);
-        } else if (res.status === 400 || res.status === 500) {
-          dispatch(loginFailure());
-          setcredentialError(res.data.errors[0]); // Display only the first error
-          setLoading(false);
-          setDisabled(false);
-          setOtpSent(true);
-        }
-      } catch (err) {
-        dispatch(loginFailure());
-        setLoading(false);
-        setDisabled(false);
-        dispatch(openSnackbar({ message: err.message, severity: "error" }));
-      }
-    }
 
     if (name === "" || email === "" || password === "") {
       dispatch(
@@ -186,6 +48,44 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           severity: "error",
         })
       );
+      return;
+    }
+
+    try {
+      setLoading(true);
+      dispatch(loginStart());
+
+      const response = await axios.post("http://localhost:3001/user/signup", {
+        email,
+        name,
+        password,
+      });
+
+      if (response.status === 201) {
+        dispatch(
+          openSnackbar({ message: "Account created successfully. Please verify your OTP.", severity: "success" })
+        );
+        setOtpSent(true);
+      }
+    } catch (error) {
+      setLoading(false);
+      setDisabled(false);
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 400) {
+          setCredentialError(data.message);
+        } else if (status === 500) {
+          dispatch(openSnackbar({ message: "Internal Server Error", severity: "error" }));
+        } else {
+          dispatch(loginFailure());
+          setCredentialError("An unexpected error occurred. Please try again.");
+        }
+      } else {
+        dispatch(loginFailure());
+        setCredentialError("Network error. Please check your connection.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -205,11 +105,12 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     }
   }, [name, email, passwordCorrect, password, nameCorrect]);
 
-  useEffect(() => {
-    createAccount();
-  }, [otpVerified]);
+  const createAccount = () => {
+    if (otpVerified) {
+      dispatch(openSnackbar({ message: "Your account has been verified!", severity: "success" }));
+    }
+  };
 
-  //validate email
   const validateEmail = () => {
     if (validator.isEmail(email)) {
       setEmailError("");
@@ -218,13 +119,12 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     }
   };
 
-  //validate password
   const validatePassword = () => {
     if (password.length < 8) {
-      setcredentialError("Password must be atleast 8 characters long!");
+      setCredentialError("Password must be at least 8 characters long!");
       setPasswordCorrect(false);
     } else if (password.length > 16) {
-      setcredentialError("Password must be less than 16 characters long!");
+      setCredentialError("Password must be less than 16 characters long!");
       setPasswordCorrect(false);
     } else if (
       !password.match(/[a-z]/g) ||
@@ -233,136 +133,126 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
       !password.match(/[^a-zA-Z\d]/g)
     ) {
       setPasswordCorrect(false);
-      setcredentialError(
-        "Password must contain atleast one lowercase, uppercase, number and special character!"
+      setCredentialError(
+        "Password must contain at least one lowercase, uppercase, number, and special character!"
       );
     } else {
-      setcredentialError("");
+      setCredentialError("");
       setPasswordCorrect(true);
     }
   };
 
-  //validate name
   const validateName = () => {
     if (name.length < 4) {
       setNameValidated(false);
       setNameCorrect(false);
-      setcredentialError("Name must be atleast 4 characters long!");
+      setCredentialError("Name must be at least 4 characters long!");
     } else {
       setNameCorrect(true);
       if (!nameValidated) {
-        setcredentialError("");
+        setCredentialError("");
         setNameValidated(true);
       }
-
     }
   };
 
-
-
   const theme = useTheme();
-  //ssetSignInOpen(false)
+
   return (
     <Modal open={true} onClose={() => setSignInOpen(false)}>
-      <Container>
-        <Wrapper>
+      <div className="w-full h-full absolute top-0 left-0 bg-black/70 flex items-center justify-center">
+        <div className="w-[360px] rounded-[30px] bg-white dark:bg-zinc-900 text-black dark:text-white p-3 flex flex-col relative">
           <CloseRounded
-            style={{
-              position: "absolute",
-              top: "24px",
-              right: "30px",
-              cursor: "pointer",
-            }}
+            className="absolute top-6 right-8 cursor-pointer"
             onClick={() => setSignUpOpen(false)}
           />
-          {!otpSent ?
+          {!otpSent ? (
             <>
-              <Title>Sign Up</Title>
-              <OutlinedBox style={{ marginTop: "24px" }}>
+              <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4">
+                Sign Up
+              </h1>
+              <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4 mt-6">
                 <Person
                   sx={{ fontSize: "20px" }}
-                  style={{ paddingRight: "12px" }}
+                  className="pr-3"
                 />
-                <TextInput
+                <input
+                  className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
                   placeholder="Full Name"
                   type="text"
                   onChange={(e) => setName(e.target.value)}
                 />
-              </OutlinedBox>
-              <OutlinedBox>
+              </div>
+              <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4">
                 <EmailRounded
                   sx={{ fontSize: "20px" }}
-                  style={{ paddingRight: "12px" }}
+                  className="pr-3"
                 />
-                <TextInput
-                  placeholder="Email Id"
+                <input
+                  className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
+                  placeholder="Email"
                   type="email"
                   onChange={(e) => setEmail(e.target.value)}
                 />
-              </OutlinedBox>
-              <Error error={emailError}>{emailError}</Error>
-              <OutlinedBox>
+              </div>
+              {emailError && (
+                <p className="text-red-500 text-xs mx-6 my-[2px] mb-2">
+                  {emailError}
+                </p>
+              )}
+              <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4">
                 <PasswordRounded
                   sx={{ fontSize: "20px" }}
-                  style={{ paddingRight: "12px" }}
+                  className="pr-3"
                 />
-                <TextInput
+                <input
+                  className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
+                  placeholder="Password"
                   type={values.showPassword ? "text" : "password"}
-                  placeholder="password"
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <IconButton
-                  color="inherit"
-                  onClick={() =>
-                    setValues({ ...values, showPassword: !values.showPassword })
-                  }
+                  onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
                 >
-                  {values.showPassword ? (
-                    <Visibility sx={{ fontSize: "20px" }} />
-                  ) : (
-                    <VisibilityOff sx={{ fontSize: "20px" }} />
-                  )}
+                  {values.showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
-              </OutlinedBox>
-              <Error error={credentialError}>{credentialError}</Error>
-              <OutlinedBox
-                button={true}
-                activeButton={!disabled}
-                style={{ marginTop: "6px" }}
-                onClick={handleSignUp}
-              >
-                {Loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : (
-                  "Create Account"
-                )}
-              </OutlinedBox>
-
-
-
+              </div>
+              {credentialError && (
+                <p className="text-red-500 text-xs mx-6 my-[2px] mb-2">
+                  {credentialError}
+                </p>
+              )}
+              <div className="px-5">
+                <button
+                  onClick={handleSignUp}
+                  disabled={disabled}
+                  className={`w-full h-11 text-white rounded-md text-base mt-3 transition-colors
+                    ${disabled 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
+                    }`}
+                >
+                  {Loading ? <CircularProgress color="inherit" size={24} /> : "Sign Up"}
+                </button>
+              </div>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 mb-10 flex justify-center items-center">
+                Already have an account?{" "}
+                <span
+                  className="text-blue-500 cursor-pointer"
+                  onClick={() => {
+                    setSignInOpen(true);
+                    setSignUpOpen(false);
+                  }}
+                >
+                  Sign In
+                </span>
+              </p>
             </>
-
-            :
-            <OTP email={email} name={name} otpVerified={otpVerified} setOtpVerified={setOtpVerified} />
-          }
-          <LoginText>
-            Already have an account ?
-            <Span
-              onClick={() => {
-                setSignUpOpen(false);
-                setSignInOpen(true);
-              }}
-              style={{
-                fontWeight: "500",
-                marginLeft: "6px",
-                cursor: "pointer",
-              }}
-            >
-              Sign In
-            </Span>
-          </LoginText>
-        </Wrapper>
-      </Container>
+          ) : (
+            <OTP email={email} setOtpVerified={setOtpVerified} createAccount={createAccount} />
+          )}
+        </div>
+      </div>
     </Modal>
   );
 };
