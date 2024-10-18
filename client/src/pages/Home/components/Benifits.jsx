@@ -115,7 +115,7 @@ const FeatureIcon = styled.div`
   height: 60px; /* Reduced size for better aesthetics */
   color: #854CE6;
   position: absolute;
-  bottom: -10px; /* Adjusted position */
+  bottom: 10px; /* Adjusted position */
   right: 10px; /* Adjusted position */
   border-radius: 50%;
   border: 2px solid hsl(220, 80%, 75%, 30%);
