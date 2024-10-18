@@ -169,35 +169,29 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             });
     
             if (response.status === 200) {
-                // Extract the token from the response
                 const token = response.data.token;
-
-                // Dispatch loginSuccess to update Redux state
+    
                 dispatch(loginSuccess({ token }));
-    
-                // Store the token in localStorage
                 localStorage.setItem('token', token);
-    
-                // Mark the user as logged in (set state or handle login logic)
                 setOtpVerified(true);
-    
-                // Clear OTP input and error
                 setOtp('');
                 setOtpError('');
                 setDisabled(false);
-                setOtpLoading(false);
-    
                 dispatch(openSnackbar({
                     message: "OTP verified successfully!",
                     severity: "success",
                 }));
                 window.location.reload();
-
-                navigate("/")
+                navigate("/");
+    
             } else {
-                setOtpError(response.data.message);
-                setDisabled(false);
                 setOtpLoading(false);
+                setDisabled(false);
+                setOtpError(response.data.message);
+                dispatch(openSnackbar({
+                    message: response.data.message,
+                    severity: "error",
+                }));
             }
         } catch (err) {
             dispatch(openSnackbar({
@@ -205,10 +199,13 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 severity: "error",
             }));
             setOtpError(err.message);
-            setDisabled(false);
+        } finally {
+            // Ensure loading state is reset in all cases
             setOtpLoading(false);
+            setDisabled(false);
         }
     };
+    
     
 
     useEffect(() => {
