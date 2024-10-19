@@ -66,7 +66,7 @@ const Features = () => {
           ))}
         </div>
         <div className="hidden md:block absolute inset-0 z-0">
-          <HeroBgAnimation />
+          <center><HeroBgAnimation /></center>
         </div>
       </div>
     </section>
