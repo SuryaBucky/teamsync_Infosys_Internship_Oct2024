@@ -26,6 +26,10 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 `
 
 const Top = styled.div`

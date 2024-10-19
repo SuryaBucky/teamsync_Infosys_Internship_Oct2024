@@ -23,7 +23,6 @@ const Container = styled.div`
     padding: 0px 15px !important;
   }
 `;
-
 const UserSection = styled.div`
   display: flex;
   align-items: center;

@@ -215,7 +215,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           {!otpSent ? (
             <>
             {/* Header for the sign-up form */}
-              <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4">
+              <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4 text-center">
                 Sign Up
               </h1>
               {/* Input field for full name */}

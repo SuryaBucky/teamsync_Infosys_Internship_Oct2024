@@ -308,7 +308,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               />
             ) : (
               <>
-                <div className="text-[22px] font-medium mx-7 my-4">Sign In</div>
+                <div className="text-[22px] font-medium mx-7 my-4 text text-center">Sign In</div>
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
                   <EmailRounded className="text-xl mr-3" />
                   <input
