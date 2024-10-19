@@ -5,11 +5,16 @@ import Hero from './components/Hero';
 
 const Dashboard = () => {
   return (
-    <div className='grid grid-cols-12'>
-      {/* <Navbar /> */}
+    <div className='flex'>
+      {/* Sidebar */}
+      <div className='w-56'>
+        <Sidebar />
+      </div>
 
-      <div className='col-span-2'><Sidebar /></div>
-      <div className='col-span-10'><Hero /></div>
+      {/* Main Content */}
+      <div className='flex-1 overflow-y-auto h-screen'>
+        <Hero />
+      </div>
     </div>
   );
 };

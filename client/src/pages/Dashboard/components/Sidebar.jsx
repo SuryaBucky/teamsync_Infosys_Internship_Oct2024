@@ -18,7 +18,7 @@ const Sidebar = () => {
   return (
     <aside
       id="logo-sidebar"
-      className="fixed top-0 left-0 z-40 w-56 h-screen pt-8 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 relative"
+      className="fixed top-0 left-0 z-40 w-56 h-screen pt-8 transition-transform bg-white border-r border-gray-200"
       aria-label="Sidebar"
     >
       <div className='flex justify-center items-center'>
@@ -36,10 +36,9 @@ const Sidebar = () => {
         </ul>
       </div>
       
-
       {/* Profile Section at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-4 rounded-lg mx-1 mb-4">
-      <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mt-8 mb-4"></div>
+        <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mt-8 mb-4"></div>
         <div className="flex items-center">
           <img
             className="w-10 h-10 rounded-full"
