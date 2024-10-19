@@ -1,5 +1,5 @@
 export const TableHeader = () => (
-    <tr className="border-b">
+    <tr className="border-b bg-gray-100">
       <th className="text-left py-4 px-6 font-medium text-xs">Name</th>
       <th className="text-left py-4 px-6 font-medium text-xs">Status</th>
       <th className="text-left py-4 px-6 font-medium text-xs">About</th>

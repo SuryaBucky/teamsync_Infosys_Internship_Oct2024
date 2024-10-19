@@ -9,7 +9,7 @@ export const ProjectTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="py-6 max-w-[1200px] mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div className="font-medium text-lg">Table view</div>
         <div className="flex gap-4">

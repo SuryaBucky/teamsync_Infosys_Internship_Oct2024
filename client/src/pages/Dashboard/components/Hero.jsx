@@ -6,7 +6,7 @@ import { ProjectTable } from './ProjectTable';
 const Hero = () => {
   return (
     <div className="p-4 sm: pt-4">
-      <div className="p-4">
+      <div className="pt-4 px-2">
         <div className='flex justify-between'>
             <div>
                 <div className='text-3xl font-semibold'>
