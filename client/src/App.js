@@ -12,6 +12,7 @@ import {
 import { Snackbar, Alert } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { closeSnackbar } from "./redux/snackbarSlice";
+import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
   const snackbarState = useSelector((state) => state.snackbar);
@@ -31,6 +32,9 @@ function App() {
           <Routes>
             <Route exact path="/">
               <Route index element={<Home />} />
+            </Route>
+            <Route exact path="/dashboard">
+              <Route index element={<Dashboard />} />
             </Route>
           </Routes>
 
