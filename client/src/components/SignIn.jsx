@@ -110,7 +110,12 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         );
 
         setApiResponse(res);
+<<<<<<< HEAD
 
+=======
+        console.log(res);
+  
+>>>>>>> 1022ebbd35f109c3106dde5853fa5f16a3805f34
         switch (res.status) {
           case 200:
             localStorage.setItem("token", res.data.token);
@@ -140,6 +145,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             break;
 
           case 402:
+            //give snackbar too
+            dispatch(openSnackbar({
+              message: "Please verify your account",
+              severity: "success"
+            }));
             setNeedsOTPVerification(true);
             setShowOTP(true);
             break;
@@ -160,8 +170,12 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             setcredentialError(`Unexpected Error: ${res.data}`);
         }
       } catch (err) {
+        console.log(err);
         if (err.response) {
           switch (err.response.status) {
+            case 400:
+              setcredentialError("Invalid credentials");
+              break;
             case 401:
               setUserBlocked(true);
               setcredentialError(
@@ -173,21 +187,32 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               setShowOTP(true);
               break;
             default:
+<<<<<<< HEAD
               setcredentialError(
                 err.response.data.message || "An error occurred"
               );
+=======
+              setcredentialError(err.response.data.errors[0] || "An error occurred");
+>>>>>>> 1022ebbd35f109c3106dde5853fa5f16a3805f34
           }
         } else {
           setcredentialError("Network error. Please try again.");
         }
 
         dispatch(loginFailure());
+<<<<<<< HEAD
         dispatch(
           openSnackbar({
             message: err.message,
             severity: "error",
           })
         );
+=======
+        dispatch(openSnackbar({
+          message: credentialError,
+          severity: "error"
+        }));
+>>>>>>> 1022ebbd35f109c3106dde5853fa5f16a3805f34
       } finally {
         setLoading(false);
         setDisabled(false);
