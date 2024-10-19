@@ -85,6 +85,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         );
 
         setApiResponse(res);
+        console.log(res);
   
         switch (res.status) {
           case 200:
@@ -109,6 +110,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             break;
   
           case 402:
+            //give snackbar too
+            dispatch(openSnackbar({
+              message: "Please verify your account",
+              severity: "success"
+            }));
             setNeedsOTPVerification(true);
             setShowOTP(true);
             break;
@@ -127,8 +133,12 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             setcredentialError(`Unexpected Error: ${res.data}`);
         }
       } catch (err) {
+        console.log(err);
         if (err.response) {
           switch (err.response.status) {
+            case 400:
+              setcredentialError("Invalid credentials");
+              break;
             case 401:
               setUserBlocked(true);
               setcredentialError("Your account has been blocked. Please contact support.");
@@ -138,7 +148,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               setShowOTP(true);
               break;
             default:
-              setcredentialError(err.response.data.message || "An error occurred");
+              setcredentialError(err.response.data.errors[0] || "An error occurred");
           }
         } else {
           setcredentialError("Network error. Please try again.");
@@ -146,7 +156,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         
         dispatch(loginFailure());
         dispatch(openSnackbar({
-          message: err.message,
+          message: credentialError,
           severity: "error"
         }));
       } finally {

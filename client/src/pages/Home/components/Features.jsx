@@ -30,14 +30,13 @@ const featuresData = [
 const Features = () => {
   return (
     <section
-      id="features"
       className="flex flex-col items-center bg-[#13111C] pb-[200px] -mt-20 bg-gradient-to-t from-transparent via-[rgba(23,92,230,0.02)] to-[rgba(23,92,230,0)] clip-path-polygon-custom lg:pb-[200px] md:pb-[100px]"
     >
       <div className="w-[70px] h-[70px] text-[36px] font-extrabold text-[#306EE8] flex justify-center items-center rounded-full border-4 border-[#306EE8] bg-opacity-10 bg-[#306EE8] mb-5 md:w-[50px] md:h-[50px] md:text-[32px]">
         1
       </div>
 
-      <h2 className="text-[#306EE8] text-center text-[52px] font-extrabold mt-5 md:text-[36px] md:mt-3">
+      <h2 className="text-[#306EE8] text-center text-[52px] font-extrabold mt-5 md:text-[36px] md:mt-3" id="features">
         Key Features
       </h2>
 

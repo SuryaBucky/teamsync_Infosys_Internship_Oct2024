@@ -164,7 +164,6 @@ const Navbar = ({ setSignInOpen }) => {
   const dispatch = useDispatch(); // Initialize useDispatch
   const { currentUser, isLoggedIn } = useSelector((state) => state.user); // Access user state
 
-  console.log("isLoggedIn:", isLoggedIn, "currentUser:", currentUser);
 
 
   return (

@@ -63,15 +63,13 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     try {
       setLoading(true);
       dispatch(loginStart());
-
-      // Send a POST request to the signup endpoint with user details
+    
       const response = await axios.post("http://localhost:3001/user/signup", {
         email,
         name,
         password,
       });
-
-      // Check if the response status indicates successful account creation
+    
       if (response.status === 201) {
         dispatch(
           openSnackbar({
@@ -79,36 +77,42 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
             severity: "success",
           })
         );
-        setOtpSent(true); // Update state to indicate OTP has been sent
+        setOtpSent(true);
       }
     } catch (error) {
       setLoading(false);
       setDisabled(false);
-
-      // Handle different types of errors based on the response
+    
       if (error.response) {
         const { status, data } = error.response;
+    
+        // Handle 400 error for user already exists
         if (status === 400) {
-          setCredentialError(data.message); // Set error message for bad request
-        } else if (status === 500) {
-          // Dispatch an error snackbar notification for internal server error
           dispatch(
             openSnackbar({
-              message: "Internal Server Error",
+              message: "User already exists",
+              severity: "error",
+            })
+          );
+        } else if (status === 500) {
+          dispatch(
+            openSnackbar({
+              message: "Oops! something is up on the server side, Sorry for the inconvenience. Please try again later.",
               severity: "error",
             })
           );
         } else {
-          dispatch(loginFailure()); // Dispatch failure action for unexpected errors
+          dispatch(loginFailure());
           setCredentialError("An unexpected error occurred. Please try again.");
         }
       } else {
-        dispatch(loginFailure()); // Dispatch failure action for network errors
+        dispatch(loginFailure());
         setCredentialError("Network error. Please check your connection.");
       }
     } finally {
-      setLoading(false); // Ensure loading state is reset in the end
+      setLoading(false);
     }
+    
   };
 
   // Effect to validate fields and enable/disable the submit button
