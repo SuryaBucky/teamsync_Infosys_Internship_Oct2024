@@ -84,17 +84,18 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     } catch (error) {
       setLoading(false);
       setDisabled(false);
+      console.log(error);
 
       // Handle different types of errors based on the response
       if (error.response) {
         const { status, data } = error.response;
         if (status === 400) {
-          setCredentialError(data.message); // Set error message for bad request
+          setCredentialError(data.errors[0]); // Set error message for bad request
         } else if (status === 500) {
           // Dispatch an error snackbar notification for internal server error
           dispatch(
             openSnackbar({
-              message: "Internal Server Error",
+              message: "Oops! something is up on the server side, Sorry for the inconvinience. Please try again later.",
               severity: "error",
             })
           );
