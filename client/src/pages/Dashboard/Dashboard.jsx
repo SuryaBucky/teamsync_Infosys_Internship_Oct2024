@@ -5,10 +5,11 @@ import Hero from './components/Hero';
 
 const Dashboard = () => {
   return (
-    <div>
+    <div className='grid grid-cols-12'>
       {/* <Navbar /> */}
-      <Sidebar />
-      {/* <Hero /> */}
+
+      <div className='col-span-2'><Sidebar /></div>
+      <div className='col-span-10'><Hero /></div>
     </div>
   );
 };
