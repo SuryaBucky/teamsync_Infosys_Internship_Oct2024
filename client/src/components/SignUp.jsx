@@ -84,7 +84,6 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     } catch (error) {
       setLoading(false);
       setDisabled(false);
-      console.log(error);
 
       // Handle different types of errors based on the response
       if (error.response) {
