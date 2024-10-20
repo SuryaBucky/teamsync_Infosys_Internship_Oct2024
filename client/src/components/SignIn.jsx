@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import validator from "validator";
 import axios from "axios";
@@ -33,7 +33,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const [newpassword, setNewpassword] = useState("");
   const [confirmedpassword, setConfirmedpassword] = useState("");
   const [passwordCorrect, setPasswordCorrect] = useState(false);
-  const [resetDisabled, setResetDisabled] = useState(true);
+  const [resetDisabled, setResetDisabled] = useState(false);
   const [resettingPassword, setResettingPassword] = useState(false);
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -43,6 +43,8 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const [apiResponse, setApiResponse] = useState(null);
   const [emailError, setEmailError] = useState("");
   const [credentialError, setcredentialError] = useState("");
+  const [otp, setOtp] = useState("");
+
 
   useEffect(() => {
     if (email !== "") validateEmail();
@@ -219,39 +221,98 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     }
   }, [newpassword, confirmedpassword]);
 
-  const sendOtp = () => {
+
+  const sendOtp = async () => {
+    console.log('Sending OTP request...');
+
     if (!resetDisabled) {
       setResetDisabled(true);
       setLoading(true);
-      findUserByEmail(email).then((res) => {
-        if (res.status === 200) {
-          setShowOTP(true);
-          setResetDisabled(false);
-          setLoading(false);
-        }
-        else if (res.status === 202) {
-          setEmailError("User not found!")
-          setResetDisabled(false);
-          setLoading(false);
-        }
-      }).catch((err) => {
-        setResetDisabled(false);
-        setLoading(false);
-        dispatch(
-          openSnackbar({
-            message: err.message,
-            severity: "error",
-          })
-        );
-      });
-    }
-  }
 
-  const performResetPassword = async () => {
+      try {
+        const res = await axios.post("http://localhost:3001/user/reset", {
+          email: email.trim(),
+        });
+
+        if (res.status === 200) {
+          setShowOTP(true); // Show the OTP input field if successful
+          setEmailError(""); // Clear any previous email errors
+          dispatch(
+            openSnackbar({
+              message: "OTP sent to your email. Please check and verify.",
+              severity: "success",
+            })
+          );
+        }
+      } catch (error) {
+        setLoading(false);
+        setResetDisabled(false);
+
+        if (error.response) {
+          const { status, data } = error.response;
+          console.log('Error response data:', data);
+
+          // Handle specific error messages from the backend
+          if (status === 400) {
+            setEmailError(data.errors ? data.errors[0] : "User not found!");
+            dispatch(
+              openSnackbar({
+                message: data.errors ? data.errors[0] : "Request failed. Please try again.",
+                severity: "error",
+              })
+            );
+          } else if (status === 500) {
+            dispatch(
+              openSnackbar({
+                message: "Oops! Something went wrong on the server side. Please try again later.",
+                severity: "error",
+              })
+            );
+          } else {
+            setEmailError("An unexpected error occurred. Please try again.");
+            dispatch(
+              openSnackbar({
+                message: "An unexpected error occurred. Please try again.",
+                severity: "error",
+              })
+            );
+          }
+        } else {
+          // Handle network or other unexpected errors
+          console.error('Request failed:', error.message);
+          dispatch(
+            openSnackbar({
+              message: error.message,
+              severity: "error",
+            })
+          );
+        }
+      } finally {
+        setLoading(false);
+        setResetDisabled(false);
+      }
+    }
+  };
+
+
+  const performResetPassword = useCallback(async () => {
     if (otpVerified) {
       setShowOTP(false);
       setResettingPassword(true);
-      await resetPassword(email, confirmedpassword).then((res) => {
+  
+      try {
+        const res = await fetch('http://localhost:3001/user/reset', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email, 
+            password: confirmedpassword, 
+            resetOtp: otp // Make sure `otp` is the variable holding the user's OTP input
+          }),
+        });
+  
         if (res.status === 200) {
           dispatch(
             openSnackbar({
@@ -265,8 +326,18 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           setConfirmedpassword("");
           setOtpVerified(false);
           setResettingPassword(false);
+        } else if (res.status === 400) {
+          dispatch(
+            openSnackbar({
+              message: "OTP verification failed or invalid request.",
+              severity: "error",
+            })
+          );
+          setShowOTP(true); // Show OTP input again for the user to retry
+          setOtpVerified(false);
+          setResettingPassword(false);
         }
-      }).catch((err) => {
+      } catch (err) {
         dispatch(
           openSnackbar({
             message: err.message,
@@ -276,9 +347,10 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         setShowOTP(false);
         setOtpVerified(false);
         setResettingPassword(false);
-      });
+      }
     }
-  }
+  }, [otpVerified, email, confirmedpassword, otp, dispatch]);
+  
 
   const closeForgetPassword = () => {
     setShowForgotPassword(false)
@@ -286,8 +358,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   }
 
   useEffect(() => {
-    performResetPassword();
-  }, [otpVerified]);
+    if (otpVerified) {
+      performResetPassword();
+    }
+  }, [otpVerified, performResetPassword]);
+  
 
   return !isLoggedIn ? (
     <Modal open={true} onClose={() => setSignInOpen(false)}>
@@ -391,75 +466,143 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             {!showOTP ? (
               <>
                 <div className="text-[22px] font-medium mx-7 my-4">Reset Password</div>
-                {resettingPassword ? (
-                  <div className="px-7 pb-5 text-center flex flex-col items-center gap-3.5 justify-center">
-                    Updating password
-                    <CircularProgress color="inherit" size={20} />
-                  </div>
-                ) : (
-                  <>
-                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
-                      <EmailRounded className="text-xl mr-3" />
-                      <input
-                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
-                        placeholder="Email Id"
-                        type="email"
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
+                  {resettingPassword ? (
+                    <div className="px-7 pb-5 text-center flex flex-col items-center gap-3.5 justify-center">
+                      Updating password
+                      <CircularProgress color="inherit" size={20} />
                     </div>
-                    {emailError && <div className="text-red-500 text-xs mx-7 my-0.5">{emailError}</div>}
-                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
-                      <PasswordRounded className="text-xl mr-3" />
-                      <input
-                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
-                        placeholder="New Password"
-                        type="text"
-                        onChange={(e) => setNewpassword(e.target.value)}
-                      />
-                    </div>
-                    <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
-                      <PasswordRounded className="text-xl mr-3" />
-                      <input
-                        className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
-                        placeholder="Confirm Password"
-                        type={values.showPassword ? "text" : "password"}
-                        onChange={(e) => setConfirmedpassword(e.target.value)}
-                      />
-                      <IconButton
-                        color="inherit"
-                        onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
-                      >
-                        {values.showPassword ? (
-                          <Visibility className="text-xl" />
-                        ) : (
-                          <VisibilityOff className="text-xl" />
-                        )}
-                      </IconButton>
-                    </div>
-                    {samepassword && <div className="text-red-500 text-xs mx-7 my-0.5">{samepassword}</div>}
-                    <div
-                      className={`h-11 rounded-xl mx-5 mt-1.5 mb-6 flex items-center justify-center text-sm font-medium cursor-pointer
-                        ${resetDisabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
-                      onClick={() => sendOtp()}
-                    >
-                      {Loading ? (
-                        <CircularProgress color="inherit" size={20} />
+                  ) : (
+                    <>
+                      {/* Display Email and OTP fields if OTP is not verified */}
+                      {!otpVerified ? (
+                        <>
+                          {/* Email Input Field */}
+                          <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+                            <EmailRounded className="text-xl mr-3" />
+                            <input
+                              className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                              placeholder="Email Id"
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                          {emailError && <div className="text-red-500 text-xs mx-7 my-0.5">{emailError}</div>}
+
+                          {/* Get OTP Button */}
+                          {!showOTP && (
+                            <div
+                              className={`h-11 rounded-xl mx-5 mt-1.5 mb-6 flex items-center justify-center text-sm font-medium cursor-pointer
+                                          ${resetDisabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
+                              onClick={sendOtp}
+                            >
+                              {Loading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : (
+                                "Get OTP"
+                              )}
+                            </div>
+                          )}
+                          {/* OTP Input Field */}
+                          {showOTP && (
+                            <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                              <input
+                                className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                                placeholder="Enter OTP"
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                              />
+                            </div>
+                          )}
+
+                          {/* Verify OTP Button */}
+                          {showOTP && (
+                            <div
+                              className={`h-11 rounded-xl mx-5 mt-1.5 mb-6 flex items-center justify-center text-sm font-medium cursor-pointer
+                                          ${resetDisabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
+                              onClick={() => setOtpVerified(true)} // Replace with actual OTP verification logic if needed
+                            >
+                              {Loading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : (
+                                "Verify OTP"
+                              )}
+                            </div>
+                          )}
+                        </>
                       ) : (
-                        "Submit"
+                        <>
+                          {/* New Password Fields after OTP verification */}
+                          <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+                            <EmailRounded className="text-xl mr-3" />
+                            <input
+                              className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                              placeholder="Email Id"
+                              type="email"
+                              value={email}
+                              disabled
+                            />
+                          </div>
+                          <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                            <PasswordRounded className="text-xl mr-3" />
+                            <input
+                              className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                              placeholder="New Password"
+                              type={values.showPassword ? "text" : "password"}
+                              value={newpassword}
+                              onChange={(e) => setNewpassword(e.target.value)}
+                            />
+                          </div>
+                          <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                            <PasswordRounded className="text-xl mr-3" />
+                            <input
+                              className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                              placeholder="Confirm Password"
+                              type={values.showPassword ? "text" : "password"}
+                              value={confirmedpassword}
+                              onChange={(e) => setConfirmedpassword(e.target.value)}
+                            />
+                            <IconButton
+                              color="inherit"
+                              onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
+                            >
+                              {values.showPassword ? (
+                                <Visibility className="text-xl" />
+                              ) : (
+                                <VisibilityOff className="text-xl" />
+                              )}
+                            </IconButton>
+                          </div>
+                          {samepassword && <div className="text-red-500 text-xs mx-7 my-0.5">{samepassword}</div>}
+
+                          {/* Submit Button for Password Reset */}
+                          <div
+                            className={`h-11 rounded-xl mx-5 mt-1.5 mb-6 flex items-center justify-center text-sm font-medium cursor-pointer
+                                      ${resetDisabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
+                            onClick={performResetPassword}
+                          >
+                            {Loading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : (
+                              "Reset Password"
+                            )}
+                          </div>
+                        </>
                       )}
-                    </div>
-                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 flex justify-center items-center">
-                      Don't have an account ?
-                      <span
-                        className="text-blue-500 dark:text-blue-400 ml-1.5 cursor-pointer"
-                        onClick={() => {
-                          setSignUpOpen(true);
-                          setSignInOpen(false);
-                        }}
-                      >
-                        Create Account
-                      </span>
-                    </div>
+
+                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 flex justify-center items-center">
+                        Don't have an account?
+                        <span
+                          className="text-blue-500 dark:text-blue-400 ml-1.5 cursor-pointer"
+                          onClick={() => {
+                            setSignUpOpen(true);
+                            setSignInOpen(false);
+                          }}
+                        >
+                          Create Account
+                        </span>
+                      </div>
                   </>
                 )}
               </>
