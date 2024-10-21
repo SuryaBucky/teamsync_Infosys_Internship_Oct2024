@@ -29,7 +29,7 @@ const ScrollToTop = styled.div`
   visibility: ${({ show }) => (show ? 'visible' : 'hidden')};
   transform: translateY(${({ show }) => (show ? '0' : '20px')});
   transition: all 0.3s ease-in-out;
-  z-index: 1001;
+  z-index: 2;
 
   &:hover {
     background: #9361F6;
@@ -61,7 +61,7 @@ const Container = styled.div`
     position: -webkit-sticky;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1;
 `
 
 const Top = styled.div`
@@ -112,10 +112,11 @@ const Home = () => {
     };
 
     return (
+        <><Navbar setSignInOpen={setSignInOpen} />
         <Body>
             <Container>
                 <Top id="home">
-                    <Navbar setSignInOpen={setSignInOpen} />
+                    
                     <Hero setSignInOpen={setSignInOpen} />
                 </Top>
                 <Content>
@@ -139,6 +140,7 @@ const Home = () => {
                 </ScrollToTop>
             </Container>
         </Body>
+        </>
     )
 }
 

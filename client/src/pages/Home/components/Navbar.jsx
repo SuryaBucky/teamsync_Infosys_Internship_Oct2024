@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -7,13 +7,52 @@ import { logout } from "../../../redux/userSlice";
 
 const Navbar = ({ setSignInOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const dispatch = useDispatch();
   const { currentUser, isLoggedIn } = useSelector((state) => state.user);
+
+  // Scroll event to fade the navbar
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY && window.scrollY > 100) {
+        setIsVisible(false); // fade out on scroll down
+      } else {
+        setIsVisible(true); // fade in on scroll up
+      }
+      lastScrollY = window.scrollY;
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleMenuItemClick = (event) => {
+    // Prevent default behavior of anchor links
+    event.preventDefault();
+    
+    // Get the target section ID from the anchor link
+    const targetId = event.target.getAttribute("href").substring(1);
+    const targetElement = document.getElementById(targetId);
+  
+    // Smooth scroll to the target element
+    targetElement.scrollIntoView({ behavior: "smooth" });
+  
+    // Set a timeout to hide the navbar after scrolling
+    setTimeout(() => {
+      setIsVisible(false); // hide navbar after scrolling
+    }, 1000); // Adjust the delay as necessary
+  };
+  
+
 
   return (
     <>
       {/* Main Navbar Container */}
-      <div className="w-full max-w-[1320px] h-[80px] px-5 py-0 mx-auto my-3 flex items-center justify-between bg-transparent shadow-md rounded-lg transition-all duration-300 ease-in-out">
+      <div
+        className={`w-full max-w-[1320px] h-[80px] px-5 py-0 mx-auto mb-3 mt-2 flex items-center justify-between fixed top-0 left-0 right-0 bg-black/70 shadow-lg rounded-lg backdrop-blur-md z-50 transition-opacity duration-500 ease-in-out transform ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full"
+        }`}
+      >
         {/* Left Section: Logo */}
         <div className="font-bold text-2xl bg-gradient-to-r from-[#4caf50] to-[#00bcd4] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-110">
           Team Sync
@@ -22,25 +61,25 @@ const Navbar = ({ setSignInOpen }) => {
         {/* Center Menu - Hidden on Mobile */}
         <ul className="hidden md:flex items-center gap-10 list-none mx-auto">
           <li className="group relative">
-            <a href="#home" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#home" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Home
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#features" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Features
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#benefits" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#benefits" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Benefits
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#about" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               About Us
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
@@ -91,25 +130,25 @@ const Navbar = ({ setSignInOpen }) => {
       {menuOpen && (
         <ul className="flex flex-col gap-5 absolute top-[80px] right-0 bg-white p-5 rounded-lg shadow-lg md:hidden w-[85%] z-50 transition-all duration-300">
           <li className="group relative">
-            <a href="#home" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#home" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Home
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#features" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Features
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#benefits" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#benefits" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Benefits
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#about" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               About Us
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
