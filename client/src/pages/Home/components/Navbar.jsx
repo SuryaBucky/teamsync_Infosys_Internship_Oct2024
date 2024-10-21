@@ -61,12 +61,6 @@ const Navbar = ({ setSignInOpen }) => {
         {/* Center Menu - Hidden on Mobile */}
         <ul className="hidden md:flex items-center gap-10 list-none mx-auto">
           <li className="group relative">
-            <a href="#home" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              Home
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          <li className="group relative">
             <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Features
             </a>
@@ -79,11 +73,18 @@ const Navbar = ({ setSignInOpen }) => {
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
+            <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              FAQs
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+          </li>
+          <li className="group relative">
             <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
               About Us
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
+          
         </ul>
 
         {/* Right Section: Avatar + Logout or Sign In */}
@@ -130,12 +131,6 @@ const Navbar = ({ setSignInOpen }) => {
       {menuOpen && (
         <ul className="flex flex-col gap-5 absolute top-[80px] right-0 bg-white p-5 rounded-lg shadow-lg md:hidden w-[85%] z-50 transition-all duration-300">
           <li className="group relative">
-            <a href="#home" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              Home
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          <li className="group relative">
             <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Features
             </a>
@@ -148,11 +143,18 @@ const Navbar = ({ setSignInOpen }) => {
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
+            <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              FAQs
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+          </li>
+          <li className="group relative">
             <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               About Us
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
+          
           {isLoggedIn ? (
             <button
               onClick={() => dispatch(logout())}

@@ -113,7 +113,9 @@ const Faq = () => {
 
   return (
     <FaqContainer>
+      <div id="faq">
       <FaqTitle>Frequently Asked Questions</FaqTitle>
+      </div>
       <FaqList>
         {faqData.map((faq, index) => (
           <FaqItem key={index}>
