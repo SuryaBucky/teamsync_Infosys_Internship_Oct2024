@@ -2,27 +2,29 @@ import styled from 'styled-components';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ForumIcon from '@mui/icons-material/Forum';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import HeroBgAnimation from './HeroBgAnimation';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import HeroBgAnimation from './HeroBgAnimation';
 
 const FeaturesWrapper = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #181622;
-  padding-bottom: 150px;
+  padding: 20px 0 60px; // Reduced top and bottom padding
   margin-top: -90px;
+  min-height: 100vh;
   background: linear-gradient(343.07deg, rgba(132, 59, 206, 0.06) 5.71%, rgba(132, 59, 206, 0) 64.83%);
+  
   @media (max-width: 768px) {
-    padding-bottom: 100px;
+    padding: 15px 0 40px;
     margin-top: -50px;
   }
 `;
 
 const Number = styled.div`
-  width: 70px;
-  height: 70px;
-  font-size: 36px;
+  width: 60px; // Slightly smaller
+  height: 60px; // Slightly smaller
+  font-size: 32px; // Slightly smaller
   font-weight: 800;
   color: #854CE6;
   text-align: center;
@@ -32,7 +34,8 @@ const Number = styled.div`
   border-radius: 50%;
   background-color: rgba(133, 76, 230, 0.1);
   border: 6px solid #854CE6;
-  margin-bottom: 20px;
+  margin-bottom: 15px; // Reduced margin
+  
   @media (max-width: 768px) {
     width: 50px;
     height: 50px;
@@ -44,10 +47,12 @@ const FeaturesTitle = styled.div`
   font-size: 52px;
   text-align: center;
   font-weight: 800;
-  margin-top: 20px;
+  margin-top: 10px; // Reduced margin
+  margin-bottom: 10px; // Added to reduce space
   color: #854CE6;
+  
   @media (max-width: 768px) {
-    margin-top: 12px;
+    margin-top: 8px;
     font-size: 36px;
   }
 `;
@@ -59,16 +64,18 @@ const FeatureDescription = styled.p`
   max-width: 700px;
   text-align: center;
   color: hsl(246, 6%, 65%);
-  margin-bottom: 80px;
+  margin-bottom: 25px; // Reduced margin
+  
   @media (max-width: 768px) {
     width: 90%;
     font-size: 16px;
-    margin-bottom: 60px;
+    margin-bottom: 20px;
   }
 `;
 
 const Content = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 const FeaturesContainer = styled.div`
@@ -76,59 +83,61 @@ const FeaturesContainer = styled.div`
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-column-gap: 60px;
-  grid-row-gap: 60px;
+  grid-gap: 20px; // Reduced gap between cards
+  max-width: 750px; // Slightly reduced max-width to bring cards closer
+  margin: 0 auto;
+  padding: 0 20px;
+  
   @media (max-width: 768px) {
     grid-template-columns: repeat(1, 1fr);
-    grid-column-gap: 30px;
-    grid-row-gap: 30px;
+    grid-gap: 15px;
   }
 `;
 
 const FeatureCard = styled.div`
-  width: 350px;
-  height: 210px;
+  width: 100%;
+  height: 200px; // Slightly reduced height
   position: relative;
   background-color: hsl(250, 24%, 9%);
   border: 0.1px solid #854CE6;
   border-radius: 16px;
-  padding: 24px 32px; /* Adjusted padding */
+  padding: 20px 28px; // Slightly reduced padding
   box-shadow: rgba(23, 92, 230, 0.15) 0px 4px 24px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Enhanced transition */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
-  flex-direction: column; /* Stack elements vertically */
-  justify-content: space-between; /* Space between elements */
+  flex-direction: column;
+  justify-content: space-between;
+  
   &:hover {
     transform: translateY(-10px);
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 24px; /* Add shadow on hover */
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 24px;
   }
-  @media (max-width: 925px) {
-    width: 300px;
-  }
+  
   @media (max-width: 728px) {
-    padding: 20px 20px;
+    padding: 16px;
+    height: 180px;
   }
 `;
 
 const FeatureIcon = styled.div`
-  width: 60px; /* Reduced size for better aesthetics */
-  height: 60px; /* Reduced size for better aesthetics */
+  width: 50px; // Slightly smaller
+  height: 50px; // Slightly smaller
   color: #854CE6;
   position: absolute;
-  bottom: 10px; /* Adjusted position */
-  right: 10px; /* Adjusted position */
+  bottom: 10px;
+  right: 10px;
   border-radius: 50%;
   border: 2px solid hsl(220, 80%, 75%, 30%);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(133, 76, 230, 0.1); /* Added background */
+  background-color: rgba(133, 76, 230, 0.1);
 `;
 
 const FeatureTitle = styled.div`
   font-size: 20px;
   color: #854CE6;
-  margin-bottom: 10px;
+  margin-bottom: 8px; // Reduced margin
   font-weight: 600;
 `;
 
@@ -137,7 +146,6 @@ const FeatureCardDescription = styled.div`
   line-height: 1.5;
   color: hsl(246, 6%, 65%);
 `;
-
 const BgImage = styled.div`
   position: absolute;
   top: 50%;
