@@ -358,10 +358,10 @@ const ProjectTag = mongoose.model('ProjectTag', ProjectTagSchema);
 // const bcrypt = require("bcrypt");
 // async function test(){
 //     //generate a new admin
-//     const password_hash = await bcrypt.hash("admin2@1234", 10);
+//     const password_hash = await bcrypt.hash("admin3@1234", 10);
 //     const admin=new Admin({
-//         name:"admin2",
-//         email:"admin2@mail.com",
+//         name:"admin3",
+//         email:"admin3@mail.com",
 //         password_hash
 //     });
 //     await admin.save();

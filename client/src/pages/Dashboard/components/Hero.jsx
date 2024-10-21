@@ -1,32 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Menu, Search, Filter } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { ProjectTable } from './ProjectTable';
+import ProjectTable from './ProjectTable';
 
-const Hero = () => {
+const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   return (
-    <div className="p-4 sm: pt-4">
-      <div className="pt-4 px-2">
-        <div className='flex justify-between'>
-            <div>
-                <div className='text-3xl font-semibold'>
-                    Projects
-                </div>
-                <div className='text-gray-600 text-md pt-2'>
-                    View and Manage Your Teams Projects
-                </div>
-            </div>
-            <div>
-                <button className="flex justify-center items-center bg-blue-950 text-white text-lg font-semibold px-4 rounded-lg hover:bg-blue-600 transition duration-200 w-50 h-12">
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                    Add Project
-                </button>
-            </div>
+    <div className="p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <button 
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-semibold">Projects</h1>
+            <p className="text-gray-600 text-sm mt-1">
+              View and Manage Your Teams Projects
+            </p>
+          </div>
         </div>
-        <div>
-          <ProjectTable />
-        </div>
+        <button className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors">
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="hidden sm:inline">Add Project</span>
+        </button>
       </div>
+
+      {/* Project Table */}
+      <ProjectTable />
     </div>
   );
 };

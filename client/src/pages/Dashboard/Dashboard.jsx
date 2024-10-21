@@ -1,19 +1,17 @@
-import React from 'react';
-import Navbar from './components/Navbar';
+import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Hero from './components/Hero';
 
 const Dashboard = () => {
-  return (
-    <div className='flex'>
-      {/* Sidebar */}
-      <div className='w-56'>
-        <Sidebar />
-      </div>
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
       {/* Main Content */}
-      <div className='flex-1 overflow-y-auto h-screen'>
-        <Hero />
+      <div className="lg:ml-56">
+        <Hero sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </div>
     </div>
   );
