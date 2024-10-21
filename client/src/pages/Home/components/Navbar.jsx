@@ -34,16 +34,17 @@ const Navbar = ({ setSignInOpen }) => {
     const targetId = event.target.getAttribute("href").substring(1);
     const targetElement = document.getElementById(targetId);
   
+    // Close the mobile menu
+    setMenuOpen(false);
+    
     // Smooth scroll to the target element
     targetElement.scrollIntoView({ behavior: "smooth" });
   
     // Set a timeout to hide the navbar after scrolling
     setTimeout(() => {
       setIsVisible(false); // hide navbar after scrolling
-    }, 1000); // Adjust the delay as necessary
+    }, 1000);
   };
-  
-
 
   return (
     <>
@@ -84,7 +85,6 @@ const Navbar = ({ setSignInOpen }) => {
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          
         </ul>
 
         {/* Right Section: Avatar + Logout or Sign In */}
@@ -129,49 +129,59 @@ const Navbar = ({ setSignInOpen }) => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <ul className="flex flex-col gap-5 absolute top-[80px] right-0 bg-white p-5 rounded-lg shadow-lg md:hidden w-[85%] z-50 transition-all duration-300">
-          <li className="group relative">
-            <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              Features
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          <li className="group relative">
-            <a href="#benefits" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              Benefits
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          <li className="group relative">
-            <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              FAQs
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          <li className="group relative">
-            <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              About Us
-            </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
-          </li>
-          
-          {isLoggedIn ? (
-            <button
-              onClick={() => dispatch(logout())}
-              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
-            >
-              Logout
-            </button>
-          ) : (
-            <button
-              onClick={() => setSignInOpen(true)}
-              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
-            >
-              <AccountCircleOutlinedIcon />
-              Sign In
-            </button>
-          )}
-        </ul>
+        <div className="fixed top-[80px] left-0 right-0 bottom-0 bg-black/50 z-40 md:hidden" onClick={() => setMenuOpen(false)}>
+          <ul className="absolute right-0 top-0 bg-white p-5 rounded-lg shadow-lg w-[85%] z-50 transition-all duration-300">
+            <li className="group relative">
+              <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+                Features
+              </a>
+              <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            </li>
+            <li className="group relative mt-5">
+              <a href="#benefits" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+                Benefits
+              </a>
+              <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            </li>
+            <li className="group relative mt-5">
+              <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+                FAQs
+              </a>
+              <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            </li>
+            <li className="group relative mt-5">
+              <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+                About Us
+              </a>
+              <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            </li>
+            
+            <div className="mt-5">
+              {isLoggedIn ? (
+                <button
+                  onClick={() => {
+                    dispatch(logout());
+                    setMenuOpen(false);
+                  }}
+                  className="w-full py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSignInOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="w-full py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center justify-center gap-2"
+                >
+                  <AccountCircleOutlinedIcon />
+                  Sign In
+                </button>
+              )}
+            </div>
+          </ul>
+        </div>
       )}
     </>
   );
