@@ -21,21 +21,29 @@ const Navbar = ({ setSignInOpen }) => {
 
         {/* Center Menu - Hidden on Mobile */}
         <ul className="hidden md:flex items-center gap-10 list-none mx-auto">
-          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
-            <a href="#home">Home</a>
-            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          <li className="group relative">
+            <a href="#home" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              Home
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
-            <a href="#features">Features</a>
-            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          <li className="group relative">
+            <a href="#features" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              Features
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
-            <a href="#benefits">Benefits</a>
-            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          <li className="group relative">
+            <a href="#benefits" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              Benefits
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
-            <a href="#about">About Us</a>
-            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          <li className="group relative">
+            <a href="#about" className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              About Us
+            </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
         </ul>
 
@@ -82,25 +90,29 @@ const Navbar = ({ setSignInOpen }) => {
       {/* Mobile Menu */}
       {menuOpen && (
         <ul className="flex flex-col gap-5 absolute top-[80px] right-0 bg-white p-5 rounded-lg shadow-lg md:hidden w-[85%] z-50 transition-all duration-300">
-          <li>
-            <a href="#home" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+          <li className="group relative">
+            <a href="#home" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Home
             </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li>
-            <a href="#features" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+          <li className="group relative">
+            <a href="#features" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Features
             </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li>
-            <a href="#benefits" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+          <li className="group relative">
+            <a href="#benefits" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               Benefits
             </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
-          <li>
-            <a href="#about" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+          <li className="group relative">
+            <a href="#about" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
               About Us
             </a>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           {isLoggedIn ? (
             <button
