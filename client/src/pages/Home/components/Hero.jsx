@@ -24,6 +24,7 @@ const Container = styled.div`
   gap: 80px;
   padding: 20px;
   animation: ${fadeInUp} 1s ease-in-out;
+  margin-top: 100px;
   
   @media (max-width: 768px) {
     flex-direction: column;
