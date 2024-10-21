@@ -1,217 +1,125 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import { useSelector, useDispatch } from "react-redux"; // Import hooks from Redux
-import { logout } from "../../../redux/userSlice"; // Adjust the import path accordingly
-
-const Container = styled.div`
-  width: 100%;
-  max-width: 1320px;
-  height: 80px;
-  padding: 0 20px;
-  margin: 12px auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: ${({ theme }) => theme.bg};
-  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  transition: all 0.3s ease-in-out;
-  @media (max-width: 768px) {
-    padding: 0px 15px !important;
-  }
-`;
-const UserSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px; // Reduce the gap between Avatar and Button
-  margin-left: auto; // Push the user section to the right
-`;
-
-const Logo = styled.h1`
-  font-family: "Poppins", sans-serif;
-  font-weight: 800;
-  font-size: 28px;
-  color: ${({ theme }) => theme.primary};
-  background: linear-gradient(45deg, #4caf50, #00bcd4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out;
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
-const Menu = styled.ul`
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  list-style: none;
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const MenuItem = styled.a`
-  font-size: 18px;
-  text-decoration: none;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background-color: ${({ theme }) => theme.primary};
-    left: 0;
-    bottom: -6px;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  &:hover::after {
-    transform: scaleX(1);
-  }
-`;
-
-const Button = styled.button`
-  padding: 10px 24px;
-  background-color: ${({ theme }) => theme.primary};
-  border: none;
-  color: ${({ theme }) => theme.text};
-  border-radius: 30px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    background-color: ${({ theme }) => theme.text};
-    color: ${({ theme }) => theme.primary};
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    transform: translateY(-3px);
-  }
-`;
-
-const Avatar = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 10px; // Add some margin for spacing
-`;
-
-const HamburgerMenu = styled.div`
-  display: none;
-  @media (max-width: 768px) {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: ${({ theme }) => theme.text};
-  }
-`;
-
-const MobileMenu = styled.ul`
-  display: ${({ open }) => (open ? "flex" : "none")};
-  flex-direction: column;
-  gap: 20px;
-  position: absolute;
-  top: 80px;
-  right: 0;
-  background-color: ${({ theme }) => theme.bgLighter}; /* Change to theme.bgLighter for better contrast */
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Increase shadow for depth */
-  z-index: 100; /* Ensure menu is above other content */
-  @media (max-width: 768px) {
-    width: 85%;
-  }
-  transition: all 0.3s ease;
-`;
-
-const MobileMenuItem = styled.a`
-  font-size: 18px;
-  text-decoration: none;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text}; // Ensure visibility
-  cursor: pointer;
-  transition: all 0.3s ease;
-  &:hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`;
-
-
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../../redux/userSlice";
 
 const Navbar = ({ setSignInOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const dispatch = useDispatch(); // Initialize useDispatch
-  const { currentUser, isLoggedIn } = useSelector((state) => state.user); // Access user state
-
-
+  const dispatch = useDispatch();
+  const { currentUser, isLoggedIn } = useSelector((state) => state.user);
 
   return (
     <>
-      <Container>
-        <Logo>Team Sync</Logo>
-        <Menu>
-          <MenuItem href="#home">Home</MenuItem>
-          <MenuItem href="#features">Features</MenuItem>
-          <MenuItem href="#benefits">Benefits</MenuItem>
-          <MenuItem href="#about">About Us</MenuItem>
-        </Menu>
-        {isLoggedIn ? (
-          <UserSection>
-            <Avatar src="https://i.pravatar.cc/150" alt="User Avatar" /> {/* Default avatar if not set */}
-            <Button onClick={() => dispatch(logout())}>Logout</Button> {/* Logout button */}
-          </UserSection>
-        ) : (
-          <Button onClick={() => setSignInOpen(true)}>
-            <AccountCircleOutlinedIcon /> Sign In
-          </Button>
-        )}
+      {/* Main Navbar Container */}
+      <div className="w-full max-w-[1320px] h-[80px] px-5 py-0 mx-auto my-3 flex items-center justify-between bg-transparent shadow-md rounded-lg transition-all duration-300 ease-in-out">
+        {/* Left Section: Logo */}
+        <div className="font-bold text-2xl bg-gradient-to-r from-[#4caf50] to-[#00bcd4] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-110">
+          Team Sync
+        </div>
 
+        {/* Center Menu - Hidden on Mobile */}
+        <ul className="hidden md:flex items-center gap-10 list-none mx-auto">
+          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
+            <a href="#home">Home</a>
+            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          </li>
+          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
+            <a href="#features">Features</a>
+            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          </li>
+          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
+            <a href="#benefits">Benefits</a>
+            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          </li>
+          <li className="relative font-semibold text-lg text-white hover:text-[#6B5BCD] transition-all cursor-pointer">
+            <a href="#about">About Us</a>
+            <span className="absolute bottom-[-6px] left-0 w-full h-[2px] bg-[#6B5BCD] scale-x-0 transition-transform duration-300 ease-in-out hover:scale-x-100"></span>
+          </li>
+        </ul>
 
-        <HamburgerMenu onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <CloseIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
-        </HamburgerMenu>
-      </Container>
-      <MobileMenu open={menuOpen}>
-        <MobileMenuItem href="#home" onClick={() => setMenuOpen(false)}>
-          Home
-        </MobileMenuItem>
-        <MobileMenuItem href="#features" onClick={() => setMenuOpen(false)}>
-          Features
-        </MobileMenuItem>
-        <MobileMenuItem href="#benefits" onClick={() => setMenuOpen(false)}>
-          Benefits
-        </MobileMenuItem>
-        <MobileMenuItem href="#about" onClick={() => setMenuOpen(false)}>
-          About Us
-        </MobileMenuItem>
-        {isLoggedIn ? (
-          <Button onClick={() => dispatch(logout())}>Logout</Button> // Logout button
-        ) : (
-          <Button onClick={() => setSignInOpen(true)}>
-            <AccountCircleOutlinedIcon /> Sign In
-          </Button>
-        )}
-      </MobileMenu>
+        {/* Right Section: Avatar + Logout or Sign In */}
+        <div className="flex items-center gap-4">
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <img
+                src="https://i.pravatar.cc/150"
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <button
+                onClick={() => dispatch(logout())}
+                className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setSignInOpen(true)}
+              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
+            >
+              <AccountCircleOutlinedIcon />
+              Sign In
+            </button>
+          )}
+
+          {/* Hamburger Menu for Mobile */}
+          <div
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="block md:hidden cursor-pointer"
+          >
+            {menuOpen ? (
+              <CloseIcon fontSize="large" className="text-white" />
+            ) : (
+              <MenuIcon fontSize="large" className="text-white" />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <ul className="flex flex-col gap-5 absolute top-[80px] right-0 bg-white p-5 rounded-lg shadow-lg md:hidden w-[85%] z-50 transition-all duration-300">
+          <li>
+            <a href="#home" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+              Home
+            </a>
+          </li>
+          <li>
+            <a href="#features" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+              Features
+            </a>
+          </li>
+          <li>
+            <a href="#benefits" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+              Benefits
+            </a>
+          </li>
+          <li>
+            <a href="#about" onClick={() => setMenuOpen(false)} className="font-semibold text-lg text-gray-700 hover:text-[#6B5BCD] transition-all cursor-pointer">
+              About Us
+            </a>
+          </li>
+          {isLoggedIn ? (
+            <button
+              onClick={() => dispatch(logout())}
+              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              onClick={() => setSignInOpen(true)}
+              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
+            >
+              <AccountCircleOutlinedIcon />
+              Sign In
+            </button>
+          )}
+        </ul>
+      )}
     </>
   );
 };
