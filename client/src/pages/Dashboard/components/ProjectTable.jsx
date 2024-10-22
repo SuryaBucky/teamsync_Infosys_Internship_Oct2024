@@ -12,7 +12,7 @@ const ProjectTable = () => {
     <div className="py-6 max-w-[1200px] mx-auto">
       <div className="flex justify-between items-center mb-8">
       <div className="hidden lg:block font-medium text-lg">Table view</div>
-        <div className="flex gap  -4">
+        <div className="flex gap-4">
           <SearchBar 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
