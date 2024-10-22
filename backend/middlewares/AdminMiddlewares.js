@@ -97,25 +97,12 @@ const tokenValidationAdmin=async(req,res, next)=>{
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}, '-password_hash -registration_otp -reset_otp').lean() 
-            
-        // Get all projects users are part of
-        const projectUsers = await ProjectUser.find().populate('project_id').populate('user_id');
-
-        // Map users with their respective projects
-        const userDetails = users.map(user => {
-            const projects = projectUsers
-                .filter(pu => pu.user_id.toString() === user._id.toString())
-                .map(pu => pu.project_id);
-            return {
-                ...user,
-                projects: projects, // Include the user's projects
-            };
-        });
+        
+        const users = await User.find({}, '-password_hash -registration_otp -reset_otp').lean();
 
         return res.status(200).json({
             message: 'All users fetched successfully',
-            users: userDetails,
+            users: users,
         });
     } catch (error) {
         console.error('Error fetching all users:', error);
