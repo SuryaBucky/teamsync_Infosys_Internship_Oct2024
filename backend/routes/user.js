@@ -150,6 +150,14 @@ router.put("/reset",async (req,res)=>{
     }
     //if otp is correct update user password
     if(userOne.reset_otp===resetOtp){
+        //if both password same send 403
+        if(await bcrypt.compare(password, userOne.password_hash)){
+            userOne.reset_otp=Math.floor(100000 + Math.random() * 900000).toString();
+            await userOne.save();
+            return res.status(403).json({
+                errors: ["New password cannot be same as old password."],
+            });
+        }
         userOne.password_hash = await bcrypt.hash(password, 10);
         //generate a new otp of 6 digit  number and make it string and update that otp in db
         userOne.reset_otp=Math.floor(100000 + Math.random() * 900000).toString();
