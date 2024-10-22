@@ -7,45 +7,52 @@ const jwt=require("jsonwebtoken");
 require("dotenv").config();
 
 //create a project route
-router.post("/create" ,validateCreateProject, async (req,res)=>{
-    //get the req body parameters and jwt token in headers decode it get the mail id and use this mail id as creator id to store
-    //in the database
+// create a project route
+router.post("/create", validateCreateProject, async (req, res) => {
+    const user_id = req.user_id; // Assuming req.user_id contains the ID of the logged-in user
+    const email = req.user_email;
 
-    //token
-    const token=req.header("authorization");
-    if(!token){
-        return res.status(401).json({message:"Please enter a token"});
-    }
-    //verify token than extract email from token
-    const decoded=jwt.verify(token,process.env.JWT_SECRET);
-    const email=decoded.email;
-    //get req body and extract name, description, tags and deadline. deadline will be of string form "dd/mm/yyyy" convert it to date and store it
-    //in the database
-    const {name,description,tags,deadline}=req.body;
+    // Get req body and extract name, description, tags, and deadline
+    const { name, description, tags, deadline } = req.body;
+    
+    // Convert deadline from "dd/mm/yyyy" to Date object
     const [day, month, year] = deadline.split("/").map(Number);
     const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
     const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based)
-    const project=new Project({
-        name:name,
-        description:description,
-        deadline:parsedDate,
-        creator_id:email
+
+    // Create a new project object
+    const project = new Project({
+        name: name,
+        description: description,
+        deadline: parsedDate,
+        creator_id: email // Save the email of the creator as creator_id
     });
-    //save the project in the database
+
     try {
+        // Save the project in the database
         await project.save();
-        const pid=project.id;
-        //if tags are present add them to the ProjectTag
-        if(tags.length>0){
-            tags.forEach(async (tag)=>{
-                await ProjectTag.create({project_id:pid,tag_name:tag});
+        const pid = project.id; // Get the project ID after saving
+
+        // Add the project creator (user) to the ProjectUser table
+        await ProjectUser.create({
+            user_id: user_id, // Assign the user to the project
+            project_id: pid   // The project they just created
+        });
+
+        // If tags are present, add them to the ProjectTag
+        if (tags.length > 0) {
+            tags.forEach(async (tag) => {
+                await ProjectTag.create({ project_id: pid, tag_name: tag });
             });
         }
-        return res.status(200).json({message:"Project created successfully"});
+
+        return res.status(200).json({ message: "Project created and user assigned successfully" });
     } catch (error) {
-        return res.status(500).json({message:"Internal server error"});
+        console.error("Error creating project:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-})
+});
+
 
 //get my created projects
 router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
@@ -78,6 +85,8 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
                 deadline: 1,
                 creator_id: 1,
                 is_approved: 1,
+                status: 1,
+                priority: 1,
                 tags: '$tags.tag_name' // Only return the tag names
             }
         }
@@ -230,22 +239,10 @@ router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExist
 //get projects i am assigned to 
 router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) => {
     try {
-        // Extract the token from the authorization header
-        const token = req.header("authorization");
-        if (!token) {
-            return res.status(401).json({ message: "Authorization token missing" });
+        const user=req.user;
+        if(!user){
+            return res.status(401).json({message:"Please enter a valid token"});
         }
-
-        // Verify the token and extract the user's email
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const email = decoded.email;
-
-        // Find the user by email (ensure checkUserEmailExists middleware passed)
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
         const user_id = user.id;
 
         // Fetch all project IDs where the user is assigned in the ProjectUser table

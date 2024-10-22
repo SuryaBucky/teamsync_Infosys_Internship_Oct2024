@@ -66,6 +66,8 @@ async function validateCreateProject(req,res,next){
         if(!user){
             return res.status(401).json({message:"User not found"});
         }
+        req.user_email=user.email;
+        req.user_id=user.id;
     } catch (error) {
         return res.status(401).json({message:"Invalid token"});
     }
@@ -266,6 +268,7 @@ async function checkUserEmailExists(req,res,next){
         if(!user){
             return res.status(401).json({message:"User not found"});
         }
+        req.user=user;
         next();
     } catch (error) {
         return res.status(401).json({message:"Invalid token"});
