@@ -25,7 +25,7 @@ const generateRandomOTP = () => {
 const UserSchema = new mongoose.Schema({
     id: {
         type: String,
-        default: uuidv4, // Generate a UUID by default
+        default: uuidv4,
         required: true,
         unique: true
     },
@@ -44,23 +44,24 @@ const UserSchema = new mongoose.Schema({
     },
     registration_otp: {
         type: String,
-        default: generateRandomOTP // Default to a random 6-digit number
+        default: generateRandomOTP
     },
     reset_otp: {
         type: String,
-        default: generateRandomOTP // Default to a random 6-digit number
+        default: generateRandomOTP
     },
     state: {
         type: String,
-        enum: ['pending', 'verified', 'blocked'], // Enum for state
-        default: 'pending' // Default state is pending
+        enum: ['pending', 'verified', 'blocked'],
+        default: 'pending'
     },
     created_at: {
         type: Date,
         default: Date.now
     },
     last_login: Date
-});
+}, { _id: false }); // Disables MongoDB's default _id field
+
 
 // Admin Schema
 const AdminSchema = new mongoose.Schema({
