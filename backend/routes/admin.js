@@ -40,7 +40,7 @@ router.post("/signin", validateAdminSignIn, async (req, res) => {
     } catch (error) {
         console.error("Error during admin sign-in:", error);
         return res.status(500).json({
-            errors: ["Internal server error."],
+            errors: ["Internal server error 1."],
         });
     }
 });

@@ -97,9 +97,8 @@ const tokenValidationAdmin=async(req,res, next)=>{
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}, '-password_hash -registration_otp -reset_otp') // Fetch all users excluding the password field
-            .lean(); // Use `lean()` to get plain JavaScript objects instead of Mongoose documents
-        
+        const users = await User.find({}, '-password_hash -registration_otp -reset_otp').lean() 
+            
         // Get all projects users are part of
         const projectUsers = await ProjectUser.find().populate('project_id').populate('user_id');
 
