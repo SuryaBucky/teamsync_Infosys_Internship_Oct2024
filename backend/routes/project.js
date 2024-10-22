@@ -13,7 +13,7 @@ router.post("/create", validateCreateProject, async (req, res) => {
     const email = req.user_email;
 
     // Get req body and extract name, description, tags, and deadline
-    const { name, description, tags, deadline } = req.body;
+    const { name, description, tags, deadline, priority } = req.body;
     
     // Convert deadline from "dd/mm/yyyy" to Date object
     const [day, month, year] = deadline.split("/").map(Number);
@@ -25,7 +25,8 @@ router.post("/create", validateCreateProject, async (req, res) => {
         name: name,
         description: description,
         deadline: parsedDate,
-        creator_id: email // Save the email of the creator as creator_id
+        creator_id: email, // Save the email of the creator as creator_id
+        priority: priority
     });
 
     try {
@@ -178,6 +179,11 @@ router.post("/addusers", validateTokenProjectOwner, validateAddUsers, async (req
       if (errors.length > 0) {
         return res.status(400).json({ message: "Some users could not be added", errors });
       }
+
+      const tempProject=req.project;
+      //increment noUsers field by 1 and save
+        tempProject.noUsers+=1;
+        await tempProject.save();
   
       // If no errors, send success message
       return res.status(200).json({ message: "Users added successfully" });

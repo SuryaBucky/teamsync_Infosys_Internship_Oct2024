@@ -144,6 +144,10 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         enum: ['low', 'medium', 'high'],
         default: 'medium'
+    },//a number of users field that is 1 at project creation
+    noUsers:{
+        type:Number,
+        default:1
     }
 });
 
