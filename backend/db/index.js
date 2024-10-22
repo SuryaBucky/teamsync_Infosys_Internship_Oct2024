@@ -62,6 +62,15 @@ const UserSchema = new mongoose.Schema({
     last_login: Date
 }, { _id: false }); // Disables MongoDB's default _id field
 
+// Cascade delete related entries in ProjectUser when a User is deleted
+UserSchema.pre('remove', async function(next) {
+    try {
+        await ProjectUser.deleteMany({ user_id: this.id }); // Remove associated projects in ProjectUser
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 // Admin Schema
 const AdminSchema = new mongoose.Schema({
@@ -125,6 +134,26 @@ const ProjectSchema = new mongoose.Schema({
     is_approved: {
         type: Boolean,
         default: false
+    },
+    status: {
+        type: String,
+        enum: ['active', 'reviewing', 'completed', 'archived'],
+        default: 'active'
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+    }
+});
+
+// Cascade delete related entries in ProjectUser when a Project is deleted
+ProjectSchema.pre('remove', async function(next) {
+    try {
+        await ProjectUser.deleteMany({ project_id: this.id }); // Remove associated users in ProjectUser
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 
