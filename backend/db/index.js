@@ -60,7 +60,7 @@ const UserSchema = new mongoose.Schema({
         default: Date.now
     },
     last_login: Date
-}, { _id: false }); // Disables MongoDB's default _id field
+}); // Disables MongoDB's default _id field
 
 // Cascade delete related entries in ProjectUser when a User is deleted
 UserSchema.pre('remove', async function(next) {
