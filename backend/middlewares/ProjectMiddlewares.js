@@ -249,6 +249,7 @@ async function validateTokenProjectOwner(req,res,next){
         if(projectGet.creator_id!=decoded.email){
             return res.status(401).json({message:"You are not the owner of this project"});
         }
+        req.project=projectGet;
         next();
     } catch (error) {
         
