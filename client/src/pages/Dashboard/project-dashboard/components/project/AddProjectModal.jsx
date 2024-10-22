@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Import Axios
+import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 
 const AddProjectModal = ({ isOpen, onClose }) => {
   const [projectName, setProjectName] = useState('');
@@ -23,7 +26,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (touched.deadline) validateDeadline(deadline);
   }, [deadline, touched.deadline]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     setTouched({
@@ -32,10 +35,44 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       deadline: true,
     });
     if (Object.keys(validationErrors).length === 0) {
-      // Submit form logic
-      console.log({ projectName, projectDescription, deadline });
-      onClose(); // Close modal after submission
+      const token = localStorage.getItem('token'); // Get token from local storage
+      const formattedDeadline = formatDeadline(deadline); // Format the deadline
+      const projectData = {
+        name: projectName,
+        description: projectDescription,
+        deadline: formattedDeadline,
+        tags: [] // Replace with actual tags if needed
+      };
+
+      try {
+        const response = await axios.post('http://localhost:3001/project/create', projectData, {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.status === 200) {
+          toast.success('Project created successfully!'); // Show success message
+          onClose(); // Close modal after submission
+        }
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 401) {
+            toast.error('Unauthorized! Please log in again.'); // Show unauthorized message
+          } else if (error.response.status === 500) {
+            toast.error('Internal server error! Please try again later.'); // Show server error
+          }
+        } else {
+          toast.error('An unexpected error occurred!'); // Show general error message
+        }
+      }
     }
+  };
+
+  const formatDeadline = (date) => {
+    const [year, month, day] = date.split('-'); // Assuming input format is YYYY-MM-DD
+    return `${day}/${month}/${year}`; // Format to DD/MM/YYYY
   };
 
   const validateProjectName = (name) => {
@@ -88,6 +125,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
 
   return (
     <>
+      <ToastContainer /> {/* Include ToastContainer for displaying toasts */}
       {isOpen && (
         <div className="z-50 fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300">
           <div className="bg-white py-12 px-12 rounded-lg shadow-lg max-w-lg mx-h-lg w-full relative">
