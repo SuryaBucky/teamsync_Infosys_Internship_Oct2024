@@ -195,10 +195,10 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             }
         } catch (err) {
             dispatch(openSnackbar({
-                message: err.message,
+                message: "Enter a valid otp",
                 severity: "error",
             }));
-            setOtpError(err.message);
+            setOtpError("Enter a valid otp");
         } finally {
             // Ensure loading state is reset in all cases
             setOtpLoading(false);
