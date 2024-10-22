@@ -8,6 +8,7 @@ import { ProjectRow } from './table/ProjectRow';
 const ProjectTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [projects, setProjects] = useState([]); // State to store projects
+  const [filteredProjects, setFilteredProjects] = useState([]); // State for filtered projects
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
 
@@ -24,6 +25,7 @@ const ProjectTable = () => {
         });
 
         setProjects(response.data); // Set the projects state
+        setFilteredProjects(response.data); // Set the filtered projects to initial projects
       } catch (error) {
         setError(error.response ? error.response.data.message : error.message); // Handle any errors
       } finally {
@@ -33,6 +35,21 @@ const ProjectTable = () => {
 
     fetchProjects(); // Call the function to fetch projects
   }, []);
+
+  // Search function
+  const handleSearch = (e) => {
+    e.preventDefault(); // Prevent default form submission
+    const filtered = projects.filter((project) => {
+      const { name, description } = project;
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      return (
+        name.toLowerCase().includes(lowerCaseQuery) ||
+        description.toLowerCase().includes(lowerCaseQuery) ||
+        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery))) // Check tags if they exist
+      );
+    });
+    setFilteredProjects(filtered); // Set the filtered projects
+  };
 
   // If loading, display a loading message
   if (loading) {
@@ -46,19 +63,19 @@ const ProjectTable = () => {
 
   return (
     <div className="py-6 max-w-[1200px] mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
         <div className="hidden lg:block font-medium text-lg">Table view</div>
         <div className="flex gap-4">
           <SearchBar 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
             <Filter className="h-4 w-4" />
-            <span>Filters</span>
+            <span>Search</span>
           </button>
         </div>
-      </div>
+      </form>
 
       <div className="border rounded-lg">
         <table className="w-full">
@@ -66,9 +83,15 @@ const ProjectTable = () => {
             <TableHeader />
           </thead>
           <tbody>
-            {projects.map(project => (
-              <ProjectRow key={project.id} project={project} />
-            ))}
+            {filteredProjects.length > 0 ? (
+              filteredProjects.map(project => (
+                <ProjectRow key={project.id} project={project} />
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-4">No projects found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
