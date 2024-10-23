@@ -12,7 +12,6 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
   
   const [errors, setErrors] = useState({
     password: [],
