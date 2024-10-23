@@ -29,7 +29,7 @@ router.post("/signin", validateAdminSignIn, async (req, res) => {
         }
 
         // Create a JWT token using the admin's email
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ email, admin_id:admin.id }, process.env.JWT_SECRET, {
             expiresIn: "12h",
         });
 

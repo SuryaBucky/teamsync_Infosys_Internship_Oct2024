@@ -119,6 +119,8 @@ const validateUserSignin = async (req, res, next) => {
         // }
 
         // Proceed to the next middleware
+
+        req.user_id=existingUser.id;
         next();
     } catch (error) {
         // Return error messages if validation or email check fails
@@ -217,14 +219,9 @@ async function tokenValidation(req,res,next){
             });
         }
 
-        //get user id from req params id and check if user with that id exists
-        const id=req.params.id;
-        const check= await User.findOne({id})
-        if(!check){
-            return res.status(400).json({
-                errors: ["Enter a valid user id"],
-            });
-        }
+        // If validation passes and email is unique, call the next middleware
+        req.user_id=existingUser.id;
+        req.user=existingUser;
         next();
     } catch (error) {
         return res.status(400).json({

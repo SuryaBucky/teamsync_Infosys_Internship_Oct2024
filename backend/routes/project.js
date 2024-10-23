@@ -88,11 +88,12 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
                 is_approved: 1,
                 status: 1,
                 priority: 1,
+                noUsers:1,
                 tags: '$tags.tag_name' // Only return the tag names
             }
         }
     ]);
-    return res.status(200).json({projects});
+    return res.status(200).json(projects);
 })
 
 //update a project 
