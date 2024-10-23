@@ -17,7 +17,7 @@ const PendingProject = () => {
       console.log("fetching");
       try {
         const token = localStorage.getItem('token'); // Get token from local storage
-        const response = await axios.get('http://localhost:3001/project/get-my-assigned-projects', {
+        const response = await axios.get('http://localhost:3001/admin/all-projects', {
           headers: {
             'authorization': token, // Set Authorization header
             'Content-Type': 'application/json' // Set content type
@@ -85,11 +85,11 @@ const PendingProject = () => {
           <tbody>
             {filteredProjects.length > 0 ? (
               filteredProjects.map(project => (
-                <ProjectRow key={project.id} project={project} />
+                !project.is_approved && <ProjectRow key={project.id} project={project} />
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-4">No projects found.</td>
+                <td colSpan="7" className="text-center py-4">No projects waiting for approval</td>
               </tr>
             )}
           </tbody>

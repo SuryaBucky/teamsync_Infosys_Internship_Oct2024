@@ -85,11 +85,11 @@ const ProjectTable = () => {
           <tbody>
             {filteredProjects.length > 0 ? (
               filteredProjects.map(project => (
-                <ProjectRow key={project.id} project={project} />
+                project.is_approved && <ProjectRow key={project.id} project={project} />
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-4">No projects found.</td>
+                <td colSpan="7" className="text-center py-4">No projects waiting for approval</td>
               </tr>
             )}
           </tbody>
