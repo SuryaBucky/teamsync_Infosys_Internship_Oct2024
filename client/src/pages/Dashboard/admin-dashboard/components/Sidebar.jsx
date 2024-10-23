@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -36,6 +36,11 @@ const Sidebar = ({ isOpen, onClose }) => {
   const userEmail = useRecoilValue(userEmailState);
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
   const [active,setactive]=useState("approved");
+
+  useEffect(()=>{
+    //on initial render automatically render the approved projects
+    setSidebarSelection("approved");
+  },[])
 
   return (
     <>
