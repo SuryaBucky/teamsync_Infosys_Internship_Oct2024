@@ -1,5 +1,5 @@
 import { selector } from 'recoil';
-import jwt_decode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 export const authenticationState = selector({
   key: 'authenticationState',
@@ -12,7 +12,7 @@ export const authenticationState = selector({
 
     try {
       // Decode token
-      const decoded = jwt_decode(token);
+      const decoded = jwtDecode(token);
       
       // Check if token is expired
       const currentTime = Date.now() / 1000;
