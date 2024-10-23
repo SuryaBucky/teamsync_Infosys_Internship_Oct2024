@@ -35,6 +35,12 @@ const createTask = async (req, res) => {
         if (!project) {
             return res.status(404).json({ message: 'Project not found or not approved' });
         }
+        const parsedDeadline = deadline ? parse(deadline, 'dd/MM/yyyy', new Date()) : undefined;
+
+        // Validate that the parsed deadline is a valid date
+        if (parsedDeadline && isNaN(parsedDeadline)) {
+            return res.status(400).json({ message: 'Invalid date format. Please use DD/MM/YYYY.' });
+        }
 
         // Create a new task with the provided data
         const newTask = new Task({
