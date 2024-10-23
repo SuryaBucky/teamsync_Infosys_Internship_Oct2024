@@ -9,8 +9,11 @@ import {
   faUsers, 
   faLifeRing 
 } from '@fortawesome/free-solid-svg-icons';
+import { userNameState, userEmailState } from '../../../../store/atoms/authAtoms';
+import { useRecoilValue } from 'recoil';
 
 const IconItem = ({ icon, label, active = false }) => {
+  
   return (
     <a
       href="#"
@@ -28,6 +31,8 @@ const IconItem = ({ icon, label, active = false }) => {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const userName = useRecoilValue(userNameState);
+  const userEmail = useRecoilValue(userEmailState);
   return (
     <>
       {/* Overlay */}
@@ -61,8 +66,8 @@ const Sidebar = ({ isOpen, onClose }) => {
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
               {/* <li><IconItem icon={faHome} label="Home" /></li> */}
-              <li><IconItem icon={faFolder} label="Approved Projects" active={true} /></li>
-              <li><IconItem icon={faFolder} label="Projects Waiting for Approval" /></li>
+              <li><IconItem icon={faFolder} label="Approved" active={true} /></li>
+              <li><IconItem icon={faFolder} label="Need Approval" /></li>
               {/* <li><IconItem icon={faFileAlt} label="File Manager" /></li> */}
               <li><IconItem icon={faUsers} label="Users" /></li>
               {/* <li><IconItem icon={faLifeRing} label="Support" /></li> */}
@@ -79,8 +84,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                 alt="User Profile"
               />
               <div>
-                <p className="font-semibold text-gray-800">Neil Sims</p>
-                <p className="text-sm text-gray-500">Lead Designer</p>
+                <p className="font-semibold text-gray-800">{userName}</p>
+                <p className="text-sm text-gray-500">{userEmail}</p>
               </div>
             </div>
           </div>

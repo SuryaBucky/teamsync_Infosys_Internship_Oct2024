@@ -43,6 +43,9 @@ function App() {
             <Route exact path="/dashboard/profile">
               <Route index element={<Profile />} />
             </Route>
+            <Route exact path="/dashboard/admin">
+              <Route index element={<AdminDashboard />} />
+            </Route>
           </Routes>
 
           {/* Snackbar Component */}

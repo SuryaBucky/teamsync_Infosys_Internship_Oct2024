@@ -17,7 +17,7 @@ import OTP from "./OTP";
 import ResetPassword from "./ResetPassword";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import { userEmailState, userIdState, isAdminState } from "../store/atoms/authAtoms";
+import { userEmailState, userIdState, isAdminState, userNameState } from "../store/atoms/authAtoms";
 import {jwtDecode} from "jwt-decode"
 
 const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
@@ -25,6 +25,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
   const setEmailRecoil = useSetRecoilState(userEmailState);
   const setIsAdminRecoil = useSetRecoilState(isAdminState);
   const setUserIdRecoil = useSetRecoilState(userIdState);
+  const setNameRecoil = useSetRecoilState(userNameState);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,6 +100,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             setEmailRecoil(decoded.email);
             setIsAdminRecoil(!!decoded.admin_id);
             setUserIdRecoil(decoded.admin_id || decoded.user_id);
+            setNameRecoil(res.data.name);
             dispatch(loginSuccess(res.data));
             setIsLoggedIn(true);
             setSignInOpen(false);
