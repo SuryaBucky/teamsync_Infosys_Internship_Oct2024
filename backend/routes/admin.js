@@ -36,6 +36,7 @@ router.post("/signin", validateAdminSignIn, async (req, res) => {
         return res.json({
             message: "Admin signed in successfully.",
             token,
+            name:admin.name
         });
     } catch (error) {
         console.error("Error during admin sign-in:", error);
