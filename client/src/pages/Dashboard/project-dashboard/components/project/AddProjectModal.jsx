@@ -55,6 +55,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         if (response.status === 200) {
           toast.success('Project created successfully!'); // Show success message
           onClose(); // Close modal after submission
+          window.location.reload();
         }
       } catch (error) {
         if (error.response) {
