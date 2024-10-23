@@ -108,9 +108,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 severity: "success",
               })
             );
-            if (!decoded.admin_id) {
-              navigate('/dashboard/user');
-            }
+            setTimeout(() => {
+              if (!decoded.admin_id) {
+                navigate('/dashboard/user');
+              }
+            }, 100);
             break;
 
           case 401:

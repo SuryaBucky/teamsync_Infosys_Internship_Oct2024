@@ -195,9 +195,11 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                     message: "OTP verified successfully!",
                     severity: "success",
                 }));
-                if (!decoded.admin_id) {
-                    navigate('/dashboard/user');
-                }
+                setTimeout(() => {
+                    if (!decoded.admin_id) {
+                      navigate('/dashboard/user');
+                    }
+                  }, 100);
     
             } else {
                 setOtpLoading(false);
