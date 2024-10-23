@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +10,7 @@ import {
   faUsers, 
   faLifeRing 
 } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -27,7 +29,8 @@ const IconItem = ({ icon, label, active = false }) => {
   );
 };
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, user }) => {
+  const navigate=useNavigate("/dashboard/users");
   return (
     <>
       {/* Overlay */}
@@ -61,7 +64,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
               <li><IconItem icon={faHome} label="Home" /></li>
-              <li><IconItem icon={faFolder} label="Projects" active={true} /></li>
+              <li><IconItem icon={faFolder} label="Projects" /></li>
               <li><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li><IconItem icon={faUsers} label="Users" /></li>
@@ -72,15 +75,20 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Profile Section */}
           <div className="p-4 mt-auto">
             <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mb-4"></div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={()=>{navigate("/dashboard/profile")}}>
               <img
                 className="w-10 h-10 rounded-full"
                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
                 alt="User Profile"
               />
               <div>
-                <p className="font-semibold text-gray-800">Neil Sims</p>
-                <p className="text-sm text-gray-500">Lead Designer</p>
+              <p className="font-semibold text-gray-800">
+                {user.name.length > 14 ? `${user.name.slice(0, 14)}...` : user.name}
+              </p>
+              <p className="text-sm text-gray-500 line">
+                {user.email.length > 14 ? `${user.email.slice(0, 14)}...` : user.email}
+              </p>
+
               </div>
             </div>
           </div>

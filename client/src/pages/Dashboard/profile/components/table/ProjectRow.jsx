@@ -22,10 +22,17 @@ export const ProjectRow = ({ project }) => {
         </div>
       </td>
       <td className="py-4 px-2">
-        <span className="inline-flex justify-center items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-          {project.status}
-        </span>
+        {project.is_approved ? (
+          <span className="inline-flex justify-center items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+            {project.status}
+          </span>
+        ) : (
+          <span className="inline-flex justify-center items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
+            Not Approved
+          </span>
+        )}
       </td>
+
       <td className="hidden sm:table-cell py-4 px-4 text-black text-xs">
         <div className="max-w-[200px] truncate" title={project.description}>
           {project.description}

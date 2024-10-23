@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import ProjectTable from './ProjectTable';
-import AddProjectModal from './project/AddProjectModal';
+import AddProjectModal from './profile/EditProfileModal';
 
-const Hero = ({ sidebarOpen, setSidebarOpen }) => {
+const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -29,9 +29,9 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
             <Menu className="h-6 w-6" />
           </button>
           <div>
-            <h1 className="text-2xl font-semibold">Projects</h1>
+            <h1 className="text-2xl font-semibold">{`Hi, ${user.name}`}</h1>
             <p className="text-gray-600 text-sm mt-1">
-              View and Manage Your Teams Projects
+              {user.email}
             </p>
           </div>
         </div>
@@ -39,8 +39,8 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
           onClick={openModal} // Open modal on click
         >
-          <FontAwesomeIcon icon={faPlus} />
-          <span className="hidden sm:inline">Add Project</span>
+          <FontAwesomeIcon icon={faPen} />
+          <span className="hidden sm:inline">Edit Profile</span>
         </button>
       </div>
 
