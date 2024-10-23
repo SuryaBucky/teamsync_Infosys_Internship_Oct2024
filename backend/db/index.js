@@ -235,7 +235,13 @@ const TaskSchema = new mongoose.Schema({
     deadline: Date,
     status: {
         type: String,
+        enum: ['0', '1'],
         required: true
+    },
+    priority:{
+        type: String,
+        enum:['0','1','2'],
+        required:true
     },
     creator_id: {
         type: String,
