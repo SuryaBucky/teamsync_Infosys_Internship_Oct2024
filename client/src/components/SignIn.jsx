@@ -109,8 +109,12 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               })
             );
             setTimeout(() => {
-              if (!decoded.admin_id) {
+              console.log(isAdmin);
+              if (!isAdmin) {
                 navigate('/dashboard/user');
+              }
+              else {
+                navigate('/dashboard/admin');
               }
             }, 100);
             break;

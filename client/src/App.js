@@ -13,6 +13,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { closeSnackbar } from "./redux/snackbarSlice";
 import ProjectDashboard from './pages/Dashboard/project-dashboard/ProjectDashboard';
+import AdminDashboard from './pages/Dashboard/admin-dashboard/AdminDashboard';
 import { RecoilRoot } from 'recoil';
 
 function App() {
@@ -37,6 +38,9 @@ function App() {
             </Route>
             <Route exact path="/dashboard/user">
               <Route index element={<ProjectDashboard />} />
+            </Route>
+            <Route exact path="/dashboard/admin">
+              <Route index element={<AdminDashboard />} />
             </Route>
           </Routes>
 
