@@ -5,7 +5,7 @@ import { SearchBar } from './common/SearchBar';
 import { TableHeader } from './table/TableHeader';
 import { ProjectRow } from './table/ProjectRow';
 
-const ProjectTable = () => {
+const PendingProject = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [projects, setProjects] = useState([]); // State to store projects
   const [filteredProjects, setFilteredProjects] = useState([]); // State for filtered projects
@@ -85,7 +85,7 @@ const ProjectTable = () => {
           <tbody>
             {filteredProjects.length > 0 ? (
               filteredProjects.map(project => (
-                project.is_approved && <ProjectRow key={project.id} project={project} />
+                !project.is_approved && <ProjectRow key={project.id} project={project} />
               ))
             ) : (
               <tr>
@@ -99,4 +99,4 @@ const ProjectTable = () => {
   );
 };
 
-export default ProjectTable;
+export default PendingProject;
