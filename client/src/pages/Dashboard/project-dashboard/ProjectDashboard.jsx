@@ -8,14 +8,19 @@ import { authenticationState } from '../../../store/atoms/authVerifierSelector';
 const ProjectDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const auth = useRecoilValue(authenticationState);
-
-  if (!auth.isValid) {
+  const token=localStorage.getItem("token");
+  if(!token){
     return <Navigate to="/" />;
   }
-
-  if (auth.isAdmin) {
-    return <Navigate to="/" />;
-  }
+  setTimeout(() => {
+    if (!auth.isValid) {
+      return <Navigate to="/" />;
+    }
+  
+    if (auth.isAdmin) {
+      return <Navigate to="/" />;
+    }
+  }, 100);
 
   return (
     <div className="min-h-screen bg-gray-50">
