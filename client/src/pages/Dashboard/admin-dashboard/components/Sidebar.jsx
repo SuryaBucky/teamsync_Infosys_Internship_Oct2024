@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -10,7 +10,8 @@ import {
   faLifeRing 
 } from '@fortawesome/free-solid-svg-icons';
 import { userNameState, userEmailState } from '../../../../store/atoms/authAtoms';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 
 const IconItem = ({ icon, label, active = false }) => {
   
@@ -33,6 +34,9 @@ const IconItem = ({ icon, label, active = false }) => {
 const Sidebar = ({ isOpen, onClose }) => {
   const userName = useRecoilValue(userNameState);
   const userEmail = useRecoilValue(userEmailState);
+  const setSidebarSelection = useSetRecoilState(sidebarSelection);
+  const [active,setactive]=useState("approved");
+
   return (
     <>
       {/* Overlay */}
@@ -66,10 +70,21 @@ const Sidebar = ({ isOpen, onClose }) => {
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
               {/* <li><IconItem icon={faHome} label="Home" /></li> */}
-              <li><IconItem icon={faFolder} label="Approved" active={true} /></li>
-              <li><IconItem icon={faFolder} label="Need Approval" /></li>
+              <li onClick={()=>{
+                setactive("approved");
+                setSidebarSelection("approved");
+              }}><IconItem icon={faFolder} label="Approved" active={active==="approved"} /></li>
+
+              <li onClick={()=>{
+                setactive("need-approval");
+                setSidebarSelection("need-approval");
+              }}><IconItem icon={faFolder} label="Need Approval" active={active==="need-approval"} /></li>
               {/* <li><IconItem icon={faFileAlt} label="File Manager" /></li> */}
-              <li><IconItem icon={faUsers} label="Users" /></li>
+
+              <li onClick={()=>{
+                setactive("users");
+                setSidebarSelection("users");
+              }}><IconItem icon={faUsers} label="Users" active={active==="users"} /></li>
               {/* <li><IconItem icon={faLifeRing} label="Support" /></li> */}
             </ul>
           </nav>

@@ -5,8 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import ProjectTable from './ProjectTable';
 import AddProjectModal from './project/AddProjectModal';
+import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
+import { useRecoilValue } from 'recoil';
+import PendingProject from './PenginProject';
+import Users from './Users';
 
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
+  const selectedSidebar = useRecoilValue(sidebarSelection);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -29,9 +34,11 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
             <Menu className="h-6 w-6" />
           </button>
           <div>
-            <h1 className="text-2xl font-semibold">Approved Projects</h1>
+            <h1 className="text-2xl font-semibold">
+              {selectedSidebar === 'approved' ? 'Approved Projects' : selectedSidebar ==='users' ? 'All Users' : selectedSidebar==="need-approval" ? 'Projects Waiting for approval' : "" }
+            </h1>
             <p className="text-gray-600 text-sm mt-1">
-              View and approve pending projects from your team.
+              {selectedSidebar === 'approved' ? 'Approved projects by the admin' : selectedSidebar ==='users' ? 'All users of the application' : selectedSidebar==="need-approval" ? 'Projects waiting for approval by the admin' : "" }
             </p>
           </div>
         </div>
@@ -44,8 +51,10 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         </button> */}
       </div>
 
-      {/* Project Table */}
-      <ProjectTable />
+      {/* Project Table only if sidebar selection is approved */}
+      {selectedSidebar === 'approved' && <ProjectTable />}
+      {selectedSidebar === 'need-approval' && <PendingProject />}
+      {selectedSidebar === 'users' && <Users />}
 
       {/* Add Project Modal */}
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
