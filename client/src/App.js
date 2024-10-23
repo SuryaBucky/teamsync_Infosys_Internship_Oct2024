@@ -13,6 +13,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { closeSnackbar } from "./redux/snackbarSlice";
 import ProjectDashboard from './pages/Dashboard/project-dashboard/ProjectDashboard';
+import { RecoilRoot } from 'recoil';
 
 function App() {
   const snackbarState = useSelector((state) => state.snackbar);
@@ -26,6 +27,7 @@ function App() {
   };
 
   return (
+    <RecoilRoot>
     <DndProvider backend={HTML5Backend}>
       <ThemeProvider theme={darkTheme}>
         <BrowserRouter>
@@ -51,6 +53,7 @@ function App() {
         </BrowserRouter>
       </ThemeProvider>
     </DndProvider>
+    </RecoilRoot>
   );
 }
 

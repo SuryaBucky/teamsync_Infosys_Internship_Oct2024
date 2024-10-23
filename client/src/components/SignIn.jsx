@@ -15,8 +15,17 @@ import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
 import OTP from "./OTP";
 import ResetPassword from "./ResetPassword";
+import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { userEmailState, userIdState, isAdminState } from "../store/atoms/authAtoms";
+import {jwtDecode} from "jwt-decode"
 
 const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
+  const navigate = useNavigate();
+  const setEmailRecoil = useSetRecoilState(userEmailState);
+  const setIsAdminRecoil = useSetRecoilState(isAdminState);
+  const setUserIdRecoil = useSetRecoilState(userIdState);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [Loading, setLoading] = useState(false);
@@ -85,6 +94,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         switch (res.status) {
           case 200:
             localStorage.setItem("token", res.data.token);
+            const decoded = jwtDecode(res.data.token);
+          
+            setEmailRecoil(decoded.email);
+            setIsAdminRecoil(!!decoded.admin_id);
+            setUserIdRecoil(decoded.admin_id || decoded.user_id);
             dispatch(loginSuccess(res.data));
             setIsLoggedIn(true);
             setSignInOpen(false);
@@ -94,6 +108,9 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 severity: "success",
               })
             );
+            if (!decoded.admin_id) {
+              navigate('/dashboard/user');
+            }
             break;
 
           case 401:
