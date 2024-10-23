@@ -55,6 +55,35 @@ router.post("/signin", validateUserSignin,(req,res)=>{
     });
 })
 
+router.put("/edit-name",tokenValidation,async(req,res)=>{
+    //zod input validation for name to be present in req body
+    //extract name only from req body
+    const { name } = req.body;
+    if(name.length<4){
+        return res.status(400).json({
+            errors: ["Name should be atleast 4 characters."],
+        });
+    }
+    try {
+        //get user from req body
+        const user=req.user;
+        //update user name
+        user.name=name;
+        //save updated user
+        await user.save();
+        //send success response
+        return res.status(200).json({
+            message: "User updated successfully.",
+        });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return res.status(500).json({
+            errors: ["Internal server error."],
+        });
+    }
+
+})
+
 router.put("/edit-user", validateUserUpdate, async (req, res) => {
     try {
         //decode jwt token in header to get original email

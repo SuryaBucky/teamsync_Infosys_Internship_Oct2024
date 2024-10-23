@@ -221,6 +221,7 @@ async function tokenValidation(req,res,next){
 
         // If validation passes and email is unique, call the next middleware
         req.user_id=existingUser.id;
+        req.user=existingUser;
         next();
     } catch (error) {
         return res.status(400).json({
