@@ -40,13 +40,8 @@ function App() {
             <Route exact path="/dashboard/user">
               <Route index element={<ProjectDashboard />} />
             </Route>
-<<<<<<< HEAD
             <Route exact path="/dashboard/profile">
               <Route index element={<Profile />} />
-=======
-            <Route exact path="/dashboard/admin">
-              <Route index element={<AdminDashboard />} />
->>>>>>> b30266cb99f8644ec278397449382107963afa65
             </Route>
           </Routes>
 
