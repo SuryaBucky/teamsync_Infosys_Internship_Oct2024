@@ -8,6 +8,9 @@ import { openSnackbar } from "../redux/snackbarSlice";
 import axios from 'axios';
 import { loginSuccess } from '../redux/userSlice'; // Import loginSuccess action
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirect
+import { useSetRecoilState } from "recoil";
+import { userEmailState, userIdState, isAdminState } from "../store/atoms/authAtoms";
+import {jwtDecode} from "jwt-decode"
 
 const Title = styled.div`
   font-size: 22px;
@@ -75,6 +78,11 @@ const Resend = styled.div`
 `;
 
 const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
+
+    const setEmailRecoil = useSetRecoilState(userEmailState);
+    const setIsAdminRecoil = useSetRecoilState(isAdminState);
+    const setUserIdRecoil = useSetRecoilState(userIdState);
+
     const theme = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate()
@@ -173,6 +181,12 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     
                 dispatch(loginSuccess({ token }));
                 localStorage.setItem('token', token);
+
+                const decoded = jwtDecode(response.data.token);
+                setEmailRecoil(decoded.email);
+                setIsAdminRecoil(!!decoded.admin_id);
+                setUserIdRecoil(decoded.admin_id || decoded.user_id);
+
                 setOtpVerified(true);
                 setOtp('');
                 setOtpError('');
@@ -181,8 +195,9 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                     message: "OTP verified successfully!",
                     severity: "success",
                 }));
-                window.location.reload();
-                navigate("/");
+                if (!decoded.admin_id) {
+                    navigate('/dashboard/user');
+                }
     
             } else {
                 setOtpLoading(false);

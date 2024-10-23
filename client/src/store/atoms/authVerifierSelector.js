@@ -1,59 +1,40 @@
 import { selector } from 'recoil';
-import jwt from 'jsonwebtoken';
+import jwt_decode from 'jwt-decode';
 
-// Import Recoil atoms
-import { emailAtom, userIdAtom, isAdminAtom, tokenAtom } from './authAtoms';
+export const authenticationState = selector({
+  key: 'authenticationState',
+  get: () => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      return { isValid: false, isAdmin: false };
+    }
 
-// Selector for verifying the token
-export const tokenVerifierSelector = selector({
-  key: 'tokenVerifierSelector',
-  get: ({ get, set }) => {
     try {
-      // Step 1: Fetch the token from local storage
-      const storedToken = localStorage.getItem('token');
-
-      if (!storedToken) {
-        throw new Error('No token found');
+      // Decode token
+      const decoded = jwt_decode(token);
+      
+      // Check if token is expired
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp < currentTime) {
+        return { isValid: false, isAdmin: false };
       }
 
-      // Step 2: Fetch the JWT secret from environment variables
-      const jwtSecret = process.env.REACT_APP_JWT_SECRET;
-      if (!jwtSecret) {
-        throw new Error('No JWT secret found in environment');
+      // Verify token signature (You'll need to implement this on the backend)
+      // Here we're just checking if the token structure is valid
+      if (!decoded.email || !(decoded.admin_id || decoded.user_id)) {
+        return { isValid: false, isAdmin: false };
       }
 
-      // Step 3: Verify the token using jsonwebtoken
-      const decodedToken = jwt.verify(storedToken, jwtSecret);
-
-      // Step 4: Check if the token is expired
-      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-      if (decodedToken.exp && decodedToken.exp < currentTime) {
-        throw new Error('Token expired');
-      }
-
-      // Step 5: Set the Recoil atoms based on the decoded token data
-      const email = decodedToken.email;
-      const userId = decodedToken.user_id || decodedToken.admin_id;
-      const isAdmin = !!decodedToken.admin_id; // If `admin_id` is present, user is admin
-
-      set(emailAtom, email);
-      set(userIdAtom, userId);
-      set(isAdminAtom, isAdmin);
-
-      // Return the user data for further usage if needed
       return {
-        valid: true,
-        user_id: userId,
-        email: email,
-        isAdmin: isAdmin,
+        isValid: true,
+        isAdmin: !!decoded.admin_id,
+        email: decoded.email,
+        userId: decoded.admin_id || decoded.user_id
       };
-
     } catch (error) {
-      // If token is invalid or expired, return false or error information
-      return {
-        valid: false,
-        error: error.message,
-      };
+      console.error('Token verification failed:', error);
+      return { isValid: false, isAdmin: false };
     }
   },
 });
