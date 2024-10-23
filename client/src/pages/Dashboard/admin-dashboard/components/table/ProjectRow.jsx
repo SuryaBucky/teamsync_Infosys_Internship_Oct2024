@@ -17,7 +17,9 @@ export const ProjectRow = ({ project }) => {
         <div className="flex items-center gap-2">
           <div>
             <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
-            <div className="text-xs text-gray-500">{project.name}</div>
+            <div className="text-xs text-gray-500" title={project.creator_id}>
+              {project.creator_id.length > 16 ? project.creator_id.slice(0, 16) + '...' : project.creator_id}
+            </div>
           </div>
         </div>
       </td>

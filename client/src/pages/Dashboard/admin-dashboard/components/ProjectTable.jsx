@@ -17,7 +17,7 @@ const ProjectTable = () => {
       console.log("fetching");
       try {
         const token = localStorage.getItem('token'); // Get token from local storage
-        const response = await axios.get('http://localhost:3001/project/get-my-assigned-projects', {
+        const response = await axios.get('http://localhost:3001/admin/all-projects', {
           headers: {
             'authorization': token, // Set Authorization header
             'Content-Type': 'application/json' // Set content type
