@@ -1,99 +1,132 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
-import { Filter } from 'lucide-react';
+import axios from 'axios';
+import { Search } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
-import { TableHeader } from './table/TableHeader';
-import { ProjectRow } from './table/ProjectRow';
 
 const Users = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [projects, setProjects] = useState([]); // State to store projects
-  const [filteredProjects, setFilteredProjects] = useState([]); // State for filtered projects
-  const [loading, setLoading] = useState(true); // State for loading status
-  const [error, setError] = useState(null); // State for error handling
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      console.log("fetching");
+    const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token'); // Get token from local storage
-        const response = await axios.get('http://localhost:3001/project/get-my-assigned-projects', {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/admin/all-users', {
           headers: {
-            'authorization': token, // Set Authorization header
-            'Content-Type': 'application/json' // Set content type
+            'authorization': token,
+            'Content-Type': 'application/json'
           },
         });
 
-        setProjects(response.data); // Set the projects state
-        setFilteredProjects(response.data); // Set the filtered projects to initial projects
+        setUsers(response.data);
+        setFilteredUsers(response.data);
       } catch (error) {
-        setError(error.response ? error.response.data.message : error.message); // Handle any errors
+        setError(error.response ? error.response.data.message : error.message);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
-    fetchProjects(); // Call the function to fetch projects
+    fetchUsers();
   }, []);
 
-  // Search function
   const handleSearch = (e) => {
-    e.preventDefault(); // Prevent default form submission
-    const filtered = projects.filter((project) => {
-      const { name, description } = project;
+    e.preventDefault();
+    const filtered = users.filter((user) => {
       const lowerCaseQuery = searchQuery.toLowerCase();
       return (
-        name.toLowerCase().includes(lowerCaseQuery) ||
-        description.toLowerCase().includes(lowerCaseQuery) ||
-        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery))) // Check tags if they exist
+        user.name.toLowerCase().includes(lowerCaseQuery) ||
+        user.email.toLowerCase().includes(lowerCaseQuery)
       );
     });
-    setFilteredProjects(filtered); // Set the filtered projects
+    setFilteredUsers(filtered);
   };
 
-  // If loading, display a loading message
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    });
+  };
+
   if (loading) {
-    return <div>Loading projects...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  // If there's an error, display an error message
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="text-red-600 p-4 text-center">
+        Error: {error}
+      </div>
+    );
   }
 
   return (
-    <div className="py-6 max-w-[1200px] mx-auto">
-      <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
-        <div className="hidden lg:block font-medium text-lg">Table view</div>
-        <div className="flex gap-4">
-          <SearchBar 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-            <Filter className="h-4 w-4" />
-            <span>Search</span>
+    <div className="bg-white rounded-lg shadow">
+      <div className="p-6">
+        <h1 className="text-xl font-semibold mb-4">Users</h1>
+        
+        <div className="flex gap-4 mb-6">
+          <form onSubmit={handleSearch} className="flex-1">
+            <SearchBar
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
+          <button
+            onClick={handleSearch}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            Search
           </button>
         </div>
-      </form>
 
-      <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <TableHeader />
-          </thead>
-          <tbody>
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map(project => (
-                <ProjectRow key={project.id} project={project} />
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center py-4">No projects found.</td>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-gray-100">
+                <th className="text-left py-4 px-6 font-medium text-xs">Username</th>
+                <th className="text-left py-4 px-6 font-medium text-xs">Email</th>
+                <th className="text-left py-4 px-6 font-medium text-xs">Joined On</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user, index) => (
+                  <tr key={index} className="border-b last:border-b-0 hover:bg-gray-50">
+                    <td className="py-4 px-6">
+                      <div className="font-medium text-sm">{user.name}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-600">{user.email}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-gray-500">
+                        {formatDate(user.created_at)}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center py-4 text-gray-500">
+                    No users found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
