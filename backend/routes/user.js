@@ -46,7 +46,7 @@ router.post("/signup", validateUserSignup, async (req, res) => {
 router.post("/signin", validateUserSignin,(req,res)=>{
     // all checks done create a jwt token using user's email and send it in response 
     const { email } = req.body;
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ email,user_id:req.user_id }, process.env.JWT_SECRET, {
         expiresIn: "12h",
     });
     return res.json({
@@ -78,7 +78,7 @@ router.put("/edit-user", validateUserUpdate, async (req, res) => {
         await updateUser.save();
         //if user updated the email compare email in jwt and req body, then send new token to user as well
         if(email!==req.body.email){
-            const token = jwt.sign({ email:req.body.email }, process.env.JWT_SECRET, {
+            const token = jwt.sign({ email:req.body.email, user_id:updateUser.id }, process.env.JWT_SECRET, {
                 expiresIn: "12h",
             });
             return res.json({
@@ -238,7 +238,7 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
         userOne.registration_otp=Math.floor(100000 + Math.random() * 900000).toString();
         await userOne.save();
         //generate new jwt token
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ email, user_id:userOne.id }, process.env.JWT_SECRET, {
             expiresIn: "12h",
         });
         return res.status(200).json({
@@ -252,9 +252,9 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
     }
 })
 
-router.get("/profile/:id", tokenValidation, async (req,res)=>{
+router.get("/profile", tokenValidation, async (req,res)=>{
     try {
-        const id=req.params.id;
+        const id=req.user_id;
         const RequestedUser=await User.findOne({id})
         if(!RequestedUser){
             return res.status(400).json({
@@ -265,9 +265,9 @@ router.get("/profile/:id", tokenValidation, async (req,res)=>{
             id:RequestedUser.id,
             name:RequestedUser.name,
             email:RequestedUser.email,
-            state:RequestedUser.state,
-            created_at:RequestedUser.created_at,
-            last_login:RequestedUser.last_login
+            // state:RequestedUser.state,
+            // created_at:RequestedUser.created_at,
+            // last_login:RequestedUser.last_login
         });   
     } catch (error) {
         console.error("Error getting user:", error);

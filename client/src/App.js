@@ -14,6 +14,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { closeSnackbar } from "./redux/snackbarSlice";
 import ProjectDashboard from './pages/Dashboard/project-dashboard/ProjectDashboard';
 import { RecoilRoot } from 'recoil';
+import Profile from './pages/Dashboard/profile/Profile';
 
 function App() {
   const snackbarState = useSelector((state) => state.snackbar);
@@ -37,6 +38,9 @@ function App() {
             </Route>
             <Route exact path="/dashboard/user">
               <Route index element={<ProjectDashboard />} />
+            </Route>
+            <Route exact path="/dashboard/profile">
+              <Route index element={<Profile />} />
             </Route>
           </Routes>
 
