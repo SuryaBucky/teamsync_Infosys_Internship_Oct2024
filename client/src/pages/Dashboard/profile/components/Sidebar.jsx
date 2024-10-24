@@ -80,7 +80,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
               }}><IconItem icon={faFolder} label="Your projects" active={active==="projects"} /></li>
               <li onClick={()=>{
                 navigate("/dashboard/user")
-              }}><IconItem icon={faFolder} label="Projects" /></li>
+              }}><IconItem icon={faFolder} label="Assigned Projects" /></li>
               <li><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li onClick={()=>{

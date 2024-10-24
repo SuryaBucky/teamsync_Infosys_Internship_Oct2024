@@ -24,8 +24,11 @@ const ProjectTable = () => {
           },
         });
 
-        setProjects(response.data); // Set the projects state
-        setFilteredProjects(response.data); // Set the filtered projects to initial projects
+        // Filter projects where is_approved is true
+        const approvedProjects = response.data.filter(project => project.is_approved);
+
+        setProjects(approvedProjects); // Set the projects state
+        setFilteredProjects(approvedProjects); // Set the filtered projects to initial projects
       } catch (error) {
         setError(error.response ? error.response.data.message : error.message); // Handle any errors
       } finally {
@@ -89,7 +92,7 @@ const ProjectTable = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-4">No projects found.</td>
+                <td colSpan="7" className="text-center py-4">No Approved projects found.</td>
               </tr>
             )}
           </tbody>
