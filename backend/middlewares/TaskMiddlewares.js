@@ -29,6 +29,11 @@ const EditTaskDetailsSchema = z.object({
     message: 'At least one of description or priority must be provided',
 });
 
+// Define a schema for status validation
+const UpdateStatusSchema = z.object({
+    status: z.enum(['0', '1'], { message: 'Status must be 0 (incomplete) or 1 (complete)' })
+});
+
 // Middleware function for validating task creation inputs
 const validateTaskCreation = async (req, res, next) => {
     try {
@@ -273,6 +278,117 @@ const editTaskDetails = async (req, res) => {
     }
 };
 
+// Middleware to validate status update request
+const validateStatusUpdate = (req, res, next) => {
+    try {
+        // Validate the request body against the schema
+        UpdateStatusSchema.parse(req.body);
+        next(); // Proceed to the next middleware or route handler if valid
+    } catch (error) {
+        // If validation fails, return a 400 error with details
+        return res.status(400).json({ message: error.errors });
+    }
+};
+
+// Middleware for updating the task status
+const updateStatus = async (req, res) => {
+    try {
+        const { task_id } = req.params; // Extract the task ID from the URL parameters
+        const { status } = req.body; // Extract the new status from the request body
+
+        // Find the task by its ID
+        const task = await Task.findById(task_id);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Check if the new status is the same as the existing one
+        if (task.status === status) {
+            return res.status(400).json({ message: 'The provided status is the same as the current status' });
+        }
+
+        // Update the status of the task
+        task.status = status;
+        task.updated_at = new Date(); // Update the `updated_at` field
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Status updated successfully',
+            task
+        });
+    } catch (error) {
+        console.error('Error updating status:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// Middleware for deleting a task
+const deleteTask = async (req, res) => {
+    try {
+        const { project_id } = req.params; // Extract project ID from URL parameters
+        const {task_id} = req.body;//Extract task ID from request body
+
+        // Find the task by its ID and ensure it belongs to the specified project
+        const task = await Task.findOne({ _id: task_id, project_id });
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found or does not belong to the specified project' });
+        }
+
+        // Delete the task
+        await Task.deleteOne({ _id: task_id });
+
+        return res.status(200).json({
+            message: 'Task deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+};
+
+// Middleware for fetching tasks created by a user
+const getTasksCreatedByUser = async (req, res) => {
+    try {
+        const { user_id } = req.params; // Extract user ID from URL parameters
+
+        // Find tasks where the user is the creator
+        const tasks = await Task.find({ creator_id: user_id });
+
+        return res.status(200).json({
+            message: 'Tasks created by user retrieved successfully',
+            tasks
+        });
+    } catch (error) {
+        console.error('Error fetching tasks created by user:', error);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+};
+
+// Middleware for fetching tasks associated with a user
+const getTasksAssignedToUser = async (req, res) => {
+    try {
+        const { user_id } = req.params; // Extract user ID from URL parameters
+
+        // Find tasks where the user is an assignee
+        const tasks = await Task.find({ assignees: user_id });
+
+        return res.status(200).json({
+            message: 'Tasks assigned to user retrieved successfully',
+            tasks
+        });
+    } catch (error) {
+        console.error('Error fetching tasks assigned to user:', error);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+};
+
+
 module.exports = {
     validateTaskCreation,
     createTask,
@@ -282,5 +398,10 @@ module.exports = {
     validateUpdateDeadline,
     updatedeadline,
     validateEditDetails,
-    editTaskDetails
+    editTaskDetails,
+    validateStatusUpdate,
+    updateStatus,
+    deleteTask,
+    getTasksCreatedByUser,
+    getTasksAssignedToUser
 };
