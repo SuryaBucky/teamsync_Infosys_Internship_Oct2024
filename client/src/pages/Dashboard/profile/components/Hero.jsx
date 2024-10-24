@@ -5,9 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import ProjectTable from './ProjectTable';
 import AddProjectModal from './profile/EditProfileModal';
+import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
+import { useRecoilValue } from 'recoil';
+import UsersProfile from './UsersProfile';
 
 const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const selectedSidebar = useRecoilValue(sidebarSelection);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -45,7 +49,9 @@ const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
       </div>
 
       {/* Project Table */}
-      <ProjectTable />
+      
+      {selectedSidebar === 'users' && <UsersProfile />}
+      {selectedSidebar === 'projects' && <ProjectTable />}
 
       {/* Add Project Modal */}
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />

@@ -95,6 +95,25 @@ const tokenValidationAdmin=async(req,res, next)=>{
     }
 }
 
+const tokenValidationUser=async(req,res,next)=>{
+    try {
+        const token = req.header('authorization');
+        if (!token) {
+            return res.status(401).json({ message: 'Token not found' });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findOne({ email: decoded.email });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+        req.user = { userId: user.id }; // Set the authenticated user in the request object
+        next();
+    } catch (error) {
+        console.error('Error validating token:', error);
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
 const getAllUsers = async (req, res) => {
     try {
         
@@ -154,5 +173,6 @@ module.exports = {
     approveProject,
     getAllUsers,
     getAllProjects,
-    tokenValidationAdmin
+    tokenValidationAdmin,
+    tokenValidationUser
 };

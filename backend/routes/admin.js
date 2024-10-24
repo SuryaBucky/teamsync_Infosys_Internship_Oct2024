@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const { Admin } = require("../db/index"); // Import the Admin model
-const { validateAdminSignIn, tokenValidationAdmin } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
+const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
 const { validateProjectApproval, approveProject, getAllProjects, getAllUsers } = require("../middlewares/AdminMiddlewares");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -54,6 +54,8 @@ router.get("/all-users",tokenValidationAdmin, getAllUsers);
 
 // Route to get all projects and their details
 router.get("/all-projects",tokenValidationAdmin, getAllProjects);
+
+router.get("/all-users-Users", tokenValidationUser, getAllUsers);
 
 
 

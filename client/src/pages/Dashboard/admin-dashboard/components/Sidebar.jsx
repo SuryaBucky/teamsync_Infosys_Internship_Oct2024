@@ -32,8 +32,8 @@ const IconItem = ({ icon, label, active = false }) => {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const userName = useRecoilValue(userNameState);
-  const userEmail = useRecoilValue(userEmailState);
+  const userName = localStorage.getItem("userName");
+  const userEmail = localStorage.getItem("userEmail");
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
   const [active,setactive]=useState("approved");
 
@@ -104,8 +104,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                 alt="User Profile"
               />
               <div>
-                <p className="font-semibold text-gray-800">{userName}</p>
-                <p className="text-sm text-gray-500">{userEmail}</p>
+                <p className="font-semibold text-gray-800">{userName || "admin"}</p>
+                <p className="text-sm text-gray-500">{userEmail || "admin@mail.com"}</p>
               </div>
             </div>
           </div>
