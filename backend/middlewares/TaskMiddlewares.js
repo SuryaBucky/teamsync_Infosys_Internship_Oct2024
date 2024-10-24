@@ -16,12 +16,26 @@ const AddAssigneeSchema = z.object({
     assignee_id: z.string().min(1, { message: 'Assignee ID is required' })
 });
 
+// Schema for validating the deadline update
+const UpdateDeadlineSchema = z.object({
+    deadline: z.string().min(1, { message: 'Deadline is required' }),
+});
+
 
 // Middleware function for validating task creation inputs
-const validateTaskCreation = (req, res, next) => {
+const validateTaskCreation = async (req, res, next) => {
     try {
         // Validate the request body against the schema
         TaskCreationSchema.parse(req.body);
+        const { title } = req.body;
+        const { project_id } = req.params;
+
+        // Check if a task with the same title already exists in the specified project
+        const existingTask = await Task.findOne({ title, project_id });
+
+        if (existingTask) {
+            return res.status(400).json({ message: 'A task with this title already exists in the specified project' });
+        }
         next(); // Proceed to the next middleware/route handler if valid
     } catch (error) {
         // If validation fails, return an error response
@@ -157,11 +171,53 @@ const addAssignee = async (req, res) => {
     }
 };
 
+// Middleware for validating the deadline update input
+const validateUpdateDeadline = (req, res, next) => {
+    try {
+        // Validate the request body against the schema
+        UpdateDeadlineSchema.parse(req.body);
+        next(); // Proceed if valid
+    } catch (error) {
+        // If validation fails, return an error response
+        return res.status(400).json({ message: error.errors });
+    }
+};
+
+const updatedeadline = async (req, res) => {
+    try {
+        const { task_id } = req.params;
+        const { deadline } = req.body;
+
+        // Find the task by its ID
+        const task = await Task.findById(task_id);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Update the deadline and save the task
+        task.deadline = new Date(deadline);
+        task.updated_at = new Date(); // Update the `updated_at` field
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Deadline updated successfully',
+            task,
+        });
+    } catch (error) {
+        console.error('Error updating deadline:', error);
+        return res.status(500).json({
+            message: 'Internal server error',
+        });
+    }
+};
+
 
 module.exports = {
     validateTaskCreation,
     createTask,
     viewTasksByProject,
     validateAddAssignee,
-    addAssignee
+    addAssignee,
+    validateUpdateDeadline,
+    updatedeadline
 };
