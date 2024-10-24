@@ -21,6 +21,13 @@ const UpdateDeadlineSchema = z.object({
     deadline: z.string().min(1, { message: 'Deadline is required' }),
 });
 
+// Define a schema for the edit details validation
+const EditTaskDetailsSchema = z.object({
+    description: z.string().optional(),
+    priority: z.enum(['0', '1', '2']).optional(), // '0' = low, '1' = medium, '2' = high
+}).refine(data => data.description !== undefined || data.priority !== undefined, {
+    message: 'At least one of description or priority must be provided',
+});
 
 // Middleware function for validating task creation inputs
 const validateTaskCreation = async (req, res, next) => {
@@ -211,6 +218,60 @@ const updatedeadline = async (req, res) => {
     }
 };
 
+const validateEditDetails = (req, res, next) => {
+    try {
+        // Validate the request body against the schema
+        EditTaskDetailsSchema.parse(req.body);
+        next(); // Proceed if valid
+    } catch (error) {
+        // If validation fails, return an error response
+        return res.status(400).json({ message: error.errors });
+    }
+};
+
+// Middleware for updating task details
+const editTaskDetails = async (req, res) => {
+    try {
+        const { task_id } = req.params; // Extract task ID from URL parameters
+        const { description, priority } = req.body;
+
+        // Find the task by its ID
+        const task = await Task.findById(task_id);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Check if the new description and priority are the same as the existing ones
+        const isSameDescription = description ? task.description === description : true;
+        const isSamePriority = priority ? task.priority === priority : true;
+
+        if (isSameDescription && isSamePriority) {
+            return res.status(400).json({ message: 'No changes detected. Description and priority are the same as the current values.' });
+        }
+
+        // Update the fields that are provided and have changed
+        if (description && !isSameDescription) {
+            task.description = description;
+        }
+        if (priority && !isSamePriority) {
+            task.priority = priority;
+        }
+
+        // Save the updated task
+        task.updated_at = new Date(); // Update the `updated_at` field
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Task details updated successfully',
+            task,
+        });
+    } catch (error) {
+        console.error('Error updating task details:', error);
+        return res.status(500).json({
+            message: 'Internal server error',
+        });
+    }
+};
 
 module.exports = {
     validateTaskCreation,
@@ -219,5 +280,7 @@ module.exports = {
     validateAddAssignee,
     addAssignee,
     validateUpdateDeadline,
-    updatedeadline
+    updatedeadline,
+    validateEditDetails,
+    editTaskDetails
 };
