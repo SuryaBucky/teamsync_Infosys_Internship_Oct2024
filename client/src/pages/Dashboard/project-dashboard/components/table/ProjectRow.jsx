@@ -9,7 +9,20 @@ export const ProjectRow = ({ project }) => {
     month: '2-digit',
     year: '2-digit',
   });
-  
+
+  // Function to determine priority styling
+  const getPriorityStyle = (priority) => {
+    switch (priority) {
+      case 'low':
+        return 'bg-blue-100 text-blue-800'; // Blue for low priority
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800'; // Yellow for medium priority
+      case 'high':
+        return 'bg-red-100 text-red-800'; // Red for high priority
+      default:
+        return 'bg-gray-100 text-gray-800'; // Default if no priority set
+    }
+  };
 
   return (
     <tr className="border-b last:border-b-0 hover:bg-gray-50">
@@ -17,7 +30,7 @@ export const ProjectRow = ({ project }) => {
         <div className="flex items-center gap-2">
           <div>
             <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
-            <div className="text-xs text-gray-500">{project.name}</div>
+            <div className="text-xs text-gray-500">{project.creator_id}</div>
           </div>
         </div>
       </td>
@@ -52,7 +65,16 @@ export const ProjectRow = ({ project }) => {
         <ProgressBar progress={project.progress || 0} /> {/* Assuming project has a progress field */}
       </td>
       <td className="py-4 ps-7 px-4">
-        <div className="text-xs text-gray-500">{formattedDeadline}</div> {/* New Deadline Cell */}
+        <div className="text-xs text-gray-500">{formattedDeadline}</div> {/* Deadline Cell */}
+      </td>
+      <td className="py-4 px-2">
+        <span
+          className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getPriorityStyle(
+            project.priority
+          )}`}
+        >
+          {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)} {/* Capitalize first letter */}
+        </span>
       </td>
       <td className="py-4 px-2">
         <button className="p-1 hover:bg-gray-100 rounded">

@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
-import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import { X } from 'lucide-react';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddProjectModal = ({ isOpen, onClose }) => {
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState([]);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({
     projectName: false,
     projectDescription: false,
     deadline: false,
+    priority: false,
+    tags: false,
   });
 
   useEffect(() => {
@@ -26,6 +32,37 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (touched.deadline) validateDeadline(deadline);
   }, [deadline, touched.deadline]);
 
+  useEffect(() => {
+    if (touched.tags) validateTags(tags);
+  }, [tags, touched.tags]);
+
+  const handleTagInputKeyDown = (e) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase();
+      
+      // Validate tag length
+      if (newTag.length < 2) {
+        setErrors(prev => ({ ...prev, tags: 'Tags must be at least 2 characters long' }));
+        return;
+      }
+      
+      // Check for duplicate tags
+      if (tags.includes(newTag)) {
+        setErrors(prev => ({ ...prev, tags: 'This tag already exists' }));
+        return;
+      }
+
+      setTags(prev => [...prev, newTag]);
+      setTagInput('');
+      setErrors(prev => ({ ...prev, tags: undefined }));
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags(prev => prev.filter(tag => tag !== tagToRemove));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
@@ -33,15 +70,19 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       projectName: true,
       projectDescription: true,
       deadline: true,
+      priority: true,
+      tags: true,
     });
+
     if (Object.keys(validationErrors).length === 0) {
-      const token = localStorage.getItem('token'); // Get token from local storage
-      const formattedDeadline = formatDeadline(deadline); // Format the deadline
+      const token = localStorage.getItem('token');
+      const formattedDeadline = formatDeadline(deadline);
       const projectData = {
         name: projectName,
         description: projectDescription,
         deadline: formattedDeadline,
-        tags: [] // Replace with actual tags if needed
+        priority,
+        tags
       };
 
       try {
@@ -53,42 +94,42 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         });
 
         if (response.status === 200) {
-          toast.success('Project created successfully!'); // Show success message
-          onClose(); // Close modal after submission
+          toast.success('Project created successfully!');
+          onClose();
           window.location.reload();
         }
       } catch (error) {
         if (error.response) {
           if (error.response.status === 401) {
-            toast.error('Unauthorized! Please log in again.'); // Show unauthorized message
+            toast.error('Unauthorized! Please log in again.');
           } else if (error.response.status === 500) {
-            toast.error('Internal server error! Please try again later.'); // Show server error
+            toast.error('Internal server error! Please try again later.');
           }
         } else {
-          toast.error('An unexpected error occurred!'); // Show general error message
+          toast.error('An unexpected error occurred!');
         }
       }
     }
   };
 
   const formatDeadline = (date) => {
-    const [year, month, day] = date.split('-'); // Assuming input format is YYYY-MM-DD
-    return `${day}/${month}/${year}`; // Format to DD/MM/YYYY
+    const [year, month, day] = date.split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const validateProjectName = (name) => {
     if (name.length < 4) {
-      setErrors((prev) => ({ ...prev, projectName: 'Project name must be at least 4 characters long' }));
+      setErrors(prev => ({ ...prev, projectName: 'Project name must be at least 4 characters long' }));
     } else {
-      setErrors((prev) => ({ ...prev, projectName: undefined }));
+      setErrors(prev => ({ ...prev, projectName: undefined }));
     }
   };
 
   const validateProjectDescription = (description) => {
-    if (description.split(' ').length < 10) {
-      setErrors((prev) => ({ ...prev, projectDescription: 'Project description must be at least 10 words long' }));
+    if (description.length < 4) {
+      setErrors(prev => ({ ...prev, projectDescription: 'Project description must be at least 4 characters long' }));
     } else {
-      setErrors((prev) => ({ ...prev, projectDescription: undefined }));
+      setErrors(prev => ({ ...prev, projectDescription: undefined }));
     }
   };
 
@@ -97,9 +138,17 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     const currentDate = new Date();
     const minDeadline = new Date(currentDate.setDate(currentDate.getDate() + 2));
     if (!date || selectedDate < minDeadline) {
-      setErrors((prev) => ({ ...prev, deadline: 'Deadline must be at least 2 days ahead of today' }));
+      setErrors(prev => ({ ...prev, deadline: 'Deadline must be at least 2 days ahead of today' }));
     } else {
-      setErrors((prev) => ({ ...prev, deadline: undefined }));
+      setErrors(prev => ({ ...prev, deadline: undefined }));
+    }
+  };
+
+  const validateTags = (tags) => {
+    if (tags.length === 0) {
+      setErrors(prev => ({ ...prev, tags: 'At least one tag is required' }));
+    } else {
+      setErrors(prev => ({ ...prev, tags: undefined }));
     }
   };
 
@@ -108,8 +157,8 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (projectName.length < 4) {
       errors.projectName = 'Project name must be at least 4 characters long';
     }
-    if (projectDescription.split(' ').length < 10) {
-      errors.projectDescription = 'Project description must be at least 10 words long';
+    if (projectDescription.length < 4) {
+      errors.projectDescription = 'Project description must be at least 4 characters long';
     }
     const selectedDate = new Date(deadline);
     const currentDate = new Date();
@@ -117,16 +166,19 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (!deadline || selectedDate < minDeadline) {
       errors.deadline = 'Deadline must be at least 2 days ahead of today';
     }
+    if (tags.length === 0) {
+      errors.tags = 'At least one tag is required';
+    }
     return errors;
   };
 
   const handleFocus = (field) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
+    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   return (
     <>
-      <ToastContainer /> {/* Include ToastContainer for displaying toasts */}
+      <ToastContainer />
       {isOpen && (
         <div className="z-50 fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300">
           <div className="bg-white py-12 px-12 rounded-lg shadow-lg max-w-lg mx-h-lg w-full relative">
@@ -172,6 +224,58 @@ const AddProjectModal = ({ isOpen, onClose }) => {
                 />
                 {touched.projectDescription && errors.projectDescription && (
                   <p className="text-red-500 text-sm mt-1">{errors.projectDescription}</p>
+                )}
+              </div>
+
+              {/* Priority */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Priority
+                </label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="w-full p-2 border border-black rounded focus:outline-none focus:border-blue-500"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+
+              {/* Tags */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
+                  Tags
+                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="hover:text-red-500"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  placeholder="Type a tag and press Enter"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagInputKeyDown}
+                  onFocus={() => handleFocus('tags')}
+                  className={`w-full p-2 border ${touched.tags && errors.tags ? 'border-red-500' : 'border-black'} rounded focus:outline-none focus:border-blue-500`}
+                />
+                {touched.tags && errors.tags && (
+                  <p className="text-red-500 text-sm mt-1">{errors.tags}</p>
                 )}
               </div>
 

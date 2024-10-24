@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const projectCreateSchema = z.object({
-    name: z.string().min(4, { message: "Name is required" }),
+    name: z.string().min(4, { message: "Name is required" }),   
     description: z.string().min(4, { message: "Description is required" }),
-    tags: z.array(z.string().min(1, { message: "Tagname is required" })).optional(),
+    tags: z.array(z.string().min(1, { message: "Tagname is required" })),
     deadline: z.optional(
         z.preprocess(
           (val) => {
@@ -18,10 +18,10 @@ const projectCreateSchema = z.object({
             }
             return null;
           },
-          z.date().refine((date) => !isNaN(date.getTime()), { message: "Invalid date format, expected dd/mm/yy" })
+          z.date().refine((date) => !isNaN(date.getTime()), { message: "Invalid date format, expected dd/mm/yy" }),
         )
-      )
-      
+      ),
+      priority: z.enum(['low', 'medium', 'high']).default('medium'), // Add priority field with enum
   });
 
   const projectUpdateSchema=z.object({
@@ -88,7 +88,7 @@ async function validateCreateProject(req,res,next){
         const project=await Project.findOne({name:req.body.name})
         if(project){
             console.log("hahah")
-            return res.status(400).json({message:"Project with same name already exists"});
+            return res.status(400).json({message:"Project with same name already exists",tag:1});
         }
         next();
     } catch (error) {
