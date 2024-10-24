@@ -183,7 +183,7 @@ router.post("/addusers", validateTokenProjectOwner, validateAddUsers, async (req
 
       const tempProject=req.project;
       //increment noUsers field by 1 and save
-        tempProject.noUsers+=1;
+        tempProject.noUsers+=user_ids.length;
         await tempProject.save();
   
       // If no errors, send success message
