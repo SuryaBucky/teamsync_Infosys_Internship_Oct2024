@@ -30,7 +30,7 @@ const IconItem = ({ icon, label, active = false }) => {
 };
 
 const Sidebar = ({ isOpen, onClose, user }) => {
-  const navigate=useNavigate("/dashboard/users");
+  const navigate=useNavigate();
   return (
     <>
       {/* Overlay */}
@@ -64,7 +64,9 @@ const Sidebar = ({ isOpen, onClose, user }) => {
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
               <li><IconItem icon={faHome} label="Home" /></li>
-              <li><IconItem icon={faFolder} label="Projects" /></li>
+              <li onClick={()=>{
+                navigate("/dashboard/user")
+              }}><IconItem icon={faFolder} label="Projects" /></li>
               <li><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li><IconItem icon={faUsers} label="Users" /></li>

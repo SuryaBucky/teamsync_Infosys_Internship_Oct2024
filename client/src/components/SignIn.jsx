@@ -90,7 +90,6 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         );
 
         setApiResponse(res);
-        console.log(res);
 
         switch (res.status) {
           case 200:
@@ -101,6 +100,8 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             setIsAdminRecoil(!!decoded.admin_id);
             setUserIdRecoil(decoded.admin_id || decoded.user_id);
             setNameRecoil(res.data.name);
+            localStorage.setItem("userName",res.data.name)
+            localStorage.setItem("userEmail",decoded.email)
             dispatch(loginSuccess(res.data));
             setIsLoggedIn(true);
             setSignInOpen(false);
