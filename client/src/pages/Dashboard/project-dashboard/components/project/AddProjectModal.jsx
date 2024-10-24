@@ -36,6 +36,16 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (touched.tags) validateTags(tags);
   }, [tags, touched.tags]);
 
+  const checkProjectNameExists = async (name) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/project/check-name?name=${name}`);
+      return response.data.exists;
+    } catch (error) {
+      console.error('Error checking project name:', error);
+      return false;
+    }
+  };
+
   const handleTagInputKeyDown = (e) => {
     if (e.key === 'Enter' && tagInput.trim()) {
       e.preventDefault();
@@ -75,6 +85,14 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     });
 
     if (Object.keys(validationErrors).length === 0) {
+
+      try {
+
+      const projectNameExists = await checkProjectNameExists(projectName);
+      if (projectNameExists) {
+        toast.error('A project with this name already exists. Please choose a different name.');
+        return;
+      }
       const token = localStorage.getItem('token');
       const formattedDeadline = formatDeadline(deadline);
       const projectData = {
@@ -85,7 +103,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         tags
       };
 
-      try {
+      
         const response = await axios.post('http://localhost:3001/project/create', projectData, {
           headers: {
             Authorization: token,
@@ -100,7 +118,13 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         }
       } catch (error) {
         if (error.response) {
-          if (error.response.status === 401) {
+          if (error.response.status === 400 && error.response.data.message) {
+            if (error.response.data.message.includes('same name')) {
+              toast.error('A project with this name already exists. Please try another name.');
+            } else {
+              toast.error('There was an issue with your project details. Please check and try again.');
+            }
+          } else if (error.response.status === 401) {
             toast.error('Unauthorized! Please log in again.');
           } else if (error.response.status === 500) {
             toast.error('Internal server error! Please try again later.');
