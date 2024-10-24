@@ -248,10 +248,10 @@ const TaskSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    assignee_id: {
-        type: String,
+    assignees: [{  
+        type: String, 
         ref: 'User'
-    },
+    }],
     created_at: {
         type: Date,
         default: Date.now

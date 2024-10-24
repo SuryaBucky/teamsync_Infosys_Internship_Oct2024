@@ -1,7 +1,5 @@
 const { z } = require('zod');
-const { Task, Project } = require('../db/index'); // Import necessary models
-
-
+const { Task, Project,User } = require('../db/index'); // Import necessary models
 
 // Define the Zod schema for creating a task
 const TaskCreationSchema = z.object({
@@ -11,8 +9,13 @@ const TaskCreationSchema = z.object({
     status: z.enum(['0', '1'], { message: 'Status must be 0 (incomplete) or 1 (complete)' }),
     priority: z.enum(['0', '1', '2'], { message: 'Priority must be 0 (low), 1 (medium), or 2 (high)' }),
     creator_id: z.string().min(1, { message: 'Creator ID is required' }),
-    assignee_id: z.string().optional(),
+    assignees: z.array(z.string()).optional(),
 });
+// Define Zod schema for adding an assignee
+const AddAssigneeSchema = z.object({
+    assignee_id: z.string().min(1, { message: 'Assignee ID is required' })
+});
+
 
 // Middleware function for validating task creation inputs
 const validateTaskCreation = (req, res, next) => {
@@ -30,12 +33,26 @@ const validateTaskCreation = (req, res, next) => {
 const createTask = async (req, res) => {
     try {
         const { project_id } = req.params;
-        const { title, description, deadline, status, priority, creator_id, assignee_id } = req.body;
+        const { title, description, deadline, status, priority, creator_id, assignees } = req.body;
 
         // Ensure the project exists and is approved before creating a task
         const project = await Project.findOne({ _id: project_id, is_approved: true });
         if (!project) {
             return res.status(404).json({ message: 'Project not found or not approved' });
+        }
+
+        // Validate assignees - Check if each ID is a valid User ID
+        if (assignees && assignees.length > 0) {
+            const validAssignees = await User.find({ _id: { $in: assignees } }, { _id: 1 });
+            const validAssigneeIds = validAssignees.map(user => user._id.toString());
+
+            // Check if any assignee ID is invalid
+            const invalidAssignees = assignees.filter(assignee => !validAssigneeIds.includes(assignee));
+            if (invalidAssignees.length > 0) {
+                return res.status(400).json({
+                    message: 'Invalid assignee IDs: ' + invalidAssignees.join(', ')
+                });
+            }
         }
 
         // Create a new task with the provided data
@@ -47,7 +64,7 @@ const createTask = async (req, res) => {
             status,
             priority,
             creator_id,
-            assignee_id,
+            assignees: assignees || [],
         });
 
         await newTask.save();
@@ -90,8 +107,61 @@ const viewTasksByProject = async (req, res) => {
     }
 };
 
+// Middleware for validating add-assignee input
+const validateAddAssignee = (req, res, next) => {
+    try {
+        // Validate the request body against the schema
+        AddAssigneeSchema.parse(req.body);
+        next(); // Proceed if valid
+    } catch (error) {
+        // If validation fails, return an error response
+        console.log("validation failed");
+        return res.status(400).json({ message: error.errors });
+    }
+};
+
+// Middleware for adding an assignee to a task
+const addAssignee = async (req, res) => {
+    try {
+        const { task_id } = req.params; // Extract task ID from URL parameters
+        const { assignee_id } = req.body; // Extract assignee ID from request body
+        console.log('Task ID:', task_id);
+        console.log('Assignee ID:', assignee_id);
+
+
+        // Find the task by its ID
+        const task = await Task.findById(task_id);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Check if the assignee is already added to the task
+        if (task.assignees.includes(assignee_id)) {
+            return res.status(400).json({ message: 'Assignee already added to the task' });
+        }
+
+        // Add the assignee ID to the list of assignees
+        task.assignees.push(assignee_id);
+        task.updated_at = new Date(); // Update the `updated_at` field
+        await task.save();
+
+        return res.status(200).json({
+            message: 'Assignee added successfully',
+            task
+        });
+    } catch (error) {
+        console.error('Error adding assignee:', error);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+};
+
+
 module.exports = {
     validateTaskCreation,
     createTask,
     viewTasksByProject,
+    validateAddAssignee,
+    addAssignee
 };
