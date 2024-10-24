@@ -92,7 +92,6 @@ export const ProjectRow = ({ project }) => {
       });
       
       setIsModalOpen(false);
-      // Wait for toast to be visible before reloading
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -266,7 +265,8 @@ export const ProjectRow = ({ project }) => {
                                 if (!selectedUsers.find(u => u.id === user.id)) {
                                   setSelectedUsers([...selectedUsers, user]);
                                 }
-                                setIsUserDropdownOpen(false);
+                                // Keep dropdown open for multiple selections
+                                // setIsUserDropdownOpen(false);
                               }}
                             >
                               {user.name}
