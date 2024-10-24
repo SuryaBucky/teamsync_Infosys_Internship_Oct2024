@@ -12,6 +12,10 @@ import {
 import { userNameState, userEmailState } from '../../../../store/atoms/authAtoms';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
+import { useDispatch } from "react-redux";
+import { logout } from '../../../../redux/userSlice';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
 
 const IconItem = ({ icon, label, active = false }) => {
   
@@ -32,15 +36,29 @@ const IconItem = ({ icon, label, active = false }) => {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const userName = localStorage.getItem("userName");
   const userEmail = localStorage.getItem("userEmail");
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
   const [active,setactive]=useState("approved");
+  const dispatch = useDispatch();
 
   useEffect(()=>{
     //on initial render automatically render the approved projects
     setSidebarSelection("approved");
   },[])
+
+  const handleLogout = () => {
+    // Clear local storage items
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('authToken');
+    dispatch(logout());
+
+    // Redirect to home page
+    navigate('/');
+  };
 
   return (
     <>
@@ -108,6 +126,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <p className="text-sm text-gray-500">{userEmail || "admin@mail.com"}</p>
               </div>
             </div>
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-white bg-red-400 hover:bg-red-500 rounded-lg transition-colors"
+            >
+              Logout <LogoutIcon />
+            </button>
           </div>
         </div>
       </aside>
