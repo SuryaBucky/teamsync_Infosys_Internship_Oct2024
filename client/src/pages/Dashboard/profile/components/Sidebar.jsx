@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -11,6 +11,8 @@ import {
   faLifeRing 
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -31,6 +33,14 @@ const IconItem = ({ icon, label, active = false }) => {
 
 const Sidebar = ({ isOpen, onClose, user }) => {
   const navigate=useNavigate();
+  const setSidebarSelection = useSetRecoilState(sidebarSelection);
+  const [active,setactive]=useState("projects");
+
+  useEffect(()=>{
+    //on initial render automatically render the approved projects
+    setSidebarSelection("projects");
+  },[])
+
   return (
     <>
       {/* Overlay */}
@@ -65,11 +75,18 @@ const Sidebar = ({ isOpen, onClose, user }) => {
             <ul className="space-y-2 font-medium">
               <li><IconItem icon={faHome} label="Home" /></li>
               <li onClick={()=>{
+                setSidebarSelection("projects");
+                setactive("projects")
+              }}><IconItem icon={faFolder} label="Your projects" active={active==="projects"} /></li>
+              <li onClick={()=>{
                 navigate("/dashboard/user")
               }}><IconItem icon={faFolder} label="Projects" /></li>
               <li><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
-              <li><IconItem icon={faUsers} label="Users" /></li>
+              <li onClick={()=>{
+                setactive("users");
+                setSidebarSelection("users");
+              }}><IconItem icon={faUsers} label="Users" active={active==="users"} /></li>
               <li><IconItem icon={faLifeRing} label="Support" /></li>
             </ul>
           </nav>
