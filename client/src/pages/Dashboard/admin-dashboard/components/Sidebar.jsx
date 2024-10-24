@@ -92,7 +92,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Navigation */}
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
-              {/* <li><IconItem icon={faHome} label="Home" /></li> */}
+              <li onClick={() => {
+                navigate('/');
+              }}><IconItem icon={faHome} label="Home" /></li>
               <li onClick={()=>{
                 setactive("approved");
                 setSidebarSelection("approved");
