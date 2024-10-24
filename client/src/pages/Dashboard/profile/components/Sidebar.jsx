@@ -13,6 +13,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
+import { useDispatch } from "react-redux";
+import { logout } from '../../../../redux/userSlice';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -35,11 +38,24 @@ const Sidebar = ({ isOpen, onClose, user }) => {
   const navigate=useNavigate();
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
   const [active,setactive]=useState("projects");
+  const dispatch = useDispatch();
 
   useEffect(()=>{
     //on initial render automatically render the approved projects
     setSidebarSelection("projects");
   },[])
+
+  const handleLogout = () => {
+    // Clear local storage items
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('authToken');
+    dispatch(logout());
+
+    // Redirect to home page
+    navigate('/');
+  };
 
   return (
     <>
@@ -110,6 +126,13 @@ const Sidebar = ({ isOpen, onClose, user }) => {
 
               </div>
             </div>
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-white bg-red-400 hover:bg-red-500 rounded-lg transition-colors"
+            >
+              Logout <LogoutIcon />
+            </button>
           </div>
         </div>
       </aside>

@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faHome, 
-  faFolder, 
-  faTasks, 
-  faFileAlt, 
-  faUsers, 
-  faLifeRing 
-} from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
+import { useDispatch } from "react-redux";
+import { logout } from '../../../../redux/userSlice';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -35,13 +31,26 @@ const Sidebar = ({ isOpen, onClose }) => {
   const userName = localStorage.getItem('userName');
   const userEmail = localStorage.getItem('userEmail');
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
-  const [active,setactive]=useState("projects");
+  const [active, setActive] = useState("projects");
+  const dispatch = useDispatch();
 
-  useEffect(()=>{
-    //on initial render automatically render the approved projects
+  useEffect(() => {
+    // On initial render automatically set selection to 'projects'
     setSidebarSelection("projects");
-  },[])
-  
+  }, [setSidebarSelection]);
+
+  const handleLogout = () => {
+    // Clear local storage items
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('authToken');
+    dispatch(logout());
+
+    // Redirect to home page
+    navigate('/');
+  };
+
   return (
     <>
       {isOpen && (
@@ -71,23 +80,27 @@ const Sidebar = ({ isOpen, onClose }) => {
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
             <ul className="space-y-2 font-medium">
               <li><IconItem icon={faHome} label="Home" /></li>
-              <li onClick={()=>{
+              <li onClick={() => {
                 setSidebarSelection("projects");
-                setactive("projects")
-              }}><IconItem icon={faFolder} label="Your projects" active={active==="projects"} /></li>
+                setActive("projects");
+              }}>
+                <IconItem icon={faFolder} label="Assigned projects" active={active === "projects"} />
+              </li>
               <li><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
-              <li onClick={()=>{
-                setactive("users");
+              <li onClick={() => {
+                setActive("users");
                 setSidebarSelection("users");
-              }}><IconItem icon={faUsers} label="Users" active={active==="users"} /></li>
+              }}>
+                <IconItem icon={faUsers} label="Users" active={active === "users"} />
+              </li>
               <li><IconItem icon={faLifeRing} label="Support" /></li>
             </ul>
           </nav>
 
           <div className="p-4 mt-auto">
             <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mb-4"></div>
-            <div className="flex items-center gap-3 cursor-pointer" onClick={()=>{navigate("/dashboard/profile")}}>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { navigate("/dashboard/profile"); }}>
               <img
                 className="w-10 h-10 rounded-full"
                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
@@ -98,6 +111,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                 <p className="text-sm text-gray-500">{userEmail || 'No email'}</p>
               </div>
             </div>
+
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-white bg-red-400 hover:bg-red-500 rounded-lg transition-colors"
+            >
+              Logout <LogoutIcon />
+            </button>
           </div>
         </div>
       </aside>
