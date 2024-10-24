@@ -4,8 +4,10 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ setSignInOpen }) => {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const dispatch = useDispatch();
@@ -95,6 +97,9 @@ const Navbar = ({ setSignInOpen }) => {
                 src="https://i.pravatar.cc/150"
                 alt="User Avatar"
                 className="w-10 h-10 rounded-full object-cover"
+                onClick={()=>{
+                  navigate("/dashboard/profile")
+                }}
               />
               <button
                 onClick={() => dispatch(logout())}
