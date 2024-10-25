@@ -65,11 +65,21 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     <>
       <ToastContainer />
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center"
+          onClick={onClose} // Close modal when clicking on background
+        >
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative"
+            onClick={(e) => e.stopPropagation()} // Prevent background click close for content
+          >
             <h2 className="text-2xl font-semibold mb-4">Add New Task</h2>
-            <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-red-700">✕</button>
-
+            <button
+              onClick={onClose}
+              className="absolute top-2 right-2 text-gray-500 hover:text-red-700 shadow-2xl font-semibold text-4xl"
+            >
+              &times;
+            </button>
             <form onSubmit={handleSubmit}>
               {/* Task Title */}
               <div className="mb-4">
