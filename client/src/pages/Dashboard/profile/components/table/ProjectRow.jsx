@@ -7,13 +7,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export const ProjectRow = ({ project }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditDeadlineOpen, setIsEditDeadlineOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [members, setMembers] = useState([]); // State to store project members
+  const [members, setMembers] = useState([]); 
+  const [newDeadline, setNewDeadline] = useState(project.deadline);
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -34,7 +36,6 @@ export const ProjectRow = ({ project }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch members assigned to the project
   const fetchMembers = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -55,7 +56,7 @@ export const ProjectRow = ({ project }) => {
   };
 
   useEffect(() => {
-    fetchMembers(); // Fetch project members when the component mounts
+    fetchMembers(); 
   }, [project.id]);
 
   const fetchUsers = async () => {
@@ -131,6 +132,37 @@ export const ProjectRow = ({ project }) => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEditDeadline = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:3001/project/edit-deadline/${project.id}`, 
+        { deadline: newDeadline }, 
+        { headers: { Authorization: token } }
+      );
+      toast.success('Deadline updated successfully!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      setIsEditDeadlineOpen(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      toast.error('Error updating deadline. Please try again later.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -222,6 +254,12 @@ export const ProjectRow = ({ project }) => {
                 >
                   Add Users
                 </button>
+                <button
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsEditDeadlineOpen(true)}
+                >
+                  Edit Deadline
+                </button>
               </div>
             </div>
           )}
@@ -312,6 +350,37 @@ export const ProjectRow = ({ project }) => {
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader className="h-5 w-5 animate-spin" /> : 'Add Users'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isEditDeadlineOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div 
+                className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4"
+                ref={modalRef}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium">Edit Deadline for {project.name}</h3>
+                  <button 
+                    onClick={() => setIsEditDeadlineOpen(false)}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <input
+                  type="date"
+                  value={newDeadline}
+                  onChange={(e) => setNewDeadline(e.target.value)}
+                  className="w-full p-2 border rounded-md mb-4"
+                />
+                <button
+                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+                  onClick={handleEditDeadline}
+                >
+                  Update Deadline
                 </button>
               </div>
             </div>
