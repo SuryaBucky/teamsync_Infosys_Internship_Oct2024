@@ -28,7 +28,15 @@ const projectCreateSchema = z.object({
     project_id:z.string().length(36),
     name: z.string().min(4, { message: "Name is required" }).optional(),
     description: z.string().min(4, { message: "Description is required" }).optional(),
-    tags: z.array(z.string().min(1, { message: "Tagname is required" })).optional(),
+    tags: z.array(z.string().min(1, { message: "Tagname is required" })).optional()
+  })
+
+    const addUsersSchema=z.object({
+        project_id:z.string().length(36),
+        user_ids:z.array(z.string().length(36))
+    });
+
+const UpdateDeadlineSchema=z.object({
     deadline: z.preprocess(
         (val) => {
           if (val === undefined || val === null || val === '') {
@@ -45,12 +53,7 @@ const projectCreateSchema = z.object({
         z.date().optional().refine((date) => !isNaN(date.getTime()), { message: "Invalid date format, expected dd/mm/yy" })
       ).optional(), // Mark the deadline field as optional
 
-  })
-
-    const addUsersSchema=z.object({
-        project_id:z.string().length(36),
-        user_ids:z.array(z.string().length(36))
-    });
+})
 
 async function validateCreateProject(req,res,next){
     //extract token from header
@@ -295,6 +298,48 @@ async function checkUserAdminExists(req,res,next){
     }
 }
 
+async function validateUpdateDeadline(req,res,next){
+    //only verify schema 
+    const resp=UpdateDeadlineSchema.safeParse(req.body);
+    if(!resp.success){
+        return res.status(400).json({message:resp.error.errors[0].message});
+    }
+    next();
+}
+
+const updatedeadline = async (req, res) => {
+    try {
+        const project_id=req.body.project_id;
+        const { deadline } = req.body;
+
+        // Find the task by its ID
+        const project = await Project.findById(project_id);
+        if (!project) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+        // Update the deadline and save the task
+        if(deadline){
+            const [day, month, year] = deadline.split("/").map(Number);
+            const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
+            const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based)
+            project.deadline=parsedDate;
+        }
+        project.updated_at = new Date(); // Update the `updated_at` field
+        await project.save();
+
+        return res.status(200).json({
+            message: 'Deadline updated successfully',
+            task,
+        });
+    } catch (error) {
+        console.error('Error updating deadline:', error);
+        return res.status(500).json({
+            message: 'Internal server error',
+        });
+    }
+};
+
+
 module.exports = {
     validateCreateProject,
     checkProjectExists,
@@ -305,6 +350,7 @@ module.exports = {
     checkUserEmailExists,
     validateUpdateProject,
     validateAddUsers,
-    checkUserAdminExists
-    
+    checkUserAdminExists,
+    validateUpdateDeadline,
+    updatedeadline
 };
