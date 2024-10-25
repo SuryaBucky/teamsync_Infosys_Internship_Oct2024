@@ -17,6 +17,7 @@ import AdminDashboard from './pages/Dashboard/admin-dashboard/AdminDashboard';
 import { RecoilRoot } from 'recoil';
 import Profile from './pages/Dashboard/profile/Profile';
 
+
 function App() {
   const snackbarState = useSelector((state) => state.snackbar);
   const dispatch = useDispatch();
