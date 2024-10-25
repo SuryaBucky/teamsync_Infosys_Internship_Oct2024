@@ -1,5 +1,7 @@
 const { z } = require('zod');
-const { Task, Project,User } = require('../db/index'); // Import necessary models
+const { Task, Project,User, ProjectUser } = require('../db/index'); // Import necessary models
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 // Define the Zod schema for creating a task
 const TaskCreationSchema = z.object({
@@ -43,12 +45,32 @@ const validateTaskCreation = async (req, res, next) => {
         const { title } = req.body;
         const { project_id } = req.params;
 
+         //extract token from header verifyif valid and user is a part of the project using ProjectUser table
+         const token = req.headers.authorization;
+         if(!token){
+             return res.status(401).json({message:"Token not found"});
+         }
+         //decode token using env jwt secret
+         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+         if(!decoded){
+             return res.status(401).json({message:"Invalid token"});
+         }
+         //get user_id from decoded token
+         const user_id = decoded.user_id;
+         //check if user is a part of the project
+         const projectUser = await ProjectUser.findOne({ project_id, user_id });
+         if (!projectUser) {
+             return res.status(403).json({ message: 'User is not part of this project' });
+         }
+
         // Check if a task with the same title already exists in the specified project
         const existingTask = await Task.findOne({ title, project_id });
 
         if (existingTask) {
             return res.status(400).json({ message: 'A task with this title already exists in the specified project' });
         }
+
+
         next(); // Proceed to the next middleware/route handler if valid
     } catch (error) {
         // If validation fails, return an error response
@@ -63,14 +85,14 @@ const createTask = async (req, res) => {
         const { title, description, deadline, status, priority, creator_id, assignees } = req.body;
 
         // Ensure the project exists and is approved before creating a task
-        const project = await Project.findOne({ _id: project_id, is_approved: true });
+        const project = await Project.findOne({ id: project_id, is_approved: true });
         if (!project) {
             return res.status(404).json({ message: 'Project not found or not approved' });
         }
 
         // Validate assignees - Check if each ID is a valid User ID
         if (assignees && assignees.length > 0) {
-            const validAssignees = await User.find({ _id: { $in: assignees } }, { _id: 1 });
+            const validAssignees = await User.find({ id: { $in: assignees } }, { id: 1 });
             const validAssigneeIds = validAssignees.map(user => user._id.toString());
 
             // Check if any assignee ID is invalid
