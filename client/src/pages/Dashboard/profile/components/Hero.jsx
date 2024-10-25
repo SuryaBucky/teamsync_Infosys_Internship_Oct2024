@@ -1,25 +1,27 @@
-// Hero.js
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import ProjectTable from './ProjectTable';
-import AddProjectModal from './profile/EditProfileModal';
+import AddProjectModal from './AddProjectModal';
+import EditProfileModal from './profile/EditProfileModal';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import UsersProfile from './UsersProfile';
 
 const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Separate states for Add Project and Edit Profile modals
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  
   const selectedSidebar = useRecoilValue(sidebarSelection);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+  // Functions to control modal states
+  const openAddProjectModal = () => setIsAddProjectModalOpen(true);
+  const closeAddProjectModal = () => setIsAddProjectModalOpen(false);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const openEditProfileModal = () => setIsEditProfileModalOpen(true);
+  const closeEditProfileModal = () => setIsEditProfileModalOpen(false);
 
   return (
     <div className="p-4">
@@ -40,30 +42,35 @@ const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
           </div>
         </div>
         <div className='flex gap-3'>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
-          onClick={openModal} // Open modal on click
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          <span className="hidden sm:inline">Add Project</span>
-        </button>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
-          onClick={openModal} // Open modal on click
-        >
-          <FontAwesomeIcon icon={faPen} />
-          <span className="hidden sm:inline">Edit Profile</span>
-        </button>
+          {/* Button to open Add Project Modal */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+            onClick={openAddProjectModal}
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            <span className="hidden sm:inline">Add Project</span>
+          </button>
+          
+          {/* Button to open Edit Profile Modal */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+            onClick={openEditProfileModal}
+          >
+            <FontAwesomeIcon icon={faPen} />
+            <span className="hidden sm:inline">Edit Profile</span>
+          </button>
         </div>
       </div>
 
       {/* Project Table */}
-      
       {selectedSidebar === 'users' && <UsersProfile />}
       {selectedSidebar === 'projects' && <ProjectTable />}
 
       {/* Add Project Modal */}
-      <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddProjectModal isOpen={isAddProjectModalOpen} onClose={closeAddProjectModal} />
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal isOpen={isEditProfileModalOpen} onClose={closeEditProfileModal} />
     </div>
   );
 };
