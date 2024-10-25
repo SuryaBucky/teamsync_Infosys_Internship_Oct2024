@@ -63,14 +63,14 @@ const createTask = async (req, res) => {
         const { title, description, deadline, status, priority, creator_id, assignees } = req.body;
 
         // Ensure the project exists and is approved before creating a task
-        const project = await Project.findOne({ _id: project_id, is_approved: true });
+        const project = await Project.findOne({ id: project_id, is_approved: true });
         if (!project) {
             return res.status(404).json({ message: 'Project not found or not approved' });
         }
 
         // Validate assignees - Check if each ID is a valid User ID
         if (assignees && assignees.length > 0) {
-            const validAssignees = await User.find({ _id: { $in: assignees } }, { _id: 1 });
+            const validAssignees = await User.find({ id: { $in: assignees } }, { id: 1 });
             const validAssigneeIds = validAssignees.map(user => user._id.toString());
 
             // Check if any assignee ID is invalid

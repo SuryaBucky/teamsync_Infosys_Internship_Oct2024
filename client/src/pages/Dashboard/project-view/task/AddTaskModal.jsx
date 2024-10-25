@@ -1,331 +1,132 @@
-import React, { useState, useEffect } from 'react';
+// AddTaskModal.js
+import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
-import { X } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AddTaskModal = ({ isOpen, onClose }) => {
-  const [projectName, setProjectName] = useState('');
-  const [projectDescription, setProjectDescription] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [priority, setPriority] = useState('medium');
-  const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState([]);
+  const [priority, setPriority] = useState('1'); // Default medium priority
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({
-    projectName: false,
-    projectDescription: false,
-    deadline: false,
-    priority: false,
-    tags: false,
-  });
 
-  useEffect(() => {
-    if (touched.projectName) validateProjectName(projectName);
-  }, [projectName, touched.projectName]);
-
-  useEffect(() => {
-    if (touched.projectDescription) validateProjectDescription(projectDescription);
-  }, [projectDescription, touched.projectDescription]);
-
-  useEffect(() => {
-    if (touched.deadline) validateDeadline(deadline);
-  }, [deadline, touched.deadline]);
-
-  useEffect(() => {
-    if (touched.tags) validateTags(tags);
-  }, [tags, touched.tags]);
-
-  const checkProjectNameExists = async (name) => {
-    try {
-      const response = await axios.get(`http://localhost:3001/project/check-name?name=${name}`);
-      return response.data.exists;
-    } catch (error) {
-      console.error('Error checking project name:', error);
-      return false;
-    }
-  };
-
-  const handleTagInputKeyDown = (e) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      const newTag = tagInput.trim().toLowerCase();
-      
-      // Validate tag length
-      if (newTag.length < 2) {
-        setErrors(prev => ({ ...prev, tags: 'Tags must be at least 2 characters long' }));
-        return;
-      }
-      
-      // Check for duplicate tags
-      if (tags.includes(newTag)) {
-        setErrors(prev => ({ ...prev, tags: 'This tag already exists' }));
-        return;
-      }
-
-      setTags(prev => [...prev, newTag]);
-      setTagInput('');
-      setErrors(prev => ({ ...prev, tags: undefined }));
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove));
+  const validateForm = () => {
+    const newErrors = {};
+    if (!title) newErrors.title = 'Title is required';
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateForm();
-    setTouched({
-      projectName: true,
-      projectDescription: true,
-      deadline: true,
-      priority: true,
-      tags: true,
-    });
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
 
-    if (Object.keys(validationErrors).length === 0) {
+    setLoading(true);
+    const projectId = localStorage.getItem('project_id');
+    const token = localStorage.getItem('token');
+    const creatorId = localStorage.getItem('userEmail');
 
-      try {
-
-      const projectNameExists = await checkProjectNameExists(projectName);
-      if (projectNameExists) {
-        toast.error('A project with this name already exists. Please choose a different name.');
-        return;
-      }
-      const token = localStorage.getItem('token');
-      const formattedDeadline = formatDeadline(deadline);
-      const projectData = {
-        name: projectName,
-        description: projectDescription,
-        deadline: formattedDeadline,
+    try {
+      const response = await axios.post(`http://localhost:3001/task/project/${projectId}/create-task`, {
+        title,
+        description,
+        deadline,
+        status: '0',
         priority,
-        tags
-      };
+        creator_id: creatorId,
+      }, {
+        headers: { Authorization: token }
+      });
 
-      
-        const response = await axios.post('http://localhost:3001/project/create', projectData, {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.status === 200) {
-          toast.success('Project created successfully!');
-          onClose();
-          window.location.reload();
-        }
-      } catch (error) {
-        if (error.response) {
-          if (error.response.status === 400 && error.response.data.message) {
-            if (error.response.data.message.includes('same name')) {
-              toast.error('A project with this name already exists. Please try another name.');
-            } else {
-              toast.error('There was an issue with your project details. Please check and try again.');
-            }
-          } else if (error.response.status === 401) {
-            toast.error('Unauthorized! Please log in again.');
-          } else if (error.response.status === 500) {
-            toast.error('Internal server error! Please try again later.');
-          }
-        } else {
-          toast.error('An unexpected error occurred!');
-        }
+      if (response.status === 201) {
+        toast.success('Task created successfully!');
+        onClose();
       }
+    } catch (error) {
+      if (error.response) {
+        const { status } = error.response;
+        if (status === 400) toast.error('Invalid task data. Please check the details.');
+        else if (status === 404) toast.error('Project not found.');
+        else if (status === 500) toast.error('Server error. Please try again later.');
+      } else {
+        toast.error('An unexpected error occurred.');
+      }
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const formatDeadline = (date) => {
-    const [year, month, day] = date.split('-');
-    return `${day}/${month}/${year}`;
-  };
-
-  const validateProjectName = (name) => {
-    if (name.length < 4) {
-      setErrors(prev => ({ ...prev, projectName: 'Project name must be at least 4 characters long' }));
-    } else {
-      setErrors(prev => ({ ...prev, projectName: undefined }));
-    }
-  };
-
-  const validateProjectDescription = (description) => {
-    if (description.length < 4) {
-      setErrors(prev => ({ ...prev, projectDescription: 'Project description must be at least 4 characters long' }));
-    } else {
-      setErrors(prev => ({ ...prev, projectDescription: undefined }));
-    }
-  };
-
-  const validateDeadline = (date) => {
-    const selectedDate = new Date(date);
-    const currentDate = new Date();
-    const minDeadline = new Date(currentDate.setDate(currentDate.getDate() + 2));
-    if (!date || selectedDate < minDeadline) {
-      setErrors(prev => ({ ...prev, deadline: 'Deadline must be at least 2 days ahead of today' }));
-    } else {
-      setErrors(prev => ({ ...prev, deadline: undefined }));
-    }
-  };
-
-  const validateTags = (tags) => {
-    if (tags.length === 0) {
-      setErrors(prev => ({ ...prev, tags: 'At least one tag is required' }));
-    } else {
-      setErrors(prev => ({ ...prev, tags: undefined }));
-    }
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    if (projectName.length < 4) {
-      errors.projectName = 'Project name must be at least 4 characters long';
-    }
-    if (projectDescription.length < 4) {
-      errors.projectDescription = 'Project description must be at least 4 characters long';
-    }
-    const selectedDate = new Date(deadline);
-    const currentDate = new Date();
-    const minDeadline = new Date(currentDate.setDate(currentDate.getDate() + 2));
-    if (!deadline || selectedDate < minDeadline) {
-      errors.deadline = 'Deadline must be at least 2 days ahead of today';
-    }
-    if (tags.length === 0) {
-      errors.tags = 'At least one tag is required';
-    }
-    return errors;
-  };
-
-  const handleFocus = (field) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   return (
     <>
       <ToastContainer />
       {isOpen && (
-        <div className="z-50 fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300">
-          <div className="bg-white py-12 px-12 rounded-lg shadow-lg max-w-lg mx-h-lg w-full relative">
-            <h2 className="text-xl font-semibold mb-4">Add New Project</h2>
-
-            <button
-              onClick={onClose}
-              className="absolute top-2 right-2 text-gray-500 hover:text-red-700 shadow-2xl text-4xl"
-            >
-              &times;
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-semibold mb-4">Add New Task</h2>
+            <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-red-700">✕</button>
 
             <form onSubmit={handleSubmit}>
-              {/* Project Name */}
+              {/* Task Title */}
               <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Project Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Title</label>
                 <input
                   type="text"
-                  placeholder="Enter project name"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  onFocus={() => handleFocus('projectName')}
-                  className={`w-full p-2 border ${touched.projectName && errors.projectName ? 'border-red-500' : 'border-black'} rounded focus:outline-none focus:border-blue-500`}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className={`w-full p-2 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded`}
+                  placeholder="Enter task title"
                 />
-                {touched.projectName && errors.projectName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.projectName}</p>
-                )}
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
               </div>
 
-              {/* Project Description */}
+              {/* Description */}
               <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Project Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
                 <textarea
-                  placeholder="Enter project description"
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                  onFocus={() => handleFocus('projectDescription')}
-                  className={`w-full p-2 border ${touched.projectDescription && errors.projectDescription ? 'border-red-500' : 'border-black'} rounded focus:outline-none focus:border-blue-500`}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                  placeholder="Enter task description"
                 />
-                {touched.projectDescription && errors.projectDescription && (
-                  <p className="text-red-500 text-sm mt-1">{errors.projectDescription}</p>
-                )}
-              </div>
-
-              {/* Priority */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Priority
-                </label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="w-full p-2 border border-black rounded focus:outline-none focus:border-blue-500"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-
-              {/* Tags */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Tags
-                </label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center gap-1"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="hover:text-red-500"
-                      >
-                        <X size={14} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  placeholder="Type a tag and press Enter"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleTagInputKeyDown}
-                  onFocus={() => handleFocus('tags')}
-                  className={`w-full p-2 border ${touched.tags && errors.tags ? 'border-red-500' : 'border-black'} rounded focus:outline-none focus:border-blue-500`}
-                />
-                {touched.tags && errors.tags && (
-                  <p className="text-red-500 text-sm mt-1">{errors.tags}</p>
-                )}
               </div>
 
               {/* Deadline */}
               <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Deadline
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Deadline</label>
                 <input
                   type="date"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  onFocus={() => handleFocus('deadline')}
-                  className={`w-full p-2 border ${touched.deadline && errors.deadline ? 'border-red-500' : 'border-black'} rounded focus:outline-none focus:border-blue-500`}
+                  className="w-full p-2 border border-gray-300 rounded"
                 />
-                {touched.deadline && errors.deadline && (
-                  <p className="text-red-500 text-sm mt-1">{errors.deadline}</p>
-                )}
+              </div>
+
+              {/* Priority */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                >
+                  <option value="0">Low</option>
+                  <option value="1">Medium</option>
+                  <option value="2">High</option>
+                </select>
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-2 px-4 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+                disabled={loading}
+                className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
-                Add Project
+                {loading ? 'Adding...' : 'Add Task'}
               </button>
             </form>
           </div>
