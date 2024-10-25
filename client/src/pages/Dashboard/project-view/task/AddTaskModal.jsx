@@ -40,7 +40,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
         priority,
         creator_id: creatorId,
       }, {
-        headers: { Authorization: token }
+        headers: { authorization: token }
       });
 
       if (response.status === 201) {
