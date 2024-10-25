@@ -240,32 +240,56 @@ router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExist
 //get projects i am assigned to 
 router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) => {
     try {
-        const user=req.user;
-        if(!user){
-            return res.status(401).json({message:"Please enter a valid token"});
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ message: "Please enter a valid token" });
         }
         const user_id = user.id;
 
-        // Fetch all project IDs where the user is assigned in the ProjectUser table
-        const assignedProjects = await ProjectUser.find({ user_id: user_id });
+        // Aggregate to find projects assigned to the user and include tags
+        const projects = await Project.aggregate([
+            {
+                $lookup: {
+                    from: 'projecttags', // Name of the tags collection
+                    localField: 'id', // Project ID in projects collection
+                    foreignField: 'project_id', // Matching project_id in tags collection
+                    as: 'tags' // Field to store tags in the result
+                }
+            },
+            {
+                $match: {
+                    id: { $in: (await ProjectUser.find({ user_id })).map(proj => proj.project_id) }
+                }
+            },
+            {
+                $project: {
+                    id: 1,
+                    name: 1,
+                    description: 1,
+                    created_at: 1,
+                    updated_at: 1,
+                    deadline: 1,
+                    creator_id: 1,
+                    is_approved: 1,
+                    status: 1,
+                    priority: 1,
+                    noUsers: 1,
+                    tags: '$tags.tag_name' // Return only tag names
+                }
+            }
+        ]);
 
-        if (assignedProjects.length === 0) {
+        if (projects.length === 0) {
             return res.status(404).json({ message: "No projects found for this user" });
         }
 
-        // Extract project IDs
-        const projectIds = assignedProjects.map(proj => proj.project_id);
-
-        // Fetch project details based on project IDs
-        const projects = await Project.find({ id: { $in: projectIds } });
-
-        // Return project details in the response
         return res.status(200).json(projects);
     } catch (error) {
         console.error("Error fetching assigned projects:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
 
 router.put("/update-deadline",validateUpdateDeadline,updatedeadline);
 

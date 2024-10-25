@@ -39,6 +39,14 @@ const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
             </p>
           </div>
         </div>
+        <div className='flex gap-3'>
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+          onClick={openModal} // Open modal on click
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="hidden sm:inline">Add Project</span>
+        </button>
         <button
           className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
           onClick={openModal} // Open modal on click
@@ -46,6 +54,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen, user }) => {
           <FontAwesomeIcon icon={faPen} />
           <span className="hidden sm:inline">Edit Profile</span>
         </button>
+        </div>
       </div>
 
       {/* Project Table */}

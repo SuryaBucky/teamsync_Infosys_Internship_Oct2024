@@ -32,20 +32,20 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           >
             <Menu className="h-6 w-6" />
           </button>
-          <div>
+          {selectedSidebar==="projects"&&<div>
             <h1 className="text-2xl font-semibold">Projects</h1>
             <p className="text-gray-600 text-sm mt-1">
               View and Manage Your Teams Projects
             </p>
-          </div>
+          </div>}
         </div>
-        <button
+        {selectedSidebar==="projects" && <button
           className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
           onClick={openModal} // Open modal on click
         >
           <FontAwesomeIcon icon={faPlus} />
           <span className="hidden sm:inline">Add Project</span>
-        </button>
+        </button>}
       </div>
 
       {selectedSidebar === 'users' && <UsersProject />}
