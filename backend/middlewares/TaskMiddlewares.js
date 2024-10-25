@@ -136,18 +136,12 @@ const viewTasksByProject = async (req, res) => {
 
         // Find all tasks associated with the provided project ID
         const tasks = await Task.find({ project_id })
-            .populate('creator_id', 'name email') // Populate creator details (if needed)
-            .populate('assignee_id', 'name email') // Populate assignee details (if needed)
-            .lean(); // Use `lean()` to get plain JavaScript objects
 
         if (!tasks || tasks.length === 0) {
             return res.status(404).json({ message: 'No tasks found for this project.' });
         }
 
-        return res.status(200).json({
-            message: 'Tasks retrieved successfully',
-            tasks,
-        });
+        return res.status(200).json(tasks);
     } catch (error) {
         console.error('Error retrieving tasks:', error);
         return res.status(500).json({
