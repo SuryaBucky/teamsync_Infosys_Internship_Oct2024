@@ -12,6 +12,7 @@ import TaskTable from '../table/TaskTable';
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const selectedSidebar = useRecoilValue(sidebarSelection);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
@@ -27,7 +28,11 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   }, []);
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // Trigger a refresh of the task table
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const getPriorityColor = () => {
     switch (projectPriority.toLowerCase()) {
@@ -82,7 +87,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
       </div>
 
-      <TaskTable />
+      <TaskTable refreshTrigger={refreshTrigger} />
 
       {/* Add Task Modal */}
       <AddTaskModal isOpen={isModalOpen} onClose={closeModal} />

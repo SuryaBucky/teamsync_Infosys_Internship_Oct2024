@@ -45,6 +45,12 @@ const AddTaskModal = ({ isOpen, onClose }) => {
 
       if (response.status === 201) {
         toast.success('Task created successfully!');
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setDeadline('');
+        setPriority('1');
+        // Close modal and trigger refresh
         onClose();
       }
     } catch (error) {

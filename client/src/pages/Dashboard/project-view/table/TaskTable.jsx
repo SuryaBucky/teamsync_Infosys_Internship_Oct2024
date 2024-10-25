@@ -20,12 +20,18 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
-const TaskTable = () => {
+const TaskTable = ({refreshTrigger }) => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
+
+  // Add refreshTrigger to useEffect dependencies
+  useEffect(() => {
+    fetchTasks();
+  }, [refreshTrigger]); // This will cause a re-fetch whenever refreshTrigger changes
+
 
   const showToast = (message, type) => {
     setToast({ message, type });
