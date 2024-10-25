@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Filter, MoreVertical, Trash2, X } from 'lucide-react';
 import axios from 'axios';
-import { Filter, MoreVertical } from 'lucide-react';
 
-// Simple Toast Component
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,57 +19,123 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
-const TaskTable = ({refreshTrigger }) => {
+const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4">Delete Task</h2>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete "{taskTitle}"? This action cannot be undone.
+        </p>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TaskTable = ({ refreshTrigger }) => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    taskId: null,
+    taskTitle: ''
+  });
 
-  // Add refreshTrigger to useEffect dependencies
+  // Create axios instance with default config
+  const api = axios.create({
+    baseURL: 'http://localhost:3001',
+    headers: {
+      'Authorization': localStorage.getItem('token')
+    }
+  });
+
   useEffect(() => {
     fetchTasks();
-  }, [refreshTrigger]); // This will cause a re-fetch whenever refreshTrigger changes
-
+  }, [refreshTrigger]);
 
   const showToast = (message, type) => {
     setToast({ message, type });
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const handleDeleteClick = (taskId, taskTitle) => {
+    setDeleteModal({
+      isOpen: true,
+      taskId,
+      taskTitle
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const taskId = deleteModal.taskId;
+    try {
+      const projectId = localStorage.getItem('project_id');
+      
+      await api.delete(`/task/project/${projectId}/delete-task/${taskId}`);
+      
+      const updatedTasks = tasks.filter(task => task._id !== taskId);
+      setTasks(updatedTasks);
+      setFilteredTasks(updatedTasks);
+      showToast("Task deleted successfully", "success");
+    } catch (error) {
+      console.error('Delete task error:', error);
+      showToast("Failed to delete task", "error");
+    } finally {
+      setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
+    }
+  };
 
   const fetchTasks = async () => {
     try {
       const projectId = localStorage.getItem('project_id');
-      const token = localStorage.getItem('token');
       
-      const response = await axios.get(
-        `http://localhost:3001/task/project/${projectId}/view-tasks`,
-        {
-          headers: {
-            'authorization': token,
-          }
-        }
-      );
+      const { data } = await api.get(`/task/project/${projectId}/view-tasks`);
       
-      setTasks(response.data);
-      setFilteredTasks(response.data);
+      setTasks(data);
+      setFilteredTasks(data);
       setLoading(false);
       showToast("Tasks loaded successfully", "success");
     } catch (error) {
+      console.error('Fetch tasks error:', error);
       setLoading(false);
-      if (error.response?.status === 404) {
-        showToast("No tasks found for this project", "error");
-      } else if (error.response?.status === 500) {
-        showToast("Failed to load tasks. Please try again later", "error");
-      } else {
-        showToast("Failed to fetch tasks", "error");
-      }
+      showToast("Failed to fetch tasks", "error");
     }
   };
 
+  // Rest of the component remains exactly the same
   const handleSearch = (e) => {
     e.preventDefault();
     const filtered = tasks.filter((task) => {
@@ -83,7 +148,6 @@ const TaskTable = ({refreshTrigger }) => {
     setFilteredTasks(filtered);
   };
 
-  // Function to format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -92,59 +156,39 @@ const TaskTable = ({refreshTrigger }) => {
     });
   };
 
-  // Function to get status badge style
   const getStatusStyle = (status) => {
     switch (status) {
-      case "0":
-        return "bg-gray-100 text-gray-800";
-      case "1":
-        return "bg-blue-100 text-blue-800";
-      case "2":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+      case "0": return "bg-gray-100 text-gray-800";
+      case "1": return "bg-blue-100 text-blue-800";
+      case "2": return "bg-green-100 text-green-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  // Function to get priority badge style
   const getPriorityStyle = (priority) => {
     switch (priority) {
-      case "0":
-        return "bg-blue-100 text-blue-800";
-      case "1":
-        return "bg-yellow-100 text-yellow-800";
-      case "2":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+      case "0": return "bg-blue-100 text-blue-800";
+      case "1": return "bg-yellow-100 text-yellow-800";
+      case "2": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  // Function to get status text
   const getStatusText = (status) => {
     switch (status) {
-      case "0":
-        return "To Do";
-      case "1":
-        return "In Progress";
-      case "2":
-        return "Completed";
-      default:
-        return "Unknown";
+      case "0": return "To Do";
+      case "1": return "In Progress";
+      case "2": return "Completed";
+      default: return "Unknown";
     }
   };
 
-  // Function to get priority text
   const getPriorityText = (priority) => {
     switch (priority) {
-      case "0":
-        return "Low";
-      case "1":
-        return "Medium";
-      case "2":
-        return "High";
-      default:
-        return "Unknown";
+      case "0": return "Low";
+      case "1": return "Medium";
+      case "2": return "High";
+      default: return "Unknown";
     }
   };
 
@@ -178,6 +222,13 @@ const TaskTable = ({refreshTrigger }) => {
           onClose={() => setToast(null)}
         />
       )}
+
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' })}
+        onConfirm={handleDeleteConfirm}
+        taskTitle={deleteModal.taskTitle}
+      />
 
       <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
         <div className="hidden lg:block font-medium text-lg">Tasks</div>
@@ -249,6 +300,15 @@ const TaskTable = ({refreshTrigger }) => {
                   <td className="py-4 px-6">
                     <div className="text-xs text-gray-500">{formatDate(task.deadline)}</div>
                   </td>
+                  <td className="py-4 px-6">
+                    <button 
+                      onClick={() => handleDeleteClick(task._id, task.title)}
+                      className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
+                      title="Delete task"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </td>
                   <td className="py-4 px-2">
                     <button className="p-1 hover:bg-gray-100 rounded">
                       <MoreVertical className="h-5 w-5 text-gray-400" />
@@ -258,7 +318,7 @@ const TaskTable = ({refreshTrigger }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center py-4">No tasks found.</td>
+                <td colSpan="9" className="text-center py-4">No tasks found.</td>
               </tr>
             )}
           </tbody>
