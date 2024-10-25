@@ -7,6 +7,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useRecoilValue } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
+import TaskTable from '../table/TaskTable';
 
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,6 +81,8 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
             <span className="hidden sm:inline">Add Task</span>
           </button>
       </div>
+
+      <TaskTable />
 
       {/* Add Task Modal */}
       <AddTaskModal isOpen={isModalOpen} onClose={closeModal} />

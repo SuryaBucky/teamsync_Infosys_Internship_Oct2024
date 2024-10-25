@@ -8,7 +8,7 @@ const TaskCreationSchema = z.object({
     title: z.string().min(1, { message: 'Title is required' }),
     description: z.string().optional(),
     deadline: z.string().optional(),
-    status: z.enum(['0', '1'], { message: 'Status must be 0 (incomplete) or 1 (complete)' }),
+    status: z.enum(['0', '1','2'], { message: 'Status must be 0 (to do) or 1 (in progress) or 2(completed)' }),
     priority: z.enum(['0', '1', '2'], { message: 'Priority must be 0 (low), 1 (medium), or 2 (high)' }),
     creator_id: z.string().min(1, { message: 'Creator ID is required' }),
     assignees: z.array(z.string()).optional(),
@@ -34,7 +34,7 @@ const EditTaskDetailsSchema = z.object({
 
 // Define a schema for status validation
 const UpdateStatusSchema = z.object({
-    status: z.enum(['0', '1'], { message: 'Status must be 0 (incomplete) or 1 (complete)' })
+    status: z.enum(['0', '1','2'], { message: 'Status must be 0 (to do) or 1 (in progress) or 2(completed)' })
 });
 
 // Middleware function for validating task creation inputs
