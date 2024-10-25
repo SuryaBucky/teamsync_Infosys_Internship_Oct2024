@@ -1,6 +1,6 @@
 const express = require("express");
 const { Project, ProjectTag, ProjectUser, User } = require("../db");
-const { validateCreateProject, checkUserExists, adminValidate, checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists } = require("../middlewares/ProjectMiddlewares");
+const { validateCreateProject, checkUserExists, adminValidate, checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists,validateUpdateDeadline,updatedeadline } = require("../middlewares/ProjectMiddlewares");
 const router = express.Router();
 const jwt=require("jsonwebtoken");
 //require dotenv
@@ -104,18 +104,12 @@ router.put("/update",validateTokenProjectOwner, validateUpdateProject, async (re
     const project_id=req.body.project_id;
     const project=await Project.findOne({id:project_id});
     //update the project details if sent in request
-    const {name,description,tags,deadline}=req.body;
+    const {name,description,tags}=req.body;
     if(name){
         project.name=name;
     }
     if(description){
         project.description=description;
-    }
-    if(deadline){
-        const [day, month, year] = deadline.split("/").map(Number);
-        const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
-        const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based)
-        project.deadline=parsedDate;
     }
     //append tags 
     if(tags && tags.length>0){
@@ -273,6 +267,6 @@ router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) =
     }
 });
 
-
+router.put("/update-deadline",validateUpdateDeadline,updatedeadline);
 
 module.exports = router;
