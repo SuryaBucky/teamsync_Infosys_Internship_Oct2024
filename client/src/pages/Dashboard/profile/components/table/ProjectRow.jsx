@@ -13,6 +13,7 @@ export const ProjectRow = ({ project }) => {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [members, setMembers] = useState([]); // State to store project members
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -32,6 +33,30 @@ export const ProjectRow = ({ project }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Fetch members assigned to the project
+  const fetchMembers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:3001/project/get-all-users/${project.id}`, {
+        headers: { authorization: token },
+      });
+      setMembers(response.data);
+    } catch (error) {
+      toast.error('Error fetching members. Please try again later.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers(); // Fetch project members when the component mounts
+  }, [project.id]);
 
   const fetchUsers = async () => {
     try {
@@ -159,17 +184,17 @@ export const ProjectRow = ({ project }) => {
         </td>
         <td className="py-4 px-4">
           <div className="flex -space-x-2">
-            {[...Array(Math.min(3, project.noUsers))].map((_, i) => (
+            {members.slice(0, 3).map((member, i) => (
               <img
-                key={i}
+                key={member.id}
                 src={`https://i.pravatar.cc/32?img=${i + 1}`}
                 alt={`Member ${i + 1}`}
                 className="w-7 h-7 rounded-full border-2 border-white"
               />
             ))}
-            {project.noUsers > 3 && (
+            {members.length > 3 && (
               <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
-                +{project.noUsers - 3}
+                +{members.length - 3}
               </div>
             )}
           </div>
@@ -239,62 +264,54 @@ export const ProjectRow = ({ project }) => {
                     className="w-full px-4 py-2 text-left border rounded-md hover:bg-gray-50"
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                   >
-                    Select users
+                    Add Users
                   </button>
 
                   {isUserDropdownOpen && (
-                    <div className="absolute w-full mt-1 bg-white border rounded-md shadow-lg z-20">
+                    <div className="absolute left-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                       <input
                         type="text"
                         placeholder="Search users..."
-                        className="w-full px-4 py-2 border-b"
+                        className="w-full px-4 py-2 border-b focus:outline-none"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
-                      <div className="max-h-[240px] overflow-y-auto">
-                        {filteredUsers.length === 0 ? (
-                          <div className="p-4 text-center text-gray-500">
-                            No users found
-                          </div>
-                        ) : (
-                          filteredUsers.map((user) => (
+
+                      <div className="max-h-48 overflow-auto">
+                        {filteredUsers.map((user) => {
+                          const isUserSelected = selectedUsers.some(u => u.id === user.id);
+                          const isUserAlreadyMember = (members || []).some(member => member.id === user.id);
+
+                          const isGreyedOut = isUserSelected || isUserAlreadyMember;
+
+                          return (
                             <button
                               key={user.id}
-                              className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                              className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${
+                                isGreyedOut ? 'bg-gray-200 cursor-not-allowed opacity-50' : ''
+                              }`}
                               onClick={() => {
-                                if (!selectedUsers.find(u => u.id === user.id)) {
+                                if (!isGreyedOut) {
                                   setSelectedUsers([...selectedUsers, user]);
                                 }
-                                // Keep dropdown open for multiple selections
-                                // setIsUserDropdownOpen(false);
                               }}
+                              disabled={isGreyedOut}
                             >
                               {user.name}
                             </button>
-                          ))
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                 </div>
 
                 <button
+                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
                   onClick={handleSubmit}
-                  disabled={isLoading || selectedUsers.length === 0}
-                  className={`w-full py-2 px-4 rounded-md text-white ${
-                    isLoading || selectedUsers.length === 0
-                      ? 'bg-gray-400'
-                      : 'bg-blue-500 hover:bg-blue-600'
-                  }`}
+                  disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center">
-                      <Loader className="animate-spin h-4 w-4 mr-2" />
-                      Loading...
-                    </span>
-                  ) : (
-                    'Submit'
-                  )}
+                  {isLoading ? <Loader className="h-5 w-5 animate-spin" /> : 'Add Users'}
                 </button>
               </div>
             </div>
