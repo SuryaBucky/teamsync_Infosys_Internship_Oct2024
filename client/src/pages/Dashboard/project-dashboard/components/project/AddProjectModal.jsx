@@ -200,13 +200,19 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
+  const handleOutsideClick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      onClose();
+    }
+  };
+
   return (
     <>
       <ToastContainer />
       {isOpen && (
-        <div className="z-50 fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300">
-          <div className="bg-white py-12 px-12 rounded-lg shadow-lg max-w-lg mx-h-lg w-full relative">
-            <h2 className="text-xl font-semibold mb-4">Add New Project</h2>
+        <div className="modal-overlay z-50 fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300" onClick={handleOutsideClick}>
+        <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full relative">
+          <h2 className="text-lg font-semibold mb-2">Add New Project</h2>
 
             <button
               onClick={onClose}
