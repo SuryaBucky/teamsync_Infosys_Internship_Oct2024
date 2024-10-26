@@ -27,28 +27,9 @@ const MyTasksTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   const [expandedProjects, setExpandedProjects] = useState(new Set());
-  const [projectNames, setProjectNames] = useState({});
 
   const showToast = (message, type) => {
     setToast({ message, type });
-  };
-
-  // Fetch project names
-  const fetchProjectName = async (projectId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:3001/project/${projectId}`,
-        {
-          headers: {
-            'authorization': token,
-          }
-        }
-      );
-      return response.data.name;
-    } catch (error) {
-      return 'Unknown Project';
-    }
   };
 
   useEffect(() => {
@@ -69,18 +50,7 @@ const MyTasksTable = () => {
         }
       );
       
-      // Fetch project names for all unique projects
-      const uniqueProjectIds = [...new Set(response.data.map(task => task.project_id))];
-      const projectNamePromises = uniqueProjectIds.map(async (projectId) => {
-        const name = await fetchProjectName(projectId);
-        return [projectId, name];
-      });
-      
-      const projectNameEntries = await Promise.all(projectNamePromises);
-      const projectNameMap = Object.fromEntries(projectNameEntries);
-      setProjectNames(projectNameMap);
-
-      // Group tasks by project
+      // Sort tasks by project, priority, and deadline
       const sortedTasks = response.data.sort((a, b) => {
         // First sort by project_id
         const projectCompare = a.project_id.localeCompare(b.project_id);
@@ -111,7 +81,7 @@ const MyTasksTable = () => {
       return (
         task.title.toLowerCase().includes(lowerCaseQuery) ||
         task.description.toLowerCase().includes(lowerCaseQuery) ||
-        projectNames[task.project_id]?.toLowerCase().includes(lowerCaseQuery)
+        task.project_name.toLowerCase().includes(lowerCaseQuery)
       );
     });
     setFilteredTasks(filtered);
@@ -127,7 +97,6 @@ const MyTasksTable = () => {
     setExpandedProjects(newExpanded);
   };
 
-  // Helper functions from original TaskTable
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -230,7 +199,7 @@ const MyTasksTable = () => {
                 ) : (
                   <ChevronRight className="h-5 w-5" />
                 )}
-                <h3 className="font-medium">{projectNames[projectId]}</h3>
+                <h3 className="font-medium">{projectTasks[0].project_name}</h3>
                 <span className="text-sm text-gray-500">({projectTasks.length} tasks)</span>
               </div>
             </div>

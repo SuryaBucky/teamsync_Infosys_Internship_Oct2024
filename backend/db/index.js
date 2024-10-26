@@ -250,7 +250,8 @@ const TaskSchema = new mongoose.Schema({
     },
     assignees: [{  
         type: String, 
-        ref: 'User'
+        ref: 'User',
+        default: []
     }],
     created_at: {
         type: Date,
