@@ -13,12 +13,9 @@ router.get('/project/:project_id/view-tasks',viewTasksByProject);
 
 router.post('/:task_id/add-assignee', validateAddAssignee, addAssignee);
 
-router.put('/:task_id/update-deadline', validateUpdateDeadline,updatedeadline);
 
 router.put('/:task_id/edit-details', validateEditDetails,editTaskDetails);
 
-// Route for updating the status of a task
-router.put('/:task_id/update-status', validateStatusUpdate, updateStatus);
 
 // Route for deleting a task from a project
 router.delete('/project/:project_id/delete-task', deleteTask);
