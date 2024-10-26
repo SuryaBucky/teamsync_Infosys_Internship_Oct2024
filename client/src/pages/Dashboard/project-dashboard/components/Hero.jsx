@@ -8,6 +8,7 @@ import AddProjectModal from './project/AddProjectModal';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import UsersProject from './UsersProject';
+import MyTasksTable from '../../my-tasks/MyTasksTable';
 
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,6 +51,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
 
       {selectedSidebar === 'users' && <UsersProject />}
       {selectedSidebar === 'projects' && <ProjectTable />}
+      {selectedSidebar==="tasks" && <MyTasksTable />}
 
       {/* Add Project Modal */}
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />

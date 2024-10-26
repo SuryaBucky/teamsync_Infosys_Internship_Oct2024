@@ -100,7 +100,10 @@ const Sidebar = ({ isOpen, onClose, user }) => {
               <li onClick={()=>{
                 navigate("/dashboard/user")
               }}><IconItem icon={faFolder} label="Assigned Projects" /></li>
-              <li><IconItem icon={faTasks} label="Tasks" /></li>
+              <li onClick={()=>{
+                setactive("tasks");
+                setSidebarSelection("tasks");
+              }}><IconItem icon={faTasks} label="Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li onClick={()=>{
                 setactive("users");
