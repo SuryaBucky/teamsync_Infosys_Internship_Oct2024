@@ -104,7 +104,9 @@ const TaskTable = ({ refreshTrigger }) => {
     try {
       const projectId = localStorage.getItem('project_id');
       
-      await api.delete(`/task/project/${projectId}/delete-task/${taskId}`);
+      await api.delete(`/task/project/${projectId}/delete-task`,{
+        data: { task_id:taskId }
+      });
       
       const updatedTasks = tasks.filter(task => task._id !== taskId);
       setTasks(updatedTasks);
@@ -302,7 +304,7 @@ const TaskTable = ({ refreshTrigger }) => {
                   </td>
                   <td className="py-4 px-6">
                     <button 
-                      onClick={() => handleDeleteClick(task._id, task.title)}
+                      onClick={() => handleDeleteClick(task.id, task.title)}
                       className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
                       title="Delete task"
                     >
