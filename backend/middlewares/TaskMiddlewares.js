@@ -82,7 +82,7 @@ const validateTaskCreation = async (req, res, next) => {
 const createTask = async (req, res) => {
     try {
         const { project_id } = req.params;
-        const { title, description, deadline, status, priority, creator_id, assignees } = req.body;
+        const { title, description, deadline, status, priority, creator_id, assignees, project_name } = req.body;
 
         // Ensure the project exists and is approved before creating a task
         const project = await Project.findOne({ id: project_id, is_approved: true });
@@ -114,6 +114,7 @@ const createTask = async (req, res) => {
             priority,
             creator_id,
             assignees: assignees || [],
+            project_name
         });
 
         await newTask.save();
@@ -173,16 +174,20 @@ const addAssignee = async (req, res) => {
 
 
         // Find the task by its ID
-        const task = await Task.findById(task_id);
+        const task = await Task.findOne({id:task_id});
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
 
-        // Check if the assignee is already added to the task
-        if (task.assignees.includes(assignee_id)) {
+        // Check if assignees exists and if the assignee is already added to the task
+        if (task.assignees && Array.isArray(task.assignees) && task.assignees.includes(assignee_id)) {
             return res.status(400).json({ message: 'Assignee already added to the task' });
         }
 
+        if (!task.assignees || !Array.isArray(task.assignees)) {
+            task.assignees = [];
+        }
+        
         // Add the assignee ID to the list of assignees
         task.assignees.push(assignee_id);
         task.updated_at = new Date(); // Update the `updated_at` field
@@ -319,7 +324,7 @@ const getTasksCreatedByUser = async (req, res) => {
 };
 
 // Middleware for fetching tasks associated with a user
-const getTasksAssignedToUser = async (req, res) => {
+const   getTasksAssignedToUser = async (req, res) => {
     try {
         const { user_id } = req.params; // Extract user ID from URL parameters
 

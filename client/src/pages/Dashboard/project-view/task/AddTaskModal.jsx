@@ -30,6 +30,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     const projectId = localStorage.getItem('project_id');
     const token = localStorage.getItem('token');
     const creatorId = localStorage.getItem('userEmail');
+    const project_name=localStorage.getItem('project_name');
 
     try {
       const response = await axios.post(`http://localhost:3001/task/project/${projectId}/create-task`, {
@@ -39,6 +40,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
         status: '0',
         priority,
         creator_id: creatorId,
+        project_name:project_name
       }, {
         headers: { authorization: token }
       });
