@@ -98,7 +98,7 @@ const Navbar = ({ setSignInOpen }) => {
                 alt="User Avatar"
                 className="w-10 h-10 rounded-full object-cover"
                 onClick={()=>{
-                  navigate("/dashboard/profile")
+                  navigate("/dashboard/user")
                 }}
               />
               <button

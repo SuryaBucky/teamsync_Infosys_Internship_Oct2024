@@ -87,7 +87,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 setSidebarSelection("your-projects");
                 setActive("your-projects");
               }}>
-                <IconItem icon={faFolder} label="Your projects" active={active === "projects"} />
+                <IconItem icon={faFolder} label="Your projects" active={active === "your-projects"} />
               </li>
               <li onClick={() => {
                 setSidebarSelection("projects");
@@ -98,7 +98,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <li onClick={()=>{
                 setActive("tasks");
                 setSidebarSelection("tasks");
-              }}><IconItem icon={faTasks} label="Tasks" /></li>
+              }}><IconItem icon={faTasks} label="My Tasks" /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li onClick={() => {
                 setActive("users");
@@ -112,7 +112,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           <div className="p-4 mt-auto">
             <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mb-4"></div>
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { navigate("/dashboard/profile"); }}>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { navigate("/dashboard/user"); }}>
               <img
                 className="w-10 h-10 rounded-full"
                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
