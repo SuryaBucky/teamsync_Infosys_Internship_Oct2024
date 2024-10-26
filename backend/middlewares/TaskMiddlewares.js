@@ -326,14 +326,11 @@ const getTasksAssignedToUser = async (req, res) => {
         // Find tasks where the user is an assignee
         const tasks = await Task.find({ assignees: user_id });
 
-        return res.status(200).json({
-            message: 'Tasks assigned to user retrieved successfully',
-            tasks
-        });
+        return res.status(200).json(tasks);
     } catch (error) {
         console.error('Error fetching tasks assigned to user:', error);
         return res.status(500).json({
-            message: 'Internal server error'
+            message: 'Internal server error '
         });
     }
 };

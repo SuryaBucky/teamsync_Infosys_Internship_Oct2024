@@ -84,6 +84,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                 }}><IconItem icon={faHome} label="Home" />
                 </li>
               <li onClick={() => {
+                setSidebarSelection("your-projects");
+                setActive("your-projects");
+              }}>
+                <IconItem icon={faFolder} label="Your projects" active={active === "projects"} />
+              </li>
+              <li onClick={() => {
                 setSidebarSelection("projects");
                 setActive("projects");
               }}>
