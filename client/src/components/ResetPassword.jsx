@@ -6,6 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from "react-redux";
 import { openSnackbar } from "../redux/snackbarSlice";
+// import { Modal } from '@mui/material';
 
 const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
   const [resetOtp, setResetOtp] = useState("");
@@ -74,14 +75,26 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
         password
       });
   
-      if (response.status === 201) {
-        console.log("Password reset successful!"); // For Debugging
-        toast.success("Password reset successful! Please login with your new password.");
-        setResetPasswordOpen(false);  // Modal close should work here
-        setSignInOpen(true);  // Open sign-in modal
+      if (response.status === 200) {
+        toast.success("Password reset successful!");
+        // Clear all form states
+        setResetOtp("");
+        setPassword("");
+        setConfirmPassword("");
+        setErrors({
+          password: [],
+          confirmPassword: "",
+          otp: ""
+        });
+        
+        // Close the reset password modal and open sign in
+        setTimeout(() => {
+          setResetPasswordOpen(false);
+          setSignInOpen(true);
+        }, 1500); // Small delay to allow the success message to be seen
       }
     } catch (err) {
-      console.log("Error occurred", err);  // Log the error for debugging
+      console.error("Error occurred", err);
       if (err.response?.status === 400) {
         toast.error("Invalid OTP. Please try again.");
       } else if (err.response?.status === 403) {
@@ -92,11 +105,11 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
     } finally {
       setLoading(false);
     }
-  };
-  
+  };  
 
   return (
     <div className="space-y-4">
+    <ToastContainer position="top-center" autoClose={5000} hideProgressBar />
       <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
         <input
           type="text"
@@ -164,6 +177,26 @@ const ResetPassword = ({ setResetPasswordOpen, setSignInOpen }) => {
   const [otpSent, setOtpSent] = useState(false);
   const dispatch = useDispatch();
 
+  // Add cleanup function for when component unmounts or modal closes
+  useEffect(() => {
+    return () => {
+      // Reset all states when component unmounts
+      setEmail("");
+      setError("");
+      setOtpSent(false);
+      setLoading(false);
+    };
+  }, []);
+
+  const handleClose = () => {
+    // Reset all states when closing
+    setEmail("");
+    setError("");
+    setOtpSent(false);
+    setLoading(false);
+    setResetPasswordOpen(false);
+  };
+
   const handleSendOTP = async () => {
     if (!email) {
       setError("Email is required");
@@ -197,71 +230,71 @@ const ResetPassword = ({ setResetPasswordOpen, setSignInOpen }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
-        <CloseRounded
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
+          <CloseRounded
           className="absolute top-6 right-8 cursor-pointer"
-          onClick={() => setResetPasswordOpen(false)}
+          onClick={handleClose}
         />
 
-        <div className="text-[22px] font-medium mx-7 my-4 text-center">
-          Reset Password
-        </div>
-
-        {!otpSent ? (
-          <div className="space-y-4">
-            <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
-              <EmailRounded className="text-xl mr-3" />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
-                className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
-              />
-            </div>
-            {error && (
-              <p className="text-red-500 text-xs mx-7 my-0.5">{error}</p>
-            )}
-
-            <div
-              onClick={handleSendOTP}
-              disabled={loading}
-              className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
-                ${loading ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
-            >
-              {loading ? (
-                <CircularProgress size={20} className="text-inherit" />
-              ) : (
-                "Send OTP"
-              )}
-            </div>
+          <div className="text-[22px] font-medium mx-7 my-4 text-center">
+            Reset Password
           </div>
-        ) : (
-          <PasswordResetForm 
-            email={email}
-            setResetPasswordOpen={setResetPasswordOpen}
-            setSignInOpen={setSignInOpen}
-          />
-        )}
 
-        <div className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-4 text-center">
-          Remembered your password?{" "}
-          <span
-            onClick={() => {
-              setResetPasswordOpen(false);
-              setSignInOpen(true);
-            }}
-            className="text-blue-500 hover:underline cursor-pointer font-medium"
-          >
-            Sign In
-          </span>
+          {!otpSent ? (
+            <div className="space-y-4">
+              <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+                <EmailRounded className="text-xl mr-3" />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
+                  className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                />
+              </div>
+              {error && (
+                <p className="text-red-500 text-xs mx-7 my-0.5">{error}</p>
+              )}
+
+              <div
+                onClick={handleSendOTP}
+                disabled={loading}
+                className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
+                  ${loading ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
+              >
+                {loading ? (
+                  <CircularProgress size={20} className="text-inherit" />
+                ) : (
+                  "Send OTP"
+                )}
+              </div>
+            </div>
+          ) : (
+            <PasswordResetForm 
+              email={email}
+              setResetPasswordOpen={setResetPasswordOpen}
+              setSignInOpen={setSignInOpen}
+            />
+          )}
+
+          <div className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-4 text-center">
+            Remembered your password?{" "}
+            <span
+              onClick={() => {
+                setResetPasswordOpen(false);
+                setSignInOpen(true);
+              }}
+              className="text-blue-500 hover:underline cursor-pointer font-medium"
+            >
+              Sign In
+            </span>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
