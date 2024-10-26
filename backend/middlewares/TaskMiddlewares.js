@@ -19,23 +19,23 @@ const AddAssigneeSchema = z.object({
 });
 
 
-// Schema for validating the deadline update
-const UpdateDeadlineSchema = z.object({
-    deadline: z.string().min(1, { message: 'Deadline is required' }),
-});
-
-// Define a schema for the edit details validation
+// zod schema for task updates
 const EditTaskDetailsSchema = z.object({
     description: z.string().optional(),
-    priority: z.enum(['0', '1', '2']).optional(), // '0' = low, '1' = medium, '2' = high
-}).refine(data => data.description !== undefined || data.priority !== undefined, {
-    message: 'At least one of description or priority must be provided',
+    priority: z.enum(['0', '1', '2'], { 
+        message: 'Priority must be 0 (low), 1 (medium), or 2 (high)'
+    }).optional(),
+    deadline: z.string().datetime({ message: 'Invalid deadline format' }).optional(),
+    status: z.enum(['0', '1'], { 
+        message: 'Status must be 0 (incomplete) or 1 (complete)'
+    }).optional(),
+}).refine(data => {
+    // Ensure at least one field is provided for update
+    return Object.keys(data).length > 0;
+}, {
+    message: 'At least one field (description, priority, deadline, or status) must be provided'
 });
 
-// Define a schema for status validation
-const UpdateStatusSchema = z.object({
-    status: z.enum(['0', '1','2'], { message: 'Status must be 0 (to do) or 1 (in progress) or 2(completed)' })
-});
 
 // Middleware function for validating task creation inputs
 const validateTaskCreation = async (req, res, next) => {
@@ -200,62 +200,22 @@ const addAssignee = async (req, res) => {
     }
 };
 
-// Middleware for validating the deadline update input
-const validateUpdateDeadline = (req, res, next) => {
-    try {
-        // Validate the request body against the schema
-        UpdateDeadlineSchema.parse(req.body);
-        next(); // Proceed if valid
-    } catch (error) {
-        // If validation fails, return an error response
-        return res.status(400).json({ message: error.errors });
-    }
-};
 
-const updatedeadline = async (req, res) => {
-    try {
-        const { task_id } = req.params;
-        const { deadline } = req.body;
-
-        // Find the task by its ID
-        const task = await Task.findById(task_id);
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
-
-        // Update the deadline and save the task
-        task.deadline = new Date(deadline);
-        task.updated_at = new Date(); // Update the `updated_at` field
-        await task.save();
-
-        return res.status(200).json({
-            message: 'Deadline updated successfully',
-            task,
-        });
-    } catch (error) {
-        console.error('Error updating deadline:', error);
-        return res.status(500).json({
-            message: 'Internal server error',
-        });
-    }
-};
-
+// Middleware for validating the task update input
 const validateEditDetails = (req, res, next) => {
     try {
-        // Validate the request body against the schema
         EditTaskDetailsSchema.parse(req.body);
-        next(); // Proceed if valid
+        next();
     } catch (error) {
-        // If validation fails, return an error response
         return res.status(400).json({ message: error.errors });
     }
 };
 
-// Middleware for updating task details
+// middleware for updating task details
 const editTaskDetails = async (req, res) => {
     try {
-        const { task_id } = req.params; // Extract task ID from URL parameters
-        const { description, priority } = req.body;
+        const { task_id } = req.params;
+        const { description, priority, deadline, status } = req.body;
 
         // Find the task by its ID
         const task = await Task.findById(task_id);
@@ -263,82 +223,55 @@ const editTaskDetails = async (req, res) => {
             return res.status(404).json({ message: 'Task not found' });
         }
 
-        // Check if the new description and priority are the same as the existing ones
-        const isSameDescription = description ? task.description === description : true;
-        const isSamePriority = priority ? task.priority === priority : true;
+        // Check if any provided values are different from current values
+        const updates = {};
+        let hasChanges = false;
 
-        if (isSameDescription && isSamePriority) {
-            return res.status(400).json({ message: 'No changes detected. Description and priority are the same as the current values.' });
+        if (description !== undefined && description !== task.description) {
+            updates.description = description;
+            hasChanges = true;
         }
 
-        // Update the fields that are provided and have changed
-        if (description && !isSameDescription) {
-            task.description = description;
-        }
-        if (priority && !isSamePriority) {
-            task.priority = priority;
+        if (priority !== undefined && priority !== task.priority) {
+            updates.priority = priority;
+            hasChanges = true;
         }
 
-        // Save the updated task
-        task.updated_at = new Date(); // Update the `updated_at` field
+        if (deadline !== undefined) {
+            const newDeadline = new Date(deadline);
+            if (task.deadline.getTime() !== newDeadline.getTime()) {
+                updates.deadline = newDeadline;
+                hasChanges = true;
+            }
+        }
+
+        if (status !== undefined && status !== task.status) {
+            updates.status = status;
+            hasChanges = true;
+        }
+
+        if (!hasChanges) {
+            return res.status(400).json({ 
+                message: 'No changes detected. All provided values are the same as current values.' 
+            });
+        }
+
+        // Apply updates and save
+        Object.assign(task, updates);
+        task.updated_at = new Date();
         await task.save();
 
         return res.status(200).json({
-            message: 'Task details updated successfully',
+            message: 'Task updated successfully',
             task,
         });
     } catch (error) {
-        console.error('Error updating task details:', error);
+        console.error('Error updating task:', error);
         return res.status(500).json({
             message: 'Internal server error',
         });
     }
 };
-
-// Middleware to validate status update request
-const validateStatusUpdate = (req, res, next) => {
-    try {
-        // Validate the request body against the schema
-        UpdateStatusSchema.parse(req.body);
-        next(); // Proceed to the next middleware or route handler if valid
-    } catch (error) {
-        // If validation fails, return a 400 error with details
-        return res.status(400).json({ message: error.errors });
-    }
-};
-
-// Middleware for updating the task status
-const updateStatus = async (req, res) => {
-    try {
-        const { task_id } = req.params; // Extract the task ID from the URL parameters
-        const { status } = req.body; // Extract the new status from the request body
-
-        // Find the task by its ID
-        const task = await Task.findById(task_id);
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
-
-        // Check if the new status is the same as the existing one
-        if (task.status === status) {
-            return res.status(400).json({ message: 'The provided status is the same as the current status' });
-        }
-
-        // Update the status of the task
-        task.status = status;
-        task.updated_at = new Date(); // Update the `updated_at` field
-        await task.save();
-
-        return res.status(200).json({
-            message: 'Status updated successfully',
-            task
-        });
-    } catch (error) {
-        console.error('Error updating status:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
 // Middleware for deleting a task
 const deleteTask = async (req, res) => {
     try {
@@ -412,12 +345,8 @@ module.exports = {
     viewTasksByProject,
     validateAddAssignee,
     addAssignee,
-    validateUpdateDeadline,
-    updatedeadline,
     validateEditDetails,
     editTaskDetails,
-    validateStatusUpdate,
-    updateStatus,
     deleteTask,
     getTasksCreatedByUser,
     getTasksAssignedToUser
