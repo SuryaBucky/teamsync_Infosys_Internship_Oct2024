@@ -6,7 +6,7 @@ import { useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../../store/atoms/adminDashboardAtoms';
 
 export const ProjectRow = ({ project }) => {
-  const setSidebar=useSetRecoilState(sidebarSelection);
+  const setSidebar = useSetRecoilState(sidebarSelection);
   const formattedDeadline = new Date(project.deadline).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
@@ -27,34 +27,53 @@ export const ProjectRow = ({ project }) => {
     }
   };
 
+  // Function to determine status styling
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'reviewing':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      case 'archived':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <tr className="border-b last:border-b-0 hover:bg-gray-50">
       <td className="py-4 px-4">
         <div className="flex items-center gap-2">
-          <div className=' cursor-pointer' onClick={()=>{
-            setSidebar("project-view");
-            localStorage.setItem("project_id",project.id);
-            localStorage.setItem("project_name",project.name);
-            //description
-            localStorage.setItem("project_description",project.description);
-            //deadline
-            localStorage.setItem("project_deadline",project.deadline);
-            //status
-            localStorage.setItem("project_status",project.status);
-            //priority
-            localStorage.setItem("project_priority",project.priority);
-            //creator
-            localStorage.setItem("project_creator",project.creator_id);
-            //tags
-            localStorage.setItem("project_tags",project.tags);
-          }}>
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              setSidebar("project-view");
+              localStorage.setItem("project_id", project.id);
+              localStorage.setItem("project_name", project.name);
+              // description
+              localStorage.setItem("project_description", project.description);
+              // deadline
+              localStorage.setItem("project_deadline", project.deadline);
+              // status
+              localStorage.setItem("project_status", project.status);
+              // priority
+              localStorage.setItem("project_priority", project.priority);
+              // creator
+              localStorage.setItem("project_creator", project.creator_id);
+              // tags
+              localStorage.setItem("project_tags", project.tags);
+            }}
+          >
             <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
             <div className="text-xs text-gray-500">{project.creator_id}</div>
           </div>
         </div>
       </td>
       <td className="py-4 px-2">
-        <span className="inline-flex justify-center items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+        <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(project.status)}`}>
           {project.status}
         </span>
       </td>
