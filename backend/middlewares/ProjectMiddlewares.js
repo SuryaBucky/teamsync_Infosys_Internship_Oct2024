@@ -24,12 +24,25 @@ const projectCreateSchema = z.object({
       priority: z.enum(['low', 'medium', 'high']).default('medium'), // Add priority field with enum
   });
 
-  const projectUpdateSchema=z.object({
-    project_id:z.string().length(36),
-    name: z.string().min(4, { message: "Name is required" }).optional(),
-    description: z.string().min(4, { message: "Description is required" }).optional(),
-    tags: z.array(z.string().min(1, { message: "Tagname is required" })).optional()
-  })
+  const projectUpdateSchema = z.object({
+    deadline: z
+      .preprocess(
+        (date) => {
+          // Parse the date string in "DD/MM/YYYY" format to a Date object
+          if (typeof date === 'string') {
+            const [day, month, year] = date.split('/').map(Number);
+            return new Date(year, month - 1, day); // Adjust month for zero-based index
+          }
+          return date;
+        },
+        z.date().optional()
+      ),
+    status: z.enum(['active', 'reviewing', 'completed', 'archived']).optional(),
+    description: z.string().optional(),
+  }).refine(
+    (data) => data.deadline || data.status || data.description,
+    { message: "At least one of 'deadline', 'status', or 'description' must be provided." }
+  );
 
     const addUsersSchema=z.object({
         project_id:z.string().length(36),
@@ -253,7 +266,8 @@ async function validateTokenProjectOwner(req,res,next){
         req.project=projectGet;
         next();
     } catch (error) {
-        
+        return res.status(401).json({message:"Invalid token"});
+
     }
 }
 
@@ -297,48 +311,6 @@ async function checkUserAdminExists(req,res,next){
     }
 }
 
-async function validateUpdateDeadline(req,res,next){
-    //only verify schema 
-    const resp=UpdateDeadlineSchema.safeParse(req.body);
-    if(!resp.success){
-        return res.status(400).json({message:resp.error.errors[0].message});
-    }
-    next();
-}
-
-const updatedeadline = async (req, res) => {
-    try {
-        const project_id=req.body.project_id;
-        const { deadline } = req.body;
-
-        // Find the task by its ID
-        const project = await Project.findById(project_id);
-        if (!project) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
-        // Update the deadline and save the task
-        if(deadline){
-            const [day, month, year] = deadline.split("/").map(Number);
-            const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
-            const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based)
-            project.deadline=parsedDate;
-        }
-        project.updated_at = new Date(); // Update the `updated_at` field
-        await project.save();
-
-        return res.status(200).json({
-            message: 'Deadline updated successfully',
-            task,
-        });
-    } catch (error) {
-        console.error('Error updating deadline:', error);
-        return res.status(500).json({
-            message: 'Internal server error',
-        });
-    }
-};
-
-
 module.exports = {
     validateCreateProject,
     checkProjectExists,
@@ -349,7 +321,5 @@ module.exports = {
     checkUserEmailExists,
     validateUpdateProject,
     validateAddUsers,
-    checkUserAdminExists,
-    validateUpdateDeadline,
-    updatedeadline
+    checkUserAdminExists
 };
