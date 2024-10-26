@@ -1,6 +1,6 @@
 const express = require("express");
 const { Project, ProjectTag, ProjectUser, User } = require("../db");
-const { validateCreateProject, checkUserExists, adminValidate, checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists,validateUpdateDeadline,updatedeadline } = require("../middlewares/ProjectMiddlewares");
+const { validateCreateProject ,checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists } = require("../middlewares/ProjectMiddlewares");
 const router = express.Router();
 const jwt=require("jsonwebtoken");
 //require dotenv
@@ -98,42 +98,42 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
 
 //update a project 
 router.put("/update",validateTokenProjectOwner, validateUpdateProject, async (req,res)=>{
-    //update the details if sent in request 
-    
-    //get the project id from req body and get the project from database
-    const project_id=req.body.project_id;
-    const project=await Project.findOne({id:project_id});
-    //update the project details if sent in request
-    const {name,description,tags}=req.body;
-    if(name){
-        project.name=name;
-    }
-    if(description){
-        project.description=description;
-    }
-    //append tags 
-    if(tags && tags.length>0){
-        tags.forEach(async (tag)=>{
-            //if such tag already exists for that project id then send error
-            const tagExists=await ProjectTag.findOne({
-                project_id:project_id,
-                tag_name:tag
-            })
-            if(tagExists){
-                return res.status(400).json({message:`Tag ${tag} already exists for this project`});
-            }
-            await ProjectTag.create({project_id:project_id,tag_name:tag});
-        });
+    const { project_id, description, deadline, status } = req.body;
+
+    // Attempt to retrieve the project by ID
+    let project;
+    try {
+        project = await Project.findOne({ id: project_id });
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Error retrieving project", error: error.message });
     }
 
-    //make updated_at as date now
-    project.updated_at=Date.now();
-    //save the project
+    // Update project details if provided
     try {
+        if (description) project.description = description;
+        if (status) project.status = status;
+
+        if (deadline) {
+            const [day, month, year] = deadline.split('/').map(Number);
+            const parsedDeadline = new Date(year, month - 1, day);
+            if (isNaN(parsedDeadline.getTime())) {
+                return res.status(400).json({ message: "Invalid deadline date format" });
+            }
+            project.deadline = parsedDeadline;
+        }
+
+        // Update the updated_at field to the current date
+        project.updated_at = Date.now();
+
+        // Save the updated project
         await project.save();
-        return res.status(200).json({message:"Project updated successfully"});
+        return res.status(200).json({ message: "Project updated successfully" });
+
     } catch (error) {
-        return res.status(500).json({message:"Internal server error"});
+        return res.status(500).json({ message: "Error updating project details", error: error.message });
     }
 })
 
@@ -290,7 +290,5 @@ router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) =
     }
 });
 
-
-router.put("/update-deadline",validateUpdateDeadline,updatedeadline);
 
 module.exports = router;
