@@ -121,7 +121,7 @@ const validateUserSignin = async (req, res, next) => {
         // Proceed to the next middleware
 
         req.user_id=existingUser.id;
-        req.user=existingUser;
+        req.user=existingUser;  
         next();
     } catch (error) {
         // Return error messages if validation or email check fails
