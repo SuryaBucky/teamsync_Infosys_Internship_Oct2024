@@ -284,13 +284,13 @@ const deleteTask = async (req, res) => {
         const {task_id} = req.body;//Extract task ID from request body
 
         // Find the task by its ID and ensure it belongs to the specified project
-        const task = await Task.findOne({ _id: task_id, project_id });
+        const task = await Task.findOne({ id: task_id, project_id });
         if (!task) {
             return res.status(404).json({ message: 'Task not found or does not belong to the specified project' });
         }
 
         // Delete the task
-        await Task.deleteOne({ _id: task_id });
+        await Task.deleteOne({ id: task_id });
 
         return res.status(200).json({
             message: 'Task deleted successfully'
