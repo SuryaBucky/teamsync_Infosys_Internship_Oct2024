@@ -57,7 +57,7 @@ const Navbar = ({ setSignInOpen }) => {
         }`}
       >
         {/* Left Section: Logo */}
-        <div className="font-bold text-2xl bg-gradient-to-r from-[#4caf50] to-[#00bcd4] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-110">
+        <div className="font-bold text-2xl bg-gradient-to-r from-[#4caf50] to-[#00bcd4] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
           Team Sync
         </div>
 
@@ -96,7 +96,7 @@ const Navbar = ({ setSignInOpen }) => {
               <img
                 src="https://i.pravatar.cc/150"
                 alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover cursor-pointer"
                 onClick={()=>{
                   navigate("/dashboard/user")
                 }}

@@ -79,7 +79,6 @@ const Button = styled.button`
   
   &:hover {
     background: linear-gradient(76.35deg, #20639B 15.89%, #4D9DE0 89.75%);
-    transform: scale(1.05);
   }
 
   @media (max-width: 1250px) {
@@ -100,11 +99,6 @@ const Image = styled.img`
   border-radius: 12px;
   animation: ${fadeInUp} 1.2s ease-in-out;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Add transition for hover effects */
-
-  &:hover {
-    transform: scale(1.05); /* Subtle zoom effect on hover */
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px; /* Shadow on hover */
-  }
 
   @media (max-width: 1000px) {
     display: none; /* Hide on smaller screens */

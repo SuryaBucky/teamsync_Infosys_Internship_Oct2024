@@ -123,7 +123,6 @@ async function checkProjectExists(req,res,next){
     
     //if request is of type get then do this
     if(req.method=="GET"){
-        console.log("in get")
         const schema = z.string().length(36, { message: "project_id must be exactly 36 characters long" });
         const resp=schema.safeParse(req.params.project_id);
         if(!resp.success){
