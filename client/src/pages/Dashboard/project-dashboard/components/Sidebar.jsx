@@ -51,6 +51,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     navigate('/');
   };
 
+  const truncateText = (text, maxLength) => {
+    return text.length > maxLength ? text.slice(0, maxLength - 3) + '...' : text;
+  };
+
   return (
     <>
       {isOpen && (
@@ -119,8 +123,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                 alt="User Profile"
               />
               <div>
-                <p className="font-semibold text-gray-800">{userName || 'Guest'}</p>
-                <p className="text-sm text-gray-500">{userEmail || 'No email'}</p>
+              <p className="font-semibold text-gray-800">
+                {truncateText(userName || 'Guest', 16)}
+              </p>
+              <p className="text-sm text-gray-500">
+                {truncateText(userEmail || 'No email', 16)}
+              </p>
+
               </div>
             </div>
 
