@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export const ProjectRow = ({ project }) => {
+export const MyProjectRow = ({ project }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditDeadlineOpen, setIsEditDeadlineOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -391,4 +391,4 @@ export const ProjectRow = ({ project }) => {
   );
 };
 
-export default ProjectRow;
+export default MyProjectRow;

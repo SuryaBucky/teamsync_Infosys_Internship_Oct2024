@@ -15,7 +15,7 @@ import { closeSnackbar } from "./redux/snackbarSlice";
 import ProjectDashboard from './pages/Dashboard/project-dashboard/ProjectDashboard';
 import AdminDashboard from './pages/Dashboard/admin-dashboard/AdminDashboard';
 import { RecoilRoot } from 'recoil';
-import Profile from './pages/Dashboard/profile/Profile';
+// import Profile from './pages/Dashboard/profile/Profile';
 
 
 function App() {
@@ -41,9 +41,9 @@ function App() {
             <Route exact path="/dashboard/user">
               <Route index element={<ProjectDashboard />} />
             </Route>
-            <Route exact path="/dashboard/profile">
+            {/* <Route exact path="/dashboard/profile">
               <Route index element={<Profile />} />
-            </Route>
+            </Route> */}
             <Route exact path="/dashboard/admin">
               <Route index element={<AdminDashboard />} />
             </Route>
