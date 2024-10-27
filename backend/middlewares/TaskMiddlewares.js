@@ -26,7 +26,7 @@ const EditTaskDetailsSchema = z.object({
     priority: z.enum(['0', '1', '2'], { 
         message: 'Priority must be 0 (low), 1 (medium), or 2 (high)'
     }).optional(),
-    deadline: z.string().datetime({ message: 'Invalid deadline format' }).optional(),
+    deadline: z.string().optional(),
     status: z.enum(['0', '1', '2'], { 
         message: 'Status must be 0 (to do) or 1 (in progress) or 2(completed)'
     }).optional(),
@@ -249,9 +249,9 @@ const editTaskDetails = async (req, res) => {
         }
 
         if (deadline !== undefined) {
-            const newDeadline = new Date(deadline);
-            if (task.deadline.getTime() !== newDeadline.getTime()) {
-                updates.deadline = newDeadline;
+            console.log(deadline);
+            if (task.deadline !== deadline) {
+                updates.deadline = deadline;
                 hasChanges = true;
             }
         }
