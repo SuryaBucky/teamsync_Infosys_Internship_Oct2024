@@ -102,6 +102,9 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             setNameRecoil(res.data.name);
             localStorage.setItem("userName",res.data.name)
             localStorage.setItem("userEmail",decoded.email)
+            localStorage.setItem("isAdmin",!!decoded.admin_id)
+            localStorage.setItem("userId",decoded.admin_id || decoded.user_id)
+            localStorage.setItem("userJoindate", res.data.joined_at )
             dispatch(loginSuccess(res.data));
             setIsLoggedIn(true);
             setSignInOpen(false);
