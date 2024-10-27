@@ -52,7 +52,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       case 'archived':
         return 'bg-gray-100 text-gray-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-red-200 text-red-800';
     }
   };
 
@@ -164,8 +164,8 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           </div>
         </td>
         <td className="py-4 px-2">
-          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(project.status)}`}>
-            {project.status}
+          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${project.is_approved?getStatusStyle(project.status):getStatusStyle("")}`}>
+            {project.is_approved?project.status:"Not approved"}
           </span>
         </td>
         <td className="hidden sm:table-cell py-4 px-4 text-black text-xs">
