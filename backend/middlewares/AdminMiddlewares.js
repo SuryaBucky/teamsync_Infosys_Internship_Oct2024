@@ -123,8 +123,11 @@ const tokenValidationUser=async(req,res,next)=>{
 const getAllUsers = async (req, res) => {
     try {
         
-        const users = await User.find({}, '-password_hash -registration_otp -reset_otp').lean();
-
+        const users = await User.find(
+            { state: { $ne: 'pending' } },
+            '-password_hash -registration_otp -reset_otp'
+          ).lean();
+          
         return res.status(200).json(users);
     } catch (error) {
         console.error('Error fetching all users:', error);
@@ -176,7 +179,6 @@ async function validateUserStateChange(req,res,next){
     try {
         //safe parse use
         UserStateSchema.parse(req.body)
-        console.log(req.body.user_id)
         //find if user exists
         const user = await User.findOne({ id: req.body.user_id });
         if (!user) {
