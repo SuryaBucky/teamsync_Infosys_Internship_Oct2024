@@ -257,6 +257,7 @@ const editTaskDetails = async (req, res) => {
         }
 
         if (status !== undefined && status !== task.status) {
+            console.log(status);
             updates.status = status;
             hasChanges = true;
         }
