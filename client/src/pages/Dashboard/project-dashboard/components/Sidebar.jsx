@@ -8,6 +8,7 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useDispatch } from "react-redux";
 import { logout } from '../../../../redux/userSlice';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ProfileModal from '../../profile/ProfileModal';
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -27,12 +28,15 @@ const IconItem = ({ icon, label, active = false }) => {
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
+
   const navigate = useNavigate();
   const userName = localStorage.getItem('userName');
   const userEmail = localStorage.getItem('userEmail');
   const setSidebarSelection = useSetRecoilState(sidebarSelection);
   const [active, setActive] = useState("projects");
   const dispatch = useDispatch();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const toggleModal = () => setModalOpen(!isModalOpen);
 
   useEffect(() => {
     // On initial render automatically set selection to 'projects'
@@ -57,6 +61,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
+    
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
@@ -116,7 +121,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           <div className="p-4 mt-auto">
             <div className="flex-1 h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mb-4"></div>
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { navigate("/dashboard/user"); }}>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => {toggleModal()}}>
               <img
                 className="w-10 h-10 rounded-full"
                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
@@ -142,7 +147,9 @@ const Sidebar = ({ isOpen, onClose }) => {
             </button>
           </div>
         </div>
+        
       </aside>
+      {isModalOpen && <ProfileModal isOpen={isModalOpen} onClose={toggleModal} />}
     </>
   );
 };
