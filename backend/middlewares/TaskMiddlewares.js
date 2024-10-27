@@ -21,13 +21,14 @@ const AddAssigneeSchema = z.object({
 
 // zod schema for task updates
 const EditTaskDetailsSchema = z.object({
+    title:z.string().optional(),
     description: z.string().optional(),
     priority: z.enum(['0', '1', '2'], { 
         message: 'Priority must be 0 (low), 1 (medium), or 2 (high)'
     }).optional(),
-    deadline: z.string().datetime({ message: 'Invalid deadline format' }).optional(),
-    status: z.enum(['0', '1'], { 
-        message: 'Status must be 0 (incomplete) or 1 (complete)'
+    deadline: z.string().optional(),
+    status: z.enum(['0', '1', '2'], { 
+        message: 'Status must be 0 (to do) or 1 (in progress) or 2(completed)'
     }).optional(),
 }).refine(data => {
     // Ensure at least one field is provided for update
@@ -220,7 +221,7 @@ const validateEditDetails = (req, res, next) => {
 const editTaskDetails = async (req, res) => {
     try {
         const { task_id } = req.params;
-        const { description, priority, deadline, status } = req.body;
+        const { title, description, priority, deadline, status } = req.body;
 
         // Find the task by its ID
         const task = await Task.findById(task_id);
@@ -237,20 +238,26 @@ const editTaskDetails = async (req, res) => {
             hasChanges = true;
         }
 
+        if (title !== undefined && title !== task.title) {
+            updates.title = title;
+            hasChanges = true;
+        }
+
         if (priority !== undefined && priority !== task.priority) {
             updates.priority = priority;
             hasChanges = true;
         }
 
         if (deadline !== undefined) {
-            const newDeadline = new Date(deadline);
-            if (task.deadline.getTime() !== newDeadline.getTime()) {
-                updates.deadline = newDeadline;
+            console.log(deadline);
+            if (task.deadline !== deadline) {
+                updates.deadline = deadline;
                 hasChanges = true;
             }
         }
 
         if (status !== undefined && status !== task.status) {
+            console.log(status);
             updates.status = status;
             hasChanges = true;
         }
