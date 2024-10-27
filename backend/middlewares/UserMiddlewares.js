@@ -155,7 +155,6 @@ async function validateUserUpdate(req,res,next){
         const resetOtp = existingUser.reset_otp;
         //input validation on inputa
         const result = userUpdateSchema.safeParse(req.body);
-        console.log("bich")
         if (!result.success) {
             // Throw an error with the specific validation messages
             throw new Error(result.error.errors.map(err => err.message).join(', '));
@@ -174,7 +173,6 @@ async function validateUserUpdate(req,res,next){
         next();
     } catch (error) {
         // If validation or email check fails, respond with the errors
-        console.log("tada");
         return res.status(400).json({
             errors: [error.message], // Ensure to return a single error message for clarity
         });

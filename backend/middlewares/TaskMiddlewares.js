@@ -160,7 +160,6 @@ const validateAddAssignee = (req, res, next) => {
         next(); // Proceed if valid
     } catch (error) {
         // If validation fails, return an error response
-        console.log("validation failed");
         return res.status(400).json({ message: error.errors });
     }
 };
@@ -170,8 +169,6 @@ const addAssignee = async (req, res) => {
     try {
         const { task_id } = req.params; // Extract task ID from URL parameters
         const { assignee_id } = req.body; // Extract assignee ID from request body
-        console.log('Task ID:', task_id);
-        console.log('Assignee ID:', assignee_id);
 
 
         // Find the task by its ID

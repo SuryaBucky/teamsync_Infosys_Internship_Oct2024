@@ -103,12 +103,10 @@ async function validateCreateProject(req,res,next){
         //check if a project with same name exists
         const project=await Project.findOne({name:req.body.name})
         if(project){
-            console.log("hahah")
             return res.status(400).json({message:"Project with same name already exists",tag:1});
         }
         next();
     } catch (error) {
-        console.log("hahah")
         return res.status(400).json({message:error});
     }
 }
@@ -151,7 +149,6 @@ async function checkProjectExists(req,res,next){
         const schema=z.object({
             project_id:z.string().length(36)
         });
-        console.log("in post")
         const resp=schema.safeParse(req.body);
         if(!resp.success){
             return res.status(400).json({message:resp.error.errors[0].message});
