@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Edit3, Trash2, X } from 'lucide-react';
 import axios from 'axios';
+import {z} from "zod"
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
@@ -62,121 +63,170 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
     </div>
   );
 };
+const EditTaskDetailsSchema = z.object({
+  title: z.string().min(2, { message: 'Title must be at least 2 characters long' }).optional(),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters long' }).optional(),
+  priority: z.enum(['0', '1', '2'], { 
+      message: 'Priority must be 0 (low), 1 (medium), or 2 (high)'
+  }).optional(),
+  deadline: z.string().optional(),
+  status: z.enum(['0', '1', '2'], { 
+      message: 'Status must be 0 (to do), 1 (in progress), or 2 (completed)'
+  }).optional(),
+}).refine(data => Object.values(data).some(value => value !== undefined && value !== ''), {
+  message: 'At least one field (title, description, priority, deadline, or status) must be provided'
+});
+
 const EditModal = ({ isOpen, onClose, task, onSave }) => {
   const [editedTask, setEditedTask] = useState({ ...task });
+  const [errors, setErrors] = useState({});
+  const [isFormChanged, setIsFormChanged] = useState(false);
 
   useEffect(() => {
-    if (task) {
-      setEditedTask({ ...task });
-    }
+      if (task) {
+          setEditedTask({ ...task });
+      }
   }, [task]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedTask((prevTask) => ({ ...prevTask, [name]: value }));
+      const { name, value } = e.target;
+      setEditedTask((prevTask) => {
+          const updatedTask = { ...prevTask, [name]: value };
+          validateForm(updatedTask);
+          setIsFormChanged(JSON.stringify(updatedTask) !== JSON.stringify(task)); // Check if the form has changes
+          return updatedTask;
+      });
+  };
+
+  const validateForm = (formData) => {
+      try {
+          EditTaskDetailsSchema.parse(formData);
+          setErrors({});
+      } catch (error) {
+          if (error instanceof z.ZodError) {
+              const fieldErrors = {};
+              error.errors.forEach((err) => {
+                  fieldErrors[err.path[0]] = err.message;
+              });
+              setErrors(fieldErrors);
+          }
+      }
   };
 
   const handleSave = () => {
-    onSave(editedTask);
+      if (Object.keys(errors).length === 0 && isFormChanged) {
+          onSave(editedTask);
+      } else {
+          setErrors({ ...errors, form: 'Please correct errors or make a change before saving' });
+      }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        <h2 className="text-xl font-semibold mb-4">Edit Task</h2>
-        
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Title</label>
-          <input 
-            type="text"
-            name="title"
-            value={editedTask.title}
-            onChange={handleChange}
-            className="mt-1 px-3 py-2 border rounded-md w-full"
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+              className="absolute inset-0 bg-black bg-opacity-50"
+              onClick={onClose}
           />
-        </div>
-        
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Description</label>
-          <textarea 
-            name="description"
-            value={editedTask.description}
-            onChange={handleChange}
-            className="mt-1 px-3 py-2 border rounded-md w-full"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Deadline</label>
-          <input 
-            type="date"
-            name="deadline"
-            value={editedTask.deadline ? new Date(editedTask.deadline).toISOString().split('T')[0] : ''}
-            onChange={handleChange}
-            className="mt-1 px-3 py-2 border rounded-md w-full"
-          />
-        </div>
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
+              <button 
+                  onClick={onClose}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              >
+                  <X className="h-5 w-5" />
+              </button>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Priority</label>
-          <select
-            name="priority"
-            value={editedTask.priority}
-            onChange={handleChange}
-            className="mt-1 px-3 py-2 border rounded-md w-full"
-          >
-            <option value="0">Low</option>
-            <option value="1">Medium</option>
-            <option value="2">High</option>
-          </select>
-        </div>
+              <h2 className="text-xl font-semibold mb-4">Edit Task</h2>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Status</label>
-          <select
-            name="status"
-            value={editedTask.status}
-            onChange={handleChange}
-            className="mt-1 px-3 py-2 border rounded-md w-full"
-          >
-            <option value="0">To Do</option>
-            <option value="1">In Progress</option>
-            <option value="2">Completed</option>
-          </select>
-        </div>
+              <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">Title</label>
+                  <input 
+                      type="text"
+                      name="title"
+                      value={editedTask.title || ''}
+                      onChange={handleChange}
+                      className="mt-1 px-3 py-2 border rounded-md w-full"
+                  />
+                  {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+              </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Save
-          </button>
-        </div>
+              <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea 
+                      name="description"
+                      value={editedTask.description || ''}
+                      onChange={handleChange}
+                      className="mt-1 px-3 py-2 border rounded-md w-full"
+                  />
+                  {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+              </div>
+
+              <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">Deadline</label>
+                  <input 
+                      type="date"
+                      name="deadline"
+                      value={editedTask.deadline ? new Date(editedTask.deadline).toISOString().split('T')[0] : ''}
+                      onChange={handleChange}
+                      className="mt-1 px-3 py-2 border rounded-md w-full"
+                  />
+                  {errors.deadline && <p className="text-red-500 text-xs mt-1">{errors.deadline}</p>}
+              </div>
+
+              <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">Priority</label>
+                  <select
+                      name="priority"
+                      value={editedTask.priority || ''}
+                      onChange={handleChange}
+                      className="mt-1 px-3 py-2 border rounded-md w-full"
+                  >
+                      <option value="">Select Priority</option>
+                      <option value="0">Low</option>
+                      <option value="1">Medium</option>
+                      <option value="2">High</option>
+                  </select>
+                  {errors.priority && <p className="text-red-500 text-xs mt-1">{errors.priority}</p>}
+              </div>
+
+              <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <select
+                      name="status"
+                      value={editedTask.status || ''}
+                      onChange={handleChange}
+                      className="mt-1 px-3 py-2 border rounded-md w-full"
+                  >
+                      <option value="">Select Status</option>
+                      <option value="0">To Do</option>
+                      <option value="1">In Progress</option>
+                      <option value="2">Completed</option>
+                  </select>
+                  {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
+              </div>
+
+              {errors.form && <p className="text-red-500 text-xs mt-2">{errors.form}</p>}
+
+              <div className="flex justify-end gap-3">
+                  <button
+                      onClick={onClose}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                      Cancel
+                  </button>
+                  <button
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                      Save
+                  </button>
+              </div>
+          </div>
       </div>
-    </div>
   );
 };
 

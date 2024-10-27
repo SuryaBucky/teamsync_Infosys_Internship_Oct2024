@@ -249,7 +249,6 @@ const editTaskDetails = async (req, res) => {
         }
 
         if (deadline !== undefined) {
-            console.log(deadline);
             if (task.deadline !== deadline) {
                 updates.deadline = deadline;
                 hasChanges = true;
@@ -257,7 +256,6 @@ const editTaskDetails = async (req, res) => {
         }
 
         if (status !== undefined && status !== task.status) {
-            console.log(status);
             updates.status = status;
             hasChanges = true;
         }
