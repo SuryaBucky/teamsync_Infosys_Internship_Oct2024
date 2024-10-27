@@ -7,12 +7,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from "react-redux";
 import { openSnackbar } from "../redux/snackbarSlice";
 // import { Modal } from '@mui/material';
+import { logout } from '../redux/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
   const [resetOtp, setResetOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   
   const [errors, setErrors] = useState({
     password: [],
@@ -91,6 +96,9 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
         setTimeout(() => {
           setResetPasswordOpen(false);
           setSignInOpen(true);
+          dispatch(logout());
+          localStorage.clear();
+          navigate("/")
         }, 1500); // Small delay to allow the success message to be seen
       }
     } catch (err) {
