@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Filter, MoreVertical, Trash2, X } from 'lucide-react';
+import { Filter, Edit3, Trash2, X } from 'lucide-react';
 import axios from 'axios';
 
 const Toast = ({ message, type, onClose }) => {
@@ -62,6 +62,109 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
     </div>
   );
 };
+const EditModal = ({ isOpen, onClose, task, onSave }) => {
+  const [editedTask, setEditedTask] = useState({ ...task });
+
+  useEffect(() => {
+    if (task) {
+      setEditedTask({ ...task });
+    }
+  }, [task]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedTask((prevTask) => ({ ...prevTask, [name]: value }));
+  };
+
+  const handleSave = () => {
+    onSave(editedTask);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4">Edit Task</h2>
+        
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <input 
+            type="text"
+            name="title"
+            value={editedTask.title}
+            onChange={handleChange}
+            className="mt-1 px-3 py-2 border rounded-md w-full"
+          />
+        </div>
+        
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <textarea 
+            name="description"
+            value={editedTask.description}
+            onChange={handleChange}
+            className="mt-1 px-3 py-2 border rounded-md w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Deadline</label>
+          <input 
+            type="date"
+            name="deadline"
+            value={editedTask.deadline ? new Date(editedTask.deadline).toISOString().split('T')[0] : ''}
+            onChange={handleChange}
+            className="mt-1 px-3 py-2 border rounded-md w-full"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Priority</label>
+          <select
+            name="priority"
+            value={editedTask.priority}
+            onChange={handleChange}
+            className="mt-1 px-3 py-2 border rounded-md w-full"
+          >
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+          </select>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const TaskTable = ({ refreshTrigger }) => {
   const [tasks, setTasks] = useState([]);
@@ -74,6 +177,11 @@ const TaskTable = ({ refreshTrigger }) => {
     taskId: null,
     taskTitle: ''
   });
+  const [editModal, setEditModal] = useState({
+    isOpen: false,
+    task: null
+  });
+
 
   // Create axios instance with default config
   const api = axios.create({
@@ -98,6 +206,31 @@ const TaskTable = ({ refreshTrigger }) => {
       taskTitle
     });
   };
+  const handleEditClick = (task) => {
+    setEditModal({
+      isOpen: true,
+      task
+    });
+  };
+  
+
+  const handleEditSave = async (editedTask) => {
+    try {
+      await api.put(`/task/${editedTask._id}/edit-details`, editedTask);
+      const updatedTasks = tasks.map((task) =>
+        task._id === editedTask._id ? editedTask : task
+      );
+      setTasks(updatedTasks);
+      setFilteredTasks(updatedTasks);
+      showToast("Task updated successfully", "success");
+    } catch (error) {
+      console.error('Edit task error:', error);
+      showToast("Failed to update task", "error");
+    } finally {
+      setEditModal({ isOpen: false, task: null });
+    }
+  };
+
 
   const handleDeleteConfirm = async () => {
     const taskId = deleteModal.taskId;
@@ -231,6 +364,13 @@ const TaskTable = ({ refreshTrigger }) => {
         onConfirm={handleDeleteConfirm}
         taskTitle={deleteModal.taskTitle}
       />
+       <EditModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ isOpen: false, task: null })}
+        task={editModal.task}
+        onSave={handleEditSave}
+      />
+
 
       <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
         <div className="hidden lg:block font-medium text-lg">Tasks</div>
@@ -311,10 +451,15 @@ const TaskTable = ({ refreshTrigger }) => {
                       <Trash2 className="h-5 w-5" />
                     </button>
                   </td>
-                  <td className="py-4 px-2">
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <MoreVertical className="h-5 w-5 text-gray-400" />
-                    </button>
+                  <td className="px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        onClick={() => handleEditClick(task)} 
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <Edit3 className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
