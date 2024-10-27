@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const { Admin } = require("../db/index"); // Import the Admin model
-const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
+const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser, validateUserStateChange } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
 const { validateProjectApproval, approveProject, getAllProjects, getAllUsers } = require("../middlewares/AdminMiddlewares");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -57,7 +57,24 @@ router.get("/all-projects",tokenValidationAdmin, getAllProjects);
 
 router.get("/all-users-Users", tokenValidationUser, getAllUsers);
 
+router.put("/user-state",tokenValidationAdmin,validateUserStateChange, async (req,res)=>{
+    //request body
+    const user=req.user;
+    if (user.state==="verified"){
+        user.state="blocked";
+    }else if(user.state==="blocked"){
+        user.state="verified";
+    }else{
+        return res.status(400).json({message:"User not verified yet"});
+    }
 
+    try {
+        await user.save();
+        return res.status(200).json({message:"User state updated successfully"});
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"});
+    }
+})
 
 module.exports = router;
 

@@ -14,6 +14,11 @@ const ProjectApprovalSchema = z.object({
     status: z.enum(['approved', 'rejected'], { message: 'Status must be either "approved" or "rejected"' }),
 });
 
+//zod schema for change userstate from blocked to verified and opposite expect user to send user_id in request body
+const UserStateSchema = z.object({
+    user_id: z.string().min(1, { message: 'User ID is required' }),
+});
+
 // Middleware function for validating admin sign-in inputs
 const validateAdminSignIn = (req, res, next) => {
     try {
@@ -37,6 +42,7 @@ const validateProjectApproval = (req, res, next) => {
         return res.status(400).json({ message: error.errors });
     }
 };
+
 
 // Middleware function to handle the project approval logic
 const approveProject = async (req, res) => {
@@ -117,8 +123,11 @@ const tokenValidationUser=async(req,res,next)=>{
 const getAllUsers = async (req, res) => {
     try {
         
-        const users = await User.find({}, '-password_hash -registration_otp -reset_otp').lean();
-
+        const users = await User.find(
+            { state: { $ne: 'pending' } },
+            '-password_hash -registration_otp -reset_otp'
+          ).lean();
+          
         return res.status(200).json(users);
     } catch (error) {
         console.error('Error fetching all users:', error);
@@ -166,6 +175,21 @@ const getAllProjects = async (req, res) => {
     }
 };
 
+async function validateUserStateChange(req,res,next){
+    try {
+        //safe parse use
+        UserStateSchema.parse(req.body)
+        //find if user exists
+        const user = await User.findOne({ id: req.body.user_id });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        req.user=user;
+        next();
+    } catch (error) {
+        return res.status(400).json({ message: error.errors });
+    }
+}
 
 module.exports = {
     validateAdminSignIn,
@@ -174,5 +198,6 @@ module.exports = {
     getAllUsers,
     getAllProjects,
     tokenValidationAdmin,
-    tokenValidationUser
+    tokenValidationUser,
+    validateUserStateChange
 };
