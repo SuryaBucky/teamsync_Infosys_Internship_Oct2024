@@ -52,7 +52,8 @@ router.post("/signin", validateUserSignin,(req,res)=>{
     return res.json({
         message: "User signed in successfully.",
         token,
-        name:req.user.name
+        name:req.user.name,
+        joined_at:req.user.created_at
     });
 })
 
@@ -274,7 +275,8 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
         return res.status(200).json({
             message: "User verified successfully.",
             token,
-            name:userOne.name
+            name:userOne.name,
+            joined_at:userOne.created
         });
     }else{
         return res.status(400).json({

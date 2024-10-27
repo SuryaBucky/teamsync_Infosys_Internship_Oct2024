@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { logout } from '../../../../redux/userSlice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ProfileModal from '../../profile/ProfileModal';
+import ResetPassword from "../../../../components/ResetPassword"
 
 const IconItem = ({ icon, label, active = false }) => {
   return (
@@ -37,6 +38,12 @@ const Sidebar = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const [isModalOpen, setModalOpen] = useState(false);
   const toggleModal = () => setModalOpen(!isModalOpen);
+  const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
+
+  const handleResetPasswordOpen = () => {
+    setModalOpen(false); // Close ProfileModal
+    setResetPasswordOpen(true); // Open ResetPassword
+  };
 
   useEffect(() => {
     // On initial render automatically set selection to 'projects'
@@ -149,7 +156,14 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
         
       </aside>
-      {isModalOpen && <ProfileModal isOpen={isModalOpen} onClose={toggleModal} />}
+      {isModalOpen && <ProfileModal isOpen={isModalOpen} onClose={toggleModal} onResetPassword={handleResetPasswordOpen} />}
+
+      {isResetPasswordOpen && (
+        <ResetPassword
+          setResetPasswordOpen={setResetPasswordOpen}
+          setSignInOpen={() => {/* handle sign-in open if needed */}}
+        />
+      )}
     </>
   );
 };

@@ -188,6 +188,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 setUserIdRecoil(decoded.admin_id || decoded.user_id);
                 localStorage.setItem("userName",resendOtp.data.name);
                 localStorage.setItem("userEmail",decoded.email);
+                localStorage.setItem("userJoindate",response.data.joined_at) 
 
                 setOtpVerified(true);
                 setOtp('');
