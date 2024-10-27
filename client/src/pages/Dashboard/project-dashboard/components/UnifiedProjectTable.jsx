@@ -16,6 +16,8 @@ const UnifiedProjectTable = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const isCreatedProjectsView = endpoint === "my-created-projects";
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -87,7 +89,11 @@ const UnifiedProjectTable = ({
           <tbody>
             {filteredProjects.length > 0 ? (
               filteredProjects.map(project => (
-                <ProjectRow key={project.id} project={project} />
+                <ProjectRow 
+                  key={project.id} 
+                  project={project} 
+                  isCreatedProject={isCreatedProjectsView}
+                />
               ))
             ) : (
               <tr>
