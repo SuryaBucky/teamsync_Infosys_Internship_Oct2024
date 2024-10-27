@@ -1,9 +1,8 @@
-// Hero.js
+// Hero.jsx
 import React, { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-// import AddTaskModal from './AddTaskModal';
 import { useRecoilValue } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
@@ -51,40 +50,47 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
     <div className="p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-            <div>
-              <h1 className="text-2xl font-semibold">{projectName}</h1>
-              <p className="text-gray-600 text-sm mt-2">
-                  <span className={`px-2 py-1 ${getPriorityColor()} rounded-full`}>
-                      {projectPriority}
-                  </span>
-                </p> 
-              <p className="text-gray-600 text-sm mt-2">{projectDescription}</p>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {projectTags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-violet-300 text-violet-950 rounded-lg text-xs font-medium"
-                  >
-                    {tag.trim()}
-                  </span>
-                ))}
-              </div>
-            </div>
+        <button
+          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        
+        <div className="flex flex-col items-center text-center w-full"> {/* Centering container */}
+          {/* Project Name Styling */}
+          <h1 className="text-3xl font-bold text-blue-900">{projectName}</h1>
+
+          {/* Project Priority Styling */}
+          <p className="text-gray-600 text-sm mt-2">
+            <span className={`px-2 py-1 ${getPriorityColor()} text-white font-semibold rounded-full`}>
+              {projectPriority}
+            </span>
+          </p> 
+          
+          {/* Project Description Styling */}
+          <p className="text-gray-700 text-sm mt-2 italic">{projectDescription}</p>
+          
+          {/* Project Tags Styling */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {projectTags.map((tag, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-violet-300 text-violet-950 rounded-lg text-xs font-medium border border-violet-500 shadow-sm"
+              >
+                {tag.trim()}
+              </span>
+            ))}
+          </div>
         </div>
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
-            onClick={openModal}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            <span className="hidden sm:inline">Add Task</span>
-          </button>
+      
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+          onClick={openModal}
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="hidden sm:inline">Add Task</span>
+        </button>
       </div>
 
       <TaskTable refreshTrigger={refreshTrigger} />
