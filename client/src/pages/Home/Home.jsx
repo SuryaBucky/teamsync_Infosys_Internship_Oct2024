@@ -118,7 +118,6 @@ const Home = () => {
             }
         }else{
             localStorage.clear();
-            window.location.href="/";
         }
     })
 
