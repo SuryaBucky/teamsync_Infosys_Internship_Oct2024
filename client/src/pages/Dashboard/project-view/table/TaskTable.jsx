@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Filter, Edit3, Trash2, X } from 'lucide-react';
+import { Filter, Edit3, Trash2, X, PlusCircle } from 'lucide-react';
 import axios from 'axios';
 import {z} from "zod"
+import AddAssigneesModal from '../components/AddAssigneesModal';
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
@@ -247,6 +248,16 @@ const TaskTable = ({ refreshTrigger }) => {
     isOpen: false,
     task: null
   });
+  const [assigneesModal, setAssigneesModal] = useState({
+    isOpen: false,
+    taskId: null
+  });
+  const handleAddAssigneesClick = (taskId) => {
+    setAssigneesModal({
+      isOpen: true,
+      taskId
+    });
+  };
 
 
   // Create axios instance with default config
@@ -444,6 +455,12 @@ const TaskTable = ({ refreshTrigger }) => {
         task={editModal.task}
         onSave={handleEditSave}
       />
+      <AddAssigneesModal
+        isOpen={assigneesModal.isOpen}
+        onClose={() => setAssigneesModal({ isOpen: false, taskId: null })}
+        taskId={assigneesModal.taskId}
+        onSuccess={fetchTasks}
+      />
 
 
       <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
@@ -516,7 +533,7 @@ const TaskTable = ({ refreshTrigger }) => {
                   <td className="py-4 px-6">
                     <div className="text-xs text-gray-500">{formatDate(task.deadline)}</div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-2">
                     <button 
                       onClick={() => handleDeleteClick(task.id, task.title)}
                       className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
@@ -525,14 +542,25 @@ const TaskTable = ({ refreshTrigger }) => {
                       <Trash2 className="h-5 w-5" />
                     </button>
                   </td>
-                  <td className="px-6 py-4 border-b border-gray-200">
+                  <td className="px-2 py-4 border-b border-gray-200">
                     <div className="flex items-center space-x-2">
                       <button 
                         onClick={() => handleEditClick(task)} 
                         className="text-blue-500 hover:text-blue-700"
+                        title="Edit task"
                       >
                         <Edit3 className="h-5 w-5" />
                       </button>
+                    </div>
+                  </td>
+                  <td className="px-2 py-4 border-b border-gray-200">
+                    <div className="flex items-center space-x-2">
+                      <button 
+                          onClick={() => handleAddAssigneesClick(task.id)} 
+                          className="text-blue-500 hover:text-blue-700" title='Add assigneed'
+                        >
+                          <PlusCircle className="h-5 w-5" />
+                        </button>
                     </div>
                   </td>
                 </tr>
