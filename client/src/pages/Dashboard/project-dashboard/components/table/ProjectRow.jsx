@@ -30,6 +30,11 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     year: '2-digit',
   });
 
+  // Add useEffect to fetch members when component mounts
+  useEffect(() => {
+    fetchMembers();
+  }, [project.id]); // Add project.id as dependency
+
   const getPriorityStyle = (priority) => {
     switch (priority) {
       case 'low':
@@ -81,17 +86,28 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
-  useEffect(() => {
-    fetchMembers();
-  }, [project.id]);
-
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:3001/admin/all-users-Users', {
         headers: { authorization: token }
       });
-      setUsers(response.data);
+      
+      // Get existing project members
+      const projectMembersResponse = await axios.get(`http://localhost:3001/project/get-all-users/${project.id}`, {
+        headers: { authorization: token },
+      });
+      
+      // Create a set of existing member IDs for efficient lookup
+      const existingMemberIds = new Set(projectMembersResponse.data.map(member => member.id));
+      
+      // Mark users as disabled if they're already members
+      const processedUsers = response.data.map(user => ({
+        ...user,
+        isDisabled: existingMemberIds.has(user.id)
+      }));
+      
+      setUsers(processedUsers);
     } catch (error) {
       toast.error('Error fetching users. Please try again later.');
     }
@@ -122,6 +138,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       
       toast.success('Users added successfully!');
       setIsModalOpen(false);
+      setSelectedUsers([])
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -200,17 +217,26 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           </div>
         </td>
         <td className="py-4 px-4">
-          <div className="flex -space-x-2">
-            {members.slice(0, 3).map((member, i) => (
-              <img
+          <div className="flex -space-x-2 relative" title={`${members.length} members`}>
+            {members.slice(0, 3).map((member, index) => (
+              <div
                 key={member.id}
-                src={`https://i.pravatar.cc/32?img=${i + 1}`}
-                alt={`Member ${i + 1}`}
-                className="w-7 h-7 rounded-full border-2 border-white"
-              />
+                className="relative"
+                style={{ zIndex: members.length - index }}
+              >
+                <img
+                  src={`https://i.pravatar.cc/32?img=${index + 1}`}
+                  alt={member.name}
+                  className="w-7 h-7 rounded-full border-2 border-white object-cover"
+                />
+                <div className="absolute inset-0 rounded-full border-2 border-white" />
+              </div>
             ))}
             {members.length > 3 && (
-              <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
+              <div 
+                className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative"
+                style={{ zIndex: 0 }}
+              >
                 +{members.length - 3}
               </div>
             )}
@@ -248,63 +274,133 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       </tr>
 
       {/* User Addition Modal */}
-      {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Add Users</h3>
-                  <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-500">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4 max-h-[90vh] flex flex-col">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Add Users</h3>
+                <button 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setSelectedUsers([]);
+                    setSearchTerm('');
+                  }} 
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
+              {/* Search Input */}
+              <div className="mb-4">
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border p-2 mb-4 w-full rounded-md"
+                  className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-
-                <div className="max-h-60 overflow-y-auto">
-                  {filteredUsers.map((user) => (
-                    <div key={user.id} className="flex justify-between items-center p-2 border-b">
-                      <div>{user.name}</div>
-                      <button
-                        onClick={() => setSelectedUsers([...selectedUsers, user])}
-                        className="text-blue-500"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium">Selected Users:</h4>
-                  {selectedUsers.map((user) => (
-                    <div key={user.id} className="flex justify-between items-center p-2 border-b">
-                      <div>{user.name}</div>
-                      <button
-                        onClick={() => removeUser(user)}
-                        className="text-red-500"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mt-4"
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : 'Add Users'}
-                </button>
               </div>
+
+              {/* Users List */}
+              <div className="flex-grow overflow-y-auto mb-4 border rounded-md">
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <div 
+                      key={user.id} 
+                      className={`flex justify-between items-center p-3 border-b last:border-b-0 transition-colors ${
+                        user.isDisabled ? 'bg-gray-50' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className={`font-medium ${user.isDisabled ? 'text-gray-500' : 'text-gray-700'}`}>
+                          {user.name}
+                        </span>
+                        <span className={`text-sm ${user.isDisabled ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {user.email}
+                        </span>
+                        {user.isDisabled && (
+                          <span className="text-xs text-gray-500 italic mt-1">
+                            Already a member
+                          </span>
+                        )}
+                      </div>
+                      {user.isDisabled ? (
+                        <span className="px-3 py-1 text-sm text-gray-500 bg-gray-100 rounded-md">
+                          Added
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (!selectedUsers.some(selected => selected.id === user.id)) {
+                              setSelectedUsers([...selectedUsers, user]);
+                            }
+                          }}
+                          disabled={selectedUsers.some(selected => selected.id === user.id)}
+                          className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                            selectedUsers.some(selected => selected.id === user.id)
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                          }`}
+                        >
+                          {selectedUsers.some(selected => selected.id === user.id) ? 'Selected' : 'Add'}
+                        </button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    No users found matching your search.
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Users Section */}
+              {selectedUsers.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Users ({selectedUsers.length})</h4>
+                  <div className="border rounded-md max-h-[150px] overflow-y-auto">
+                    {selectedUsers.map((user) => (
+                      <div key={user.id} className="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-700">{user.name}</span>
+                          <span className="text-sm text-gray-500">{user.email}</span>
+                        </div>
+                        <button
+                          onClick={() => removeUser(user)}
+                          className="text-red-600 hover:text-red-700 text-sm px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
+                  selectedUsers.length > 0
+                    ? 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                onClick={handleSubmit}
+                disabled={isLoading || selectedUsers.length === 0}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader className="h-5 w-5 animate-spin mr-2" />
+                    <span>Adding Users...</span>
+                  </div>
+                ) : (
+                  `Add ${selectedUsers.length} User${selectedUsers.length !== 1 ? 's' : ''}`
+                )}
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
       {/* Edit modal */}
       {isEditModalOpen && (
