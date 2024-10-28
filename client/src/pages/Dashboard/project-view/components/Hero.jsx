@@ -1,9 +1,7 @@
-// Hero.js
 import React, { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-// import AddTaskModal from './AddTaskModal';
 import { useRecoilValue } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
@@ -30,61 +28,74 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    // Trigger a refresh of the task table
     setRefreshTrigger(prev => prev + 1);
   };
 
   const getPriorityColor = () => {
     switch (projectPriority.toLowerCase()) {
       case 'low':
-        return 'bg-green-300';
+        return 'bg-green-300 text-green-800';
       case 'medium':
-        return 'bg-yellow-300';
+        return 'bg-yellow-300 text-yellow-800';
       case 'high':
-        return 'bg-red-300';
+        return 'bg-red-300 text-red-800';
       default:
-        return 'bg-gray-300';
+        return 'bg-gray-300 text-gray-800';
     }
   };
 
   return (
     <div className="p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      {/* Header with max width for content */}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
+        <div className="flex items-start gap-4 max-w-[800px]">
           <button
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors mt-1"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
-            <div>
+          
+          <div className="space-y-3 flex-1 min-w-0">
+            {/* Project Name and Priority in one line */}
+            <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-semibold">{projectName}</h1>
-              <p className="text-gray-600 text-sm mt-2">
-                  <span className={`px-2 py-1 ${getPriorityColor()} rounded-full`}>
-                      {projectPriority}
-                  </span>
-                </p> 
-              <p className="text-gray-600 text-sm mt-2">{projectDescription}</p>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <span className={`px-3 py-1 ${getPriorityColor()} rounded-full text-sm font-medium whitespace-nowrap`}>
+                {projectPriority}
+              </span>
+            </div>
+            
+            {/* Description with proper wrapping */}
+            {projectDescription && (
+              <p className="text-gray-600 break-words whitespace-pre-wrap">
+                {projectDescription}
+              </p>
+            )}
+            
+            {/* Tags with proper wrapping */}
+            {projectTags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
                 {projectTags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-violet-300 text-violet-950 rounded-lg text-xs font-medium"
+                    className="px-3 py-1 bg-violet-100 text-violet-800 rounded-lg text-sm font-medium whitespace-nowrap"
                   >
                     {tag.trim()}
                   </span>
                 ))}
               </div>
-            </div>
+            )}
+          </div>
         </div>
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
-            onClick={openModal}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            <span className="hidden sm:inline">Add Task</span>
-          </button>
+
+        {/* Add Task button always aligned to the top right */}
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors whitespace-nowrap self-start ml-auto lg:ml-0 mt-6"
+          onClick={openModal}
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="hidden sm:inline">Add Task</span>
+        </button>
       </div>
 
       <TaskTable refreshTrigger={refreshTrigger} />
