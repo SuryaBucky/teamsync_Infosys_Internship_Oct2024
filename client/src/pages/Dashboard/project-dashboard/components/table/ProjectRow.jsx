@@ -257,13 +257,13 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           {isCreatedProject && (
             <div className="flex gap-2">
               <button 
-                className="p-2 hover:bg-blue-50 rounded-full"
+                className="p-2 hover:bg-blue-50 rounded-full cursor-pointer"
                 onClick={handleAddUsers}
               >
                 <Plus className="w-4 h-4 text-green-500" />
               </button>
               <button
-                className="p-2 hover:bg-blue-50 rounded-full"
+                className="p-2 hover:bg-blue-50 rounded-full cursor-pointer"
                 onClick={() => setIsEditModalOpen(true)}
               >
                 <Edit3 className="w-4 h-4 text-blue-500" />
