@@ -20,15 +20,32 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [updatedStatus, setUpdatedStatus] = useState(project.status);
   const [updatedAbout, setUpdatedAbout] = useState(project.description);
-  const [updatedDeadline, setUpdatedDeadline] = useState(new Date(project.deadline).toLocaleDateString('en-GB'));
+  const [updatedDeadline, setUpdatedDeadline] = useState(
+    project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '' // Set deadline in YYYY-MM-DD format
+  );
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
-  const formattedDeadline = new Date(project.deadline).toLocaleDateString('en-GB', {
+   // Validation flag to check if at least one field is changed
+   const [isChanged, setIsChanged] = useState(false);
+
+   useEffect(() => {
+     // Check if any field has been modified
+     const hasChanged = 
+       updatedStatus !== project.status ||
+       updatedAbout !== project.description ||
+       updatedDeadline !== (project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '');
+ 
+     setIsChanged(hasChanged);
+   }, [updatedStatus, updatedAbout, updatedDeadline, project]);
+
+
+
+  const formattedDeadline = project.deadline ? new Date(project.deadline).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
     year: '2-digit',
-  });
+  }) : 'No deadline';
 
   // Add useEffect to fetch members when component mounts
   useEffect(() => {
@@ -126,11 +143,17 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:3001/project/addUsers', 
-        {
-          project_id: project.id,
-          user_ids: selectedUsers.map(user => user.id)
-        },
+      const dataToSend = {
+        project_id: project.id,
+        description: updatedAbout,
+        status: updatedStatus
+      };
+  
+      if (updatedDeadline) {
+        dataToSend.deadline = updatedDeadline;
+      }
+      await axios.post('http://localhost:3001/project/addUsers', dataToSend
+        ,
         {
           headers: { Authorization: token }
         }
@@ -170,6 +193,10 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   };
 
   const handleEditSubmit = async () => {
+    if (!isChanged) {
+      toast.error('Please change at least one field before submitting.');
+      return;
+    }
     const token = localStorage.getItem('token');
     try {
       const response = await axios.put('http://localhost:3001/project/update', 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Filter, Edit3, Trash2, X } from 'lucide-react';
 import axios from 'axios';
 import {z} from "zod"
@@ -265,13 +265,19 @@ const TaskTable = ({ refreshTrigger }) => {
     setToast({ message, type });
   };
 
-  const handleDeleteClick = (taskId, taskTitle) => {
-    setDeleteModal({
-      isOpen: true,
-      taskId,
-      taskTitle
-    });
-  };
+ const handleDeleteClick = (taskId, taskTitle) => {
+  if (!taskId) {
+    console.error('No task ID provided');
+    showToast("Error: Unable to delete task", "error");
+    return;
+  }
+  
+  setDeleteModal({
+    isOpen: true,
+    taskId,
+    taskTitle
+  });
+};
   const handleEditClick = (task) => {
     setEditModal({
       isOpen: true,
@@ -298,18 +304,18 @@ const TaskTable = ({ refreshTrigger }) => {
   };
 
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     const taskId = deleteModal.taskId;
     try {
       const projectId = localStorage.getItem('project_id');
       
-      await api.delete(`/task/project/${projectId}/delete-task`,{
-        data: { task_id:taskId }
+      await api.delete(`/task/project/${projectId}/delete-task`, {
+        data: { task_id: taskId }
       });
       
-      const updatedTasks = tasks.filter(task => task._id !== taskId);
-      setTasks(updatedTasks);
-      setFilteredTasks(updatedTasks);
+      setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+      setFilteredTasks(prevFilteredTasks => prevFilteredTasks.filter(task => task._id !== taskId));
+      
       showToast("Task deleted successfully", "success");
     } catch (error) {
       console.error('Delete task error:', error);
@@ -317,7 +323,9 @@ const TaskTable = ({ refreshTrigger }) => {
     } finally {
       setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
     }
-  };
+  }, [deleteModal.taskId]);
+  
+  
 
   const fetchTasks = async () => {
     try {
