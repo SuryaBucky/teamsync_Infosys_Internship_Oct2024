@@ -115,6 +115,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                 setActive("tasks");
                 setSidebarSelection("tasks");
               }}><IconItem icon={faTasks} label="Assigned Tasks" active={active==="tasks"} /></li>
+              <li onClick={()=>{
+                setActive("created-tasks");
+                setSidebarSelection("created-tasks");
+              }}><IconItem icon={faTasks} label="Created Tasks" active={active==="created-tasks"} /></li>
               <li><IconItem icon={faFileAlt} label="File Manager" /></li>
               <li onClick={() => {
                 setActive("users");

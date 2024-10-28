@@ -21,7 +21,7 @@ router.put('/:task_id/edit-details', validateEditDetails,editTaskDetails);
 router.delete('/project/:project_id/delete-task', deleteTask);
 
 // Route for getting tasks created by the user
-router.get('/user/:user_id/created-tasks', getTasksCreatedByUser);
+router.get('/user/:userEmail/created-tasks', getTasksCreatedByUser);
 
 // Route for getting tasks assigned to the user
 router.get('/user/:user_id/assigned-tasks', getTasksAssignedToUser);

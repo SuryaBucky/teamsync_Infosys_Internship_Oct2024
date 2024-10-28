@@ -188,7 +188,7 @@ const EditModal = ({ isOpen, onClose, task, onSave }) => {
   );
 };
 
-const MyTasksTable = () => {
+const MyTasksTable = ({ type = 'assigned' }) => {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,21 +215,34 @@ const MyTasksTable = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [type]);
 
   const fetchTasks = async () => {
     try {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
+      const userEmail = localStorage.getItem('userEmail');
       
-      const response = await axios.get(
-        `http://localhost:3001/task/user/${userId}/assigned-tasks`,
-        {
-          headers: {
-            'authorization': token,
+      let response;
+      if (type === 'assigned') {
+        response = await axios.get(
+          `http://localhost:3001/task/user/${userId}/assigned-tasks`,
+          {
+            headers: {
+              'authorization': token,
+            }
           }
-        }
-      );
+        );
+      } else {
+        response = await axios.get(
+          `http://localhost:3001/task/user/${userEmail}/created-tasks`,
+          {
+            headers: {
+              'authorization': token,
+            }
+          }
+        );
+      }
       
       // Sort tasks by project, priority, and deadline
       const sortedTasks = response.data.sort((a, b) => {
@@ -381,7 +394,7 @@ const MyTasksTable = () => {
       />
 
       <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
-        <div className="hidden lg:block font-medium text-lg">My Tasks</div>
+        <div className="hidden lg:block font-medium text-lg">{type === 'assigned' ? 'Tasks assigned to you' : 'Tasks created by you'}</div>
         <div className="flex gap-4">
           <input
             type="text"

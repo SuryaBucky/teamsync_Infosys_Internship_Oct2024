@@ -308,15 +308,12 @@ const deleteTask = async (req, res) => {
 // Middleware for fetching tasks created by a user
 const getTasksCreatedByUser = async (req, res) => {
     try {
-        const { user_id } = req.params; // Extract user ID from URL parameters
+        const { userEmail } = req.params;
 
         // Find tasks where the user is the creator
-        const tasks = await Task.find({ creator_id: user_id });
+        const tasks = await Task.find({ creator_id: userEmail });
 
-        return res.status(200).json({
-            message: 'Tasks created by user retrieved successfully',
-            tasks
-        });
+        return res.status(200).json(tasks);
     } catch (error) {
         console.error('Error fetching tasks created by user:', error);
         return res.status(500).json({
