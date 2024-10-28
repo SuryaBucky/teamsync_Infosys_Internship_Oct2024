@@ -12,6 +12,8 @@ import SignUp from '../../components/SignUp'
 import SignIn from '../../components/SignIn'
 import Faq from './components/Faq'
 
+import {jwtDecode} from "jwt-decode"
+
 const ScrollToTop = styled.div`
   position: fixed;
   bottom: 40px;
@@ -103,6 +105,22 @@ const Home = () => {
         window.addEventListener('scroll', checkScrollTop);
         return () => window.removeEventListener('scroll', checkScrollTop);
     }, [showScroll]);
+
+    useEffect(()=>{
+        const token=localStorage.getItem("token");
+        if(token){
+            //decode token jwt
+            const decoded=jwtDecode(token);
+            const currentTime=Date.now()/1000;
+            if(decoded.exp<currentTime){
+                localStorage.clear();
+                window.location.href="/";
+            }
+        }else{
+            localStorage.clear();
+            window.location.href="/";
+        }
+    })
 
     const scrollToTop = () => {
         window.scrollTo({
