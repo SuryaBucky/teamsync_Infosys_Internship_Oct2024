@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Filter, Edit3, ChevronDown, ChevronRight, X } from 'lucide-react';
+import { Filter, Edit3, ChevronDown, ChevronRight, X, Trash2, PlusCircle } from 'lucide-react';
 import { z } from 'zod';
+import AddAssigneesModal from '../project-view/components/AddAssigneesModal';
 
 // Toast component remains the same as in TaskTable
 const Toast = ({ message, type, onClose }) => {
@@ -34,6 +35,50 @@ const EditTaskDetailsSchema = z.object({
 }).refine(data => Object.values(data).some(value => value !== undefined && value !== ''), {
   message: 'At least one field (title, description, priority, deadline, or status) must be provided'
 });
+
+const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4">Delete Task</h2>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete "{taskTitle}"? This action cannot be undone.
+        </p>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const EditModal = ({ isOpen, onClose, task, onSave }) => {
   const [editedTask, setEditedTask] = useState({ ...task });
@@ -195,6 +240,22 @@ const MyTasksTable = ({ type = 'assigned' }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    taskId: null,
+    taskTitle: ''
+  });
+  const [assigneesModal, setAssigneesModal] = useState({
+    isOpen: false,
+    taskId: null
+  });
+  
+  const handleAddAssigneesClick = (taskId) => {
+    setAssigneesModal({
+      isOpen: true,
+      taskId
+    });
+  };
   
 
   const showToast = (message, type) => {
@@ -216,6 +277,41 @@ const MyTasksTable = ({ type = 'assigned' }) => {
   useEffect(() => {
     fetchTasks();
   }, [type]);
+
+  const handleDeleteClick = (taskId, taskTitle) => {
+    if (!taskId) {
+      console.error('No task ID provided');
+      showToast("Error: Unable to delete task", "error");
+      return;
+    }
+    
+    setDeleteModal({
+      isOpen: true,
+      taskId,
+      taskTitle
+    });
+  };
+
+  const handleDeleteConfirm = useCallback(async () => {
+    const taskId = deleteModal.taskId;
+    try {
+      const projectId = localStorage.getItem('project_id');
+      
+      await api.delete(`/task/project/${projectId}/delete-task`, {
+        data: { task_id: taskId }
+      });
+      
+      setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+      setFilteredTasks(prevFilteredTasks => prevFilteredTasks.filter(task => task._id !== taskId));
+      
+      showToast("Task deleted successfully", "success");
+    } catch (error) {
+      console.error('Delete task error:', error);
+      showToast("Failed to delete task", "error");
+    } finally {
+      setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
+    }
+  }, [deleteModal.taskId]);
 
   const fetchTasks = async () => {
     try {
@@ -392,6 +488,18 @@ const MyTasksTable = ({ type = 'assigned' }) => {
         task={editModal.task}
         onSave={handleEditSave}
       />
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' })}
+        onConfirm={handleDeleteConfirm}
+        taskTitle={deleteModal.taskTitle}
+      />
+      <AddAssigneesModal
+        isOpen={assigneesModal.isOpen}
+        onClose={() => setAssigneesModal({ isOpen: false, taskId: null })}
+        taskId={assigneesModal.taskId}
+        onSuccess={fetchTasks}
+      />
 
       <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
         <div className="hidden lg:block font-medium text-lg">{type === 'assigned' ? 'Tasks assigned to you' : 'Tasks created by you'}</div>
@@ -472,16 +580,36 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                         <td className="py-4 px-6">
                           <div className="text-xs text-gray-500">{formatDate(task.deadline)}</div>
                         </td>
-                        <td className="px-6 py-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-2">
-                      <button 
-                        onClick={() => handleEditClick(task)} 
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        <Edit3 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
+                        <td className="py-4 px-2">
+                          <button 
+                            onClick={() => handleDeleteClick(task.id, task.title)}
+                            className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
+                            title="Delete task"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </td>
+                        <td className="px-2 py-4 border-b border-gray-200">
+                          <div className="flex items-center space-x-2">
+                            <button 
+                              onClick={() => handleEditClick(task)} 
+                              className="text-blue-500 hover:text-blue-700"
+                              title="Edit task"
+                            >
+                              <Edit3 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-2 py-4 border-b border-gray-200">
+                          <div className="flex items-center space-x-2">
+                            <button 
+                                onClick={() => handleAddAssigneesClick(task.id)} 
+                                className="text-blue-500 hover:text-blue-700" title='Add assignees'
+                              >
+                                <PlusCircle className="h-5 w-5" />
+                              </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

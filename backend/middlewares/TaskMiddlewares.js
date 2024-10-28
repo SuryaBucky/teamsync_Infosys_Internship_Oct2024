@@ -361,7 +361,7 @@ const getAssignedUsers=async(req,res)=>{
         const assignees=task.assignees;
 
         if(!assignees || assignees.length===0){
-            return res.status(404).json({message:"No assignees found for this task"});
+            return res.status(200).json([]);
         }
         const users=await User.find({id:{$in:assignees}});
         return res.status(200).json(users);
