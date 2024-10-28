@@ -25,24 +25,27 @@ const projectCreateSchema = z.object({
   });
 
   const projectUpdateSchema = z.object({
-    deadline: z
-      .preprocess(
-        (date) => {
-          // Parse the date string in "DD/MM/YYYY" format to a Date object
-          if (typeof date === 'string') {
-            const [day, month, year] = date.split('/').map(Number);
-            return new Date(year, month - 1, day); // Adjust month for zero-based index
-          }
-          return date;
-        },
-        z.date().optional()
-      ),
-    status: z.enum(['active', 'reviewing', 'completed', 'archived']).optional(),
-    description: z.string().optional(),
-  }).refine(
-    (data) => data.deadline || data.status || data.description,
-    { message: "At least one of 'deadline', 'status', or 'description' must be provided." }
-  );
+    project_id: z.string().uuid(),
+    deadline: z.string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+        .transform((dateStr) => {
+            // Create date in UTC
+            const date = new Date(dateStr + 'T23:59:59.999Z');
+            
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                throw new Error('Invalid date');
+            }
+            
+            return date;
+        })
+        .optional(),
+            status: z.enum(['active', 'reviewing', 'completed', 'archived']).optional(),
+            description: z.string().optional(),
+        }).refine(
+            (data) => data.deadline || data.status || data.description,
+            { message: "At least one of 'deadline', 'status', or 'description' must be provided." }
+        );
 
     const addUsersSchema=z.object({
         project_id:z.string().length(36),
@@ -111,13 +114,18 @@ async function validateCreateProject(req,res,next){
     }
 }
 
-async function validateUpdateProject(req,res,next){
-    //only verify schema 
-    const resp=projectUpdateSchema.safeParse(req.body);
-    if(!resp.success){
-        return res.status(400).json({message:resp.error.errors[0].message});
+async function validateUpdateProject(req, res, next) {
+    try {
+        const validatedData = projectUpdateSchema.parse(req.body);
+        // Add the validated data back to req.body
+        req.body = validatedData;
+        next();
+    } catch (error) {
+        return res.status(400).json({
+            message: error.errors?.[0]?.message || "Validation error",
+            errors: error.errors
+        });
     }
-    next();
 }
 
 async function validateAddUsers(req,res,next){

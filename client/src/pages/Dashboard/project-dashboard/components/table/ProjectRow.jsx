@@ -403,54 +403,58 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
         )}
 
       {/* Edit modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
-            <label className="block mb-2">
-              Description
-              <input
-                type="text"
-                value={updatedAbout}
-                onChange={(e) => setUpdatedAbout(e.target.value)}
-                className="border rounded w-full p-2 mt-1"
-              />
-            </label>
-            <label className="block mb-2">
-              Status
-              <input
-                type="text"
-                value={updatedStatus}
-                onChange={(e) => setUpdatedStatus(e.target.value)}
-                className="border rounded w-full p-2 mt-1"
-              />
-            </label>
-            <label className="block mb-2">
-              Deadline
-              <input
-                type="date"
-                value={updatedDeadline}
-                onChange={(e) => setUpdatedDeadline(e.target.value)}
-                className="border rounded w-full p-2 mt-1"
-              />
-            </label>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="px-4 py-2 text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEditSubmit}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{isEditModalOpen && (
+  <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
+    <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md">
+      <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
+      <label className="block mb-2">
+        Description
+        <input
+          type="text"
+          value={updatedAbout}
+          onChange={(e) => setUpdatedAbout(e.target.value)}
+          className="border rounded w-full p-2 mt-1"
+        />
+      </label>
+      <label className="block mb-2">
+        Status
+        <select
+          value={updatedStatus}
+          onChange={(e) => setUpdatedStatus(e.target.value)}
+          className="border rounded w-full p-2 mt-1 bg-white"
+        >
+          <option value="active">Active</option>
+          <option value="reviewing">Reviewing</option>
+          <option value="completed">Completed</option>
+          <option value="archived">Archived</option>
+        </select>
+      </label>
+      <label className="block mb-2">
+        Deadline
+        <input
+          type="date"
+          value={updatedDeadline}
+          onChange={(e) => setUpdatedDeadline(e.target.value)}
+          className="border rounded w-full p-2 mt-1"
+        />
+      </label>
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setIsEditModalOpen(false)}
+          className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleEditSubmit}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 };

@@ -97,7 +97,7 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
 })
 
 //update a project 
-router.put("/update",validateTokenProjectOwner, validateUpdateProject, async (req,res)=>{
+router.put("/update", validateTokenProjectOwner, validateUpdateProject, async (req, res) => {
     const { project_id, description, deadline, status } = req.body;
 
     // Attempt to retrieve the project by ID
@@ -115,14 +115,8 @@ router.put("/update",validateTokenProjectOwner, validateUpdateProject, async (re
     try {
         if (description) project.description = description;
         if (status) project.status = status;
-
         if (deadline) {
-            const [day, month, year] = deadline.split('/').map(Number);
-            const parsedDeadline = new Date(year, month - 1, day);
-            if (isNaN(parsedDeadline.getTime())) {
-                return res.status(400).json({ message: "Invalid deadline date format" });
-            }
-            project.deadline = parsedDeadline;
+            project.deadline = deadline;
         }
 
         // Update the updated_at field to the current date
@@ -135,7 +129,7 @@ router.put("/update",validateTokenProjectOwner, validateUpdateProject, async (re
     } catch (error) {
         return res.status(500).json({ message: "Error updating project details", error: error.message });
     }
-})
+});
 
 //router to add users to a project
 router.post("/addusers", validateTokenProjectOwner, validateAddUsers, async (req, res) => {
