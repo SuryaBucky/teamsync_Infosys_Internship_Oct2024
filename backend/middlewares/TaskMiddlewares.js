@@ -339,6 +339,33 @@ const   getTasksAssignedToUser = async (req, res) => {
     }
 };
 
+const getAssignedUsers=async(req,res)=>{
+    try {
+        const { task_id } = req.params;
+        if(!task_id){
+            return res.status(400).json({message:"Task ID is required"});
+        }
+
+        const task= await Task.findOne({id:task_id});
+        if(!task){
+            return res.status(404).json({message:"Task not found"});
+        }
+        console.log(task.title);
+        const assignees=task.assignees;
+
+        if(!assignees || assignees.length===0){
+            return res.status(404).json({message:"No assignees found for this task"});
+        }
+        const users=await User.find({id:{$in:assignees}});
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching assigned users:', error);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+}
+
 
 module.exports = {
     validateTaskCreation,
@@ -350,5 +377,6 @@ module.exports = {
     editTaskDetails,
     deleteTask,
     getTasksCreatedByUser,
-    getTasksAssignedToUser
+    getTasksAssignedToUser,
+    getAssignedUsers
 };
