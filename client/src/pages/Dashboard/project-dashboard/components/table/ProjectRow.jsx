@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Plus, X, Loader } from 'lucide-react';
+import { MoreVertical, Plus, X, Loader, Edit3 } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -17,10 +17,10 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [members, setMembers] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // New state for edit modal
-  const [updatedStatus, setUpdatedStatus] = useState(project.status); // New state for status
-  const [updatedAbout, setUpdatedAbout] = useState(project.description); // New state for about
-  const [updatedDeadline, setUpdatedDeadline] = useState(new Date(project.deadline).toLocaleDateString('en-GB')); // New state for deadline
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [updatedStatus, setUpdatedStatus] = useState(project.status);
+  const [updatedAbout, setUpdatedAbout] = useState(project.description);
+  const [updatedDeadline, setUpdatedDeadline] = useState(new Date(project.deadline).toLocaleDateString('en-GB'));
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -30,7 +30,6 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     year: '2-digit',
   });
 
-  // Function to determine priority styling
   const getPriorityStyle = (priority) => {
     switch (priority) {
       case 'low':
@@ -44,7 +43,6 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
-  // Function to determine status styling
   const getStatusStyle = (status) => {
     switch (status) {
       case 'active':
@@ -154,7 +152,6 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     localStorage.setItem("project_tags", project.tags);
   };
 
-  // New function to handle project updates
   const handleEditSubmit = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -231,54 +228,27 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           </span>
         </td>
         <td className="py-4 px-2 relative" ref={dropdownRef}>
-          {isCreatedProject ? (
-            <button 
-              className="p-2 hover:bg-blue-50 rounded-full"
-              onClick={handleAddUsers}
-            >
-              <Plus className="h-5 w-5 text-blue-500" />
-            </button>
-          ) : (
-            <button 
-              className="p-1 hover:bg-gray-100 rounded"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <MoreVertical className="h-5 w-5 text-gray-400" />
-            </button>
-          )}
-
-          {isDropdownOpen && !isCreatedProject && (
-            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-              <div className="py-1">
-                <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => {
-                    setSidebar("project-view");
-                    handleProjectClick();
-                  }}
-                >
-                  View Details
-                </button>
-              </div>
+          {isCreatedProject && (
+            <div className="flex gap-2">
+              <button 
+                className="p-2 hover:bg-blue-50 rounded-full"
+                onClick={handleAddUsers}
+              >
+                <Plus className="w-4 h-4 text-green-500" />
+              </button>
+              <button
+                className="p-2 hover:bg-blue-50 rounded-full"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Edit3 className="w-4 h-4 text-blue-500" />
+              </button>
             </div>
           )}
+        </td>
+      </tr>
 
-          {/* Edit Project Button */}
-          <button
-            className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-200 hover:bg-blue-100 transition duration-300 shadow-md ml-2"
-            onClick={() => {
-              setUpdatedStatus(project.status);
-              setUpdatedAbout(project.description);
-              setUpdatedDeadline(formattedDeadline);
-              setIsEditModalOpen(true);
-            }}
-          >
-            Edit Profile
-          </button>
-
-
-          {/* User Addition Modal */}
-          {isModalOpen && (
+      {/* User Addition Modal */}
+      {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4">
                 <div className="flex justify-between items-center mb-4">
@@ -336,66 +306,55 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
             </div>
           )}
 
-          {/* Edit Project Modal */}
-          {isEditModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Edit Project</h3>
-                  <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-500">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">Status</label>
-                  <select 
-                    className="w-full border rounded-md"
-                    value={updatedStatus}
-                    onChange={(e) => setUpdatedStatus(e.target.value)}
-                  >
-                    <option value="active">Active</option>
-                    <option value="reviewing">Reviewing</option>
-                    <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">About</label>
-                  <textarea
-                    className="w-full border rounded-md"
-                    value={updatedAbout}
-                    onChange={(e) => setUpdatedAbout(e.target.value)}
-                    rows="3"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">Deadline</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded-md"
-                    value={updatedDeadline}
-                    onChange={(e) => setUpdatedDeadline(e.target.value)}
-                    placeholder="DD/MM/YYYY"
-                  />
-                </div>
-
-                <button
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-                  onClick={handleEditSubmit}
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : 'Update Project'}
-                </button>
-              </div>
+      {/* Edit modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
+            <label className="block mb-2">
+              Description
+              <input
+                type="text"
+                value={updatedAbout}
+                onChange={(e) => setUpdatedAbout(e.target.value)}
+                className="border rounded w-full p-2 mt-1"
+              />
+            </label>
+            <label className="block mb-2">
+              Status
+              <input
+                type="text"
+                value={updatedStatus}
+                onChange={(e) => setUpdatedStatus(e.target.value)}
+                className="border rounded w-full p-2 mt-1"
+              />
+            </label>
+            <label className="block mb-2">
+              Deadline
+              <input
+                type="date"
+                value={updatedDeadline}
+                onChange={(e) => setUpdatedDeadline(e.target.value)}
+                className="border rounded w-full p-2 mt-1"
+              />
+            </label>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Save
+              </button>
             </div>
-          )}
-        </td>
-      </tr>
+          </div>
+        </div>
+      )}
     </>
   );
 };
-
-export default ProjectRow;
