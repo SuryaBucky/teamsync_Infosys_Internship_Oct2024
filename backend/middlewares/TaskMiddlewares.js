@@ -15,8 +15,9 @@ const TaskCreationSchema = z.object({
 });
 // Define Zod schema for adding an assignee
 const AddAssigneeSchema = z.object({
-    assignee_id: z.string().min(1, { message: 'Assignee ID is required' })
+    assignee_ids: z.array(z.string().min(1, { message: 'Assignee ID is required' }))
 });
+
 
 
 // zod schema for task updates
@@ -168,7 +169,11 @@ const validateAddAssignee = (req, res, next) => {
 const addAssignee = async (req, res) => {
     try {
         const { task_id } = req.params; // Extract task ID from URL parameters
-        const { assignee_id } = req.body; // Extract assignee ID from request body
+        const { assignee_ids } = req.body; // Extract assignee ID from request body
+
+        if (!Array.isArray(assignee_ids) || assignee_ids.length === 0) {
+            return res.status(400).json({ message: 'Assignee IDs are required and should be an array' });
+        }
 
 
         // Find the task by its ID
@@ -178,16 +183,18 @@ const addAssignee = async (req, res) => {
         }
 
         // Check if assignees exists and if the assignee is already added to the task
-        if (task.assignees && Array.isArray(task.assignees) && task.assignees.includes(assignee_id)) {
+        if (task.assignees && Array.isArray(task.assignees) && task.assignees.includes(assignee_ids)) {
             return res.status(400).json({ message: 'Assignee already added to the task' });
         }
 
         if (!task.assignees || !Array.isArray(task.assignees)) {
             task.assignees = [];
         }
+
+        // Add only unique IDs that are not already in task.assignees
+        const newAssignees = assignee_ids.filter(id => !task.assignees.includes(id));
+        task.assignees.push(...newAssignees);
         
-        // Add the assignee ID to the list of assignees
-        task.assignees.push(assignee_id);
         task.updated_at = new Date(); // Update the `updated_at` field
         await task.save();
 
