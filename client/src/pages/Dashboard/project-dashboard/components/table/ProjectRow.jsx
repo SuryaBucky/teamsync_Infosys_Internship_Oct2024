@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Plus, X, Loader } from 'lucide-react';
+import { MoreVertical, Plus, X, Loader, Edit3 } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -17,10 +17,10 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [members, setMembers] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // New state for edit modal
-  const [updatedStatus, setUpdatedStatus] = useState(project.status); // New state for status
-  const [updatedAbout, setUpdatedAbout] = useState(project.description); // New state for about
-  const [updatedDeadline, setUpdatedDeadline] = useState(new Date(project.deadline).toLocaleDateString('en-GB')); // New state for deadline
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [updatedStatus, setUpdatedStatus] = useState(project.status);
+  const [updatedAbout, setUpdatedAbout] = useState(project.description);
+  const [updatedDeadline, setUpdatedDeadline] = useState(new Date(project.deadline).toLocaleDateString('en-GB'));
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -30,7 +30,11 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     year: '2-digit',
   });
 
-  // Function to determine priority styling
+  // Add useEffect to fetch members when component mounts
+  useEffect(() => {
+    fetchMembers();
+  }, [project.id]); // Add project.id as dependency
+
   const getPriorityStyle = (priority) => {
     switch (priority) {
       case 'low':
@@ -44,7 +48,6 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
-  // Function to determine status styling
   const getStatusStyle = (status) => {
     switch (status) {
       case 'active':
@@ -83,17 +86,28 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
-  useEffect(() => {
-    fetchMembers();
-  }, [project.id]);
-
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:3001/admin/all-users-Users', {
         headers: { authorization: token }
       });
-      setUsers(response.data);
+      
+      // Get existing project members
+      const projectMembersResponse = await axios.get(`http://localhost:3001/project/get-all-users/${project.id}`, {
+        headers: { authorization: token },
+      });
+      
+      // Create a set of existing member IDs for efficient lookup
+      const existingMemberIds = new Set(projectMembersResponse.data.map(member => member.id));
+      
+      // Mark users as disabled if they're already members
+      const processedUsers = response.data.map(user => ({
+        ...user,
+        isDisabled: existingMemberIds.has(user.id)
+      }));
+      
+      setUsers(processedUsers);
     } catch (error) {
       toast.error('Error fetching users. Please try again later.');
     }
@@ -124,6 +138,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       
       toast.success('Users added successfully!');
       setIsModalOpen(false);
+      setSelectedUsers([])
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -154,7 +169,6 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     localStorage.setItem("project_tags", project.tags);
   };
 
-  // New function to handle project updates
   const handleEditSubmit = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -203,17 +217,26 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           </div>
         </td>
         <td className="py-4 px-4">
-          <div className="flex -space-x-2">
-            {members.slice(0, 3).map((member, i) => (
-              <img
+          <div className="flex -space-x-2 relative" title={`${members.length} members`}>
+            {members.slice(0, 3).map((member, index) => (
+              <div
                 key={member.id}
-                src={`https://i.pravatar.cc/32?img=${i + 1}`}
-                alt={`Member ${i + 1}`}
-                className="w-7 h-7 rounded-full border-2 border-white"
-              />
+                className="relative"
+                style={{ zIndex: members.length - index }}
+              >
+                <img
+                  src={`https://i.pravatar.cc/32?img=${index + 1}`}
+                  alt={member.name}
+                  className="w-7 h-7 rounded-full border-2 border-white object-cover"
+                />
+                <div className="absolute inset-0 rounded-full border-2 border-white" />
+              </div>
             ))}
             {members.length > 3 && (
-              <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
+              <div 
+                className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative"
+                style={{ zIndex: 0 }}
+              >
                 +{members.length - 3}
               </div>
             )}
@@ -231,171 +254,207 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
           </span>
         </td>
         <td className="py-4 px-2 relative" ref={dropdownRef}>
-          {isCreatedProject ? (
-            <button 
-              className="p-2 hover:bg-blue-50 rounded-full"
-              onClick={handleAddUsers}
-            >
-              <Plus className="h-5 w-5 text-blue-500" />
-            </button>
-          ) : (
-            <button 
-              className="p-1 hover:bg-gray-100 rounded"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <MoreVertical className="h-5 w-5 text-gray-400" />
-            </button>
-          )}
-
-          {isDropdownOpen && !isCreatedProject && (
-            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-              <div className="py-1">
-                <button
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => {
-                    setSidebar("project-view");
-                    handleProjectClick();
-                  }}
-                >
-                  View Details
-                </button>
-              </div>
+          {isCreatedProject && (
+            <div className="flex gap-2">
+              <button 
+                className="p-2 hover:bg-blue-50 rounded-full"
+                onClick={handleAddUsers}
+              >
+                <Plus className="w-4 h-4 text-green-500" />
+              </button>
+              <button
+                className="p-2 hover:bg-blue-50 rounded-full"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Edit3 className="w-4 h-4 text-blue-500" />
+              </button>
             </div>
           )}
+        </td>
+      </tr>
 
-          {/* Edit Project Button */}
-          <button
-            className="p-2 bg-blue-50 text-blue-600 rounded-md border border-blue-200 hover:bg-blue-100 transition duration-300 shadow-md ml-2"
-            onClick={() => {
-              setUpdatedStatus(project.status);
-              setUpdatedAbout(project.description);
-              setUpdatedDeadline(formattedDeadline);
-              setIsEditModalOpen(true);
-            }}
-          >
-            Edit Profile
-          </button>
+      {/* User Addition Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4 max-h-[90vh] flex flex-col">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Add Users</h3>
+                <button 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setSelectedUsers([]);
+                    setSearchTerm('');
+                  }} 
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-
-          {/* User Addition Modal */}
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Add Users</h3>
-                  <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-500">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
+              {/* Search Input */}
+              <div className="mb-4">
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border p-2 mb-4 w-full rounded-md"
+                  className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-
-                <div className="max-h-60 overflow-y-auto">
-                  {filteredUsers.map((user) => (
-                    <div key={user.id} className="flex justify-between items-center p-2 border-b">
-                      <div>{user.name}</div>
-                      <button
-                        onClick={() => setSelectedUsers([...selectedUsers, user])}
-                        className="text-blue-500"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium">Selected Users:</h4>
-                  {selectedUsers.map((user) => (
-                    <div key={user.id} className="flex justify-between items-center p-2 border-b">
-                      <div>{user.name}</div>
-                      <button
-                        onClick={() => removeUser(user)}
-                        className="text-red-500"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mt-4"
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : 'Add Users'}
-                </button>
               </div>
-            </div>
-          )}
 
-          {/* Edit Project Modal */}
-          {isEditModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Edit Project</h3>
-                  <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-500">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">Status</label>
-                  <select 
-                    className="w-full border rounded-md"
-                    value={updatedStatus}
-                    onChange={(e) => setUpdatedStatus(e.target.value)}
-                  >
-                    <option value="active">Active</option>
-                    <option value="reviewing">Reviewing</option>
-                    <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">About</label>
-                  <textarea
-                    className="w-full border rounded-md"
-                    value={updatedAbout}
-                    onChange={(e) => setUpdatedAbout(e.target.value)}
-                    rows="3"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">Deadline</label>
-                  <input
-                    type="text"
-                    className="w-full border rounded-md"
-                    value={updatedDeadline}
-                    onChange={(e) => setUpdatedDeadline(e.target.value)}
-                    placeholder="DD/MM/YYYY"
-                  />
-                </div>
-
-                <button
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-                  onClick={handleEditSubmit}
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : 'Update Project'}
-                </button>
+              {/* Users List */}
+              <div className="flex-grow overflow-y-auto mb-4 border rounded-md">
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <div 
+                      key={user.id} 
+                      className={`flex justify-between items-center p-3 border-b last:border-b-0 transition-colors ${
+                        user.isDisabled ? 'bg-gray-50' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className={`font-medium ${user.isDisabled ? 'text-gray-500' : 'text-gray-700'}`}>
+                          {user.name}
+                        </span>
+                        <span className={`text-sm ${user.isDisabled ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {user.email}
+                        </span>
+                        {user.isDisabled && (
+                          <span className="text-xs text-gray-500 italic mt-1">
+                            Already a member
+                          </span>
+                        )}
+                      </div>
+                      {user.isDisabled ? (
+                        <span className="px-3 py-1 text-sm text-gray-500 bg-gray-100 rounded-md">
+                          Added
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (!selectedUsers.some(selected => selected.id === user.id)) {
+                              setSelectedUsers([...selectedUsers, user]);
+                            }
+                          }}
+                          disabled={selectedUsers.some(selected => selected.id === user.id)}
+                          className={`px-3 py-1 rounded-md text-sm transition-colors ${
+                            selectedUsers.some(selected => selected.id === user.id)
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                          }`}
+                        >
+                          {selectedUsers.some(selected => selected.id === user.id) ? 'Selected' : 'Add'}
+                        </button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    No users found matching your search.
+                  </div>
+                )}
               </div>
+
+              {/* Selected Users Section */}
+              {selectedUsers.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Users ({selectedUsers.length})</h4>
+                  <div className="border rounded-md max-h-[150px] overflow-y-auto">
+                    {selectedUsers.map((user) => (
+                      <div key={user.id} className="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-700">{user.name}</span>
+                          <span className="text-sm text-gray-500">{user.email}</span>
+                        </div>
+                        <button
+                          onClick={() => removeUser(user)}
+                          className="text-red-600 hover:text-red-700 text-sm px-3 py-1 rounded-md hover:bg-red-50 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
+                  selectedUsers.length > 0
+                    ? 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                onClick={handleSubmit}
+                disabled={isLoading || selectedUsers.length === 0}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader className="h-5 w-5 animate-spin mr-2" />
+                    <span>Adding Users...</span>
+                  </div>
+                ) : (
+                  `Add ${selectedUsers.length} User${selectedUsers.length !== 1 ? 's' : ''}`
+                )}
+              </button>
             </div>
-          )}
-        </td>
-      </tr>
+          </div>
+        )}
+
+      {/* Edit modal */}
+{isEditModalOpen && (
+  <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
+    <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md">
+      <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
+      <label className="block mb-2">
+        Description
+        <input
+          type="text"
+          value={updatedAbout}
+          onChange={(e) => setUpdatedAbout(e.target.value)}
+          className="border rounded w-full p-2 mt-1"
+        />
+      </label>
+      <label className="block mb-2">
+        Status
+        <select
+          value={updatedStatus}
+          onChange={(e) => setUpdatedStatus(e.target.value)}
+          className="border rounded w-full p-2 mt-1 bg-white"
+        >
+          <option value="active">Active</option>
+          <option value="reviewing">Reviewing</option>
+          <option value="completed">Completed</option>
+          <option value="archived">Archived</option>
+        </select>
+      </label>
+      <label className="block mb-2">
+        Deadline
+        <input
+          type="date"
+          value={updatedDeadline}
+          onChange={(e) => setUpdatedDeadline(e.target.value)}
+          className="border rounded w-full p-2 mt-1"
+        />
+      </label>
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setIsEditModalOpen(false)}
+          className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleEditSubmit}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 };
-
-export default ProjectRow;
