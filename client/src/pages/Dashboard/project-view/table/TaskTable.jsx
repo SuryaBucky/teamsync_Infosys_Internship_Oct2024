@@ -557,7 +557,7 @@ const TaskTable = ({ refreshTrigger }) => {
                     <div className="flex items-center space-x-2">
                       <button 
                           onClick={() => handleAddAssigneesClick(task.id)} 
-                          className="text-blue-500 hover:text-blue-700" title='Add assigneed'
+                          className="text-blue-500 hover:text-blue-700" title='Add assignees'
                         >
                           <PlusCircle className="h-5 w-5" />
                         </button>
