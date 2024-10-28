@@ -71,6 +71,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           filterApproved={false}
         />
       )}
+      {selectedSidebar==="created-tasks"&&<MyTasksTable type='created' />}
 
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
