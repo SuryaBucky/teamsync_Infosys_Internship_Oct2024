@@ -26,6 +26,21 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
 
+   // Validation flag to check if at least one field is changed
+   const [isChanged, setIsChanged] = useState(false);
+
+   useEffect(() => {
+     // Check if any field has been modified
+     const hasChanged = 
+       updatedStatus !== project.status ||
+       updatedAbout !== project.description ||
+       updatedDeadline !== (project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '');
+ 
+     setIsChanged(hasChanged);
+   }, [updatedStatus, updatedAbout, updatedDeadline, project]);
+
+
+
   const formattedDeadline = project.deadline ? new Date(project.deadline).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
@@ -178,6 +193,10 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   };
 
   const handleEditSubmit = async () => {
+    if (!isChanged) {
+      toast.error('Please change at least one field before submitting.');
+      return;
+    }
     const token = localStorage.getItem('token');
     try {
       const response = await axios.put('http://localhost:3001/project/update', 
