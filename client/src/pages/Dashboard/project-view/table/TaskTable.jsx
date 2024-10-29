@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Filter, Edit3, Trash2, X, PlusCircle } from 'lucide-react';
+import { Filter, Edit3, Trash2, X, PlusCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 import {z} from "zod"
 import AddAssigneesModal from '../components/AddAssigneesModal';
@@ -9,7 +9,7 @@ const Toast = ({ message, type, onClose }) => {
     const timer = setTimeout(() => {
       onClose();
     }, 3000);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); 
   }, [onClose]);
 
   const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
@@ -234,6 +234,7 @@ const EditModal = ({ isOpen, onClose, task, onSave }) => {
 
 
 const TaskTable = ({ refreshTrigger }) => {
+  const [isTableVisible, setIsTableVisible] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -463,115 +464,154 @@ const TaskTable = ({ refreshTrigger }) => {
       />
 
 
-      <form onSubmit={handleSearch} className="flex justify-between items-center mb-8">
-        <div className="hidden lg:block font-medium text-lg">Tasks</div>
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Search tasks..."
-            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+      {/* Dropdown Header */}
+      <div className="border rounded-lg shadow-sm">
+        <button
+          onClick={() => setIsTableVisible(!isTableVisible)}
+          className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200"
+        >
+          <div className="font-medium text-lg flex items-center gap-2">
+            <span>Tasks</span>
+            <span className="text-gray-500 text-base">
+              ({filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''})
+            </span>
+          </div>
+          <ChevronDown 
+            className={`h-5 w-5 transform transition-transform duration-200 ${
+              isTableVisible ? 'rotate-180' : ''
+            }`}
           />
-          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-            <Filter className="h-4 w-4" />
-            <span>Search</span>
-          </button>
-        </div>
-      </form>
+        </button>
 
-      <div className="border rounded-lg overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <TableHeader />
-          </thead>
-          <tbody>
-            {filteredTasks.length > 0 ? (
-              filteredTasks.map((task) => (
-                <tr key={task._id} className="border-b last:border-b-0 hover:bg-gray-50">
-                  <td className="py-4 px-6">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{task.title}</span>
-                      <span className="text-xs text-gray-500">{task.creator_id}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="max-w-[200px] truncate text-sm" title={task.description}>
-                      {task.description}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}`}>
-                      {getStatusText(task.status)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getPriorityStyle(task.priority)}`}>
-                      {getPriorityText(task.priority)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex -space-x-2">
-                      {[...Array(Math.min(3, Math.max(1, Math.floor(Math.random() * 5))))].map((_, i) => (
-                        <img
-                          key={i}
-                          src={`https://i.pravatar.cc/32?img=${i + 1}`}
-                          alt={`Assignee ${i + 1}`}
-                          className="w-7 h-7 rounded-full border-2 border-white"
-                        />
-                      ))}
-                      {task.assignees.length > 3 && (
-                        <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
-                          +{task.assignees.length - 3}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-xs text-gray-500">{formatDate(task.created_at)}</div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-xs text-gray-500">{formatDate(task.deadline)}</div>
-                  </td>
-                  <td className="py-4 px-2">
-                    <button 
-                      onClick={() => handleDeleteClick(task.id, task.title)}
-                      className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
-                      title="Delete task"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </td>
-                  <td className="px-2 py-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-2">
-                      <button 
-                        onClick={() => handleEditClick(task)} 
-                        className="text-blue-500 hover:text-blue-700"
-                        title="Edit task"
-                      >
-                        <Edit3 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-2 py-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-2">
-                      <button 
-                          onClick={() => handleAddAssigneesClick(task.id)} 
-                          className="text-blue-500 hover:text-blue-700" title='Add assignees'
-                        >
-                          <PlusCircle className="h-5 w-5" />
-                        </button>
-                    </div>
-                  </td>
+        {/* Collapsible Content */}
+        <div className={`transition-all duration-300 overflow-hidden ${
+          isTableVisible ? 'max-h-[800px]' : 'max-h-0'
+        }`}>
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="px-6 py-4 border-t border-gray-200">
+            <div className="flex gap-4">
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+                <Filter className="h-4 w-4" />
+                <span>Search</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-t border-b bg-gray-100">
+                  <th className="text-left py-4 px-6 font-medium text-xs">Task</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Description</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Status</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Priority</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Assignees</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Created</th>
+                  <th className="text-left py-4 px-6 font-medium text-xs">Deadline</th>
+                  <th className="w-10"></th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="9" className="text-center py-4">No tasks found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="8" className="text-center py-4">
+                      <div className="flex justify-center items-center h-12">
+                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredTasks.length > 0 ? (
+                  filteredTasks.map((task) => (
+                    <tr key={task._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                      {/* Table row content remains the same */}
+                      <td className="py-4 px-6">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{task.title}</span>
+                          <span className="text-xs text-gray-500">{task.creator_id}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="max-w-[200px] truncate text-sm" title={task.description}>
+                          {task.description}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}`}>
+                          {getStatusText(task.status)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getPriorityStyle(task.priority)}`}>
+                          {getPriorityText(task.priority)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex -space-x-2">
+                          {task.assignees.slice(0, 3).map((_, i) => (
+                            <img
+                              key={i}
+                              src={`https://i.pravatar.cc/32?img=${i + 1}`}
+                              alt={`Assignee ${i + 1}`}
+                              className="w-7 h-7 rounded-full border-2 border-white"
+                            />
+                          ))}
+                          {task.assignees.length > 3 && (
+                            <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
+                              +{task.assignees.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-xs text-gray-500">{formatDate(task.created_at)}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-xs text-gray-500">{formatDate(task.deadline)}</div>
+                      </td>
+                      <td className="px-2 py-4">
+                        <div className="flex items-center space-x-2">
+                          <button 
+                            onClick={() => handleDeleteClick(task.id, task.title)}
+                            className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
+                            title="Delete task"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                          <button 
+                            onClick={() => handleEditClick(task)} 
+                            className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors duration-200"
+                            title="Edit task"
+                          >
+                            <Edit3 className="h-5 w-5" />
+                          </button>
+                          <button 
+                            onClick={() => handleAddAssigneesClick(task.id)} 
+                            className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors duration-200"
+                            title="Add assignees"
+                          >
+                            <PlusCircle className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="text-center py-4">No tasks found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
