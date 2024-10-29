@@ -141,7 +141,7 @@ const viewTasksByProject = async (req, res) => {
         const tasks = await Task.find({ project_id })
 
         if (!tasks || tasks.length === 0) {
-            return res.status(404).json({ message: 'No tasks found for this project.' });
+            return res.status(200).json([]);
         }
 
         return res.status(200).json(tasks);
