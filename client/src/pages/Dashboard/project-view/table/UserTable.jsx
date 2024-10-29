@@ -56,12 +56,12 @@ const UserTable = () => {
   };
 
   return (
-    <div className="py-6 max-w-[1200px] mx-auto">
+    <div className="pt-2 max-w-[1200px] mx-auto">
       <div className="border rounded-lg shadow-sm">
         {/* Dropdown Header */}
         <button
           onClick={() => setIsTableVisible(!isTableVisible)}
-          className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200"
+          className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200 rounded-lg"
         >
           <div className="font-medium text-lg flex items-center gap-2">
             <span>Project Users</span>
