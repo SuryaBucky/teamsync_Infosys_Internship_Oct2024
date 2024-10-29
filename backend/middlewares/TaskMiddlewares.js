@@ -357,7 +357,6 @@ const getAssignedUsers=async(req,res)=>{
         if(!task){
             return res.status(404).json({message:"Task not found"});
         }
-        console.log(task.title);
         const assignees=task.assignees;
 
         if(!assignees || assignees.length===0){

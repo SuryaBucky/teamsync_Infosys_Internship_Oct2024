@@ -59,7 +59,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
       {selectedSidebar === 'projects' && (
         <UnifiedProjectTable 
           endpoint="get-my-assigned-projects"
-          title="Table View"
+          title="Your assigned Projects"
           filterApproved={true}
         />
       )}

@@ -243,7 +243,8 @@ const MyTasksTable = ({ type = 'assigned' }) => {
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     taskId: null,
-    taskTitle: ''
+    taskTitle: '',
+    project_id:''
   });
   const [assigneesModal, setAssigneesModal] = useState({
     isOpen: false,
@@ -278,7 +279,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
     fetchTasks();
   }, [type]);
 
-  const handleDeleteClick = (taskId, taskTitle) => {
+  const handleDeleteClick = (taskId, taskTitle, taskProjectId) => {
     if (!taskId) {
       console.error('No task ID provided');
       showToast("Error: Unable to delete task", "error");
@@ -288,14 +289,15 @@ const MyTasksTable = ({ type = 'assigned' }) => {
     setDeleteModal({
       isOpen: true,
       taskId,
-      taskTitle
+      taskTitle,
+      project_id:taskProjectId
     });
   };
 
   const handleDeleteConfirm = useCallback(async () => {
     const taskId = deleteModal.taskId;
     try {
-      const projectId = localStorage.getItem('project_id');
+      const projectId = deleteModal.project_id;
       
       await api.delete(`/task/project/${projectId}/delete-task`, {
         data: { task_id: taskId }
@@ -582,7 +584,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                         </td>
                         <td className="py-4 px-2">
                           <button 
-                            onClick={() => handleDeleteClick(task.id, task.title)}
+                            onClick={() => handleDeleteClick(task.id, task.title, task.project_id)}
                             className="p-1 hover:bg-red-100 rounded text-red-600 transition-colors duration-200"
                             title="Delete task"
                           >
