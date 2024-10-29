@@ -303,8 +303,8 @@ const MyTasksTable = ({ type = 'assigned' }) => {
         data: { task_id: taskId }
       });
       
-      setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
-      setFilteredTasks(prevFilteredTasks => prevFilteredTasks.filter(task => task._id !== taskId));
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      setFilteredTasks(prevFilteredTasks => prevFilteredTasks.filter(task => task.id !== taskId));
       
       showToast("Task deleted successfully", "success");
     } catch (error) {
