@@ -32,11 +32,10 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     return newErrors;
   };
 
-  const handleInputChange = (e, setFieldValue) => {
+  const handleInputChange = (e, setFieldValue, fieldName) => {
     const { value } = e.target;
     setFieldValue(value);
-    const newErrors = validateForm();
-    setErrors(newErrors);
+    setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: '' })); // Clear error for the field
   };
 
   const handleSubmit = async (e) => {
@@ -114,7 +113,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   value={title}
-                  onChange={(e) => handleInputChange(e, setTitle)}
+                  onChange={(e) => handleInputChange(e, setTitle, 'title')}
                   className={`w-full p-2 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded`}
                   placeholder="Enter task title"
                 />
@@ -126,7 +125,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
                 <label className="block text-sm font-medium text-gray-700">Description</label>
                 <textarea
                   value={description}
-                  onChange={(e) => handleInputChange(e, setDescription)}
+                  onChange={(e) => handleInputChange(e, setDescription, 'description')}
                   className={`w-full p-2 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded`}
                   placeholder="Enter task description"
                 />
@@ -139,7 +138,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
                 <input
                   type="date"
                   value={deadline}
-                  onChange={(e) => handleInputChange(e, setDeadline)}
+                  onChange={(e) => handleInputChange(e, setDeadline, 'deadline')}
                   className={`w-full p-2 border ${errors.deadline ? 'border-red-500' : 'border-gray-300'} rounded`}
                 />
                 {errors.deadline && <p className="text-red-500 text-xs mt-1">{errors.deadline}</p>}
@@ -176,4 +175,3 @@ const AddTaskModal = ({ isOpen, onClose }) => {
 };
 
 export default AddTaskModal;
-  
