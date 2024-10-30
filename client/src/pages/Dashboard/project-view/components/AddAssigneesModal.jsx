@@ -93,7 +93,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      <div className="relative bg-white rounded-lg p-6 w-[600px] max-w-[95%] max-h-[90vh]">
+      <div className="relative bg-white rounded-lg p-6 w-[600px] max-w-[95%] max-h-[95vh]">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -116,7 +116,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
         </div>
 
         {/* Users List */}
-        <div className="flex-grow overflow-y-auto mb-4 border rounded-md max-h-[300px]">
+        <div className="flex-grow overflow-y-auto mb-4 border rounded-md max-h-[200px]">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
               <div 
