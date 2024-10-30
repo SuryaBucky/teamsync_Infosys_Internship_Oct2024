@@ -93,7 +93,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      <div className="relative bg-white rounded-lg p-6 w-[500px] max-w-[95%] max-h-[95vh] overflow-y-auto">
+      <div className="relative bg-white rounded-lg p-6 w-[600px] max-w-[95%] max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -116,7 +116,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
         </div>
 
         {/* Users List */}
-        <div className="flex-grow overflow-y-auto mb-4 border rounded-md max-h-[200px]">
+        <div className="flex-grow overflow-y-auto mb-4 border rounded-md max-h-[350px]">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
               <div 
@@ -169,7 +169,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
             <h4 className="text-sm font-medium text-gray-700 mb-2">
               Selected Users ({selectedUsers.length})
             </h4>
-            <div className="border rounded-md max-h-[150px] overflow-y-auto">
+            <div className="border rounded-md max-h-[250px] overflow-y-auto">
               {selectedUsers.map((user) => (
                 <div key={user.id} className="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50">
                   <div className="flex flex-col">
@@ -212,4 +212,4 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
   );
 };
 
-export default AddAssigneesModal;   
+export default AddAssigneesModal;
