@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing , faClipboard} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
@@ -115,18 +115,38 @@ const Sidebar = ({ isOpen, onClose }) => {
                 setActive("tasks");
                 setSidebarSelection("tasks");
               }}><IconItem icon={faTasks} label="Assigned Tasks" active={active==="tasks"} /></li>
+
               <li onClick={()=>{
                 setActive("created-tasks");
                 setSidebarSelection("created-tasks");
               }}><IconItem icon={faTasks} label="Created Tasks" active={active==="created-tasks"} /></li>
-              <li><IconItem icon={faFileAlt} label="File Manager" /></li>
+
+              <li onClick={() => {
+                setActive("manager");
+                setSidebarSelection("manager");
+              }}
+              ><IconItem icon={faFileAlt} label="File Manager" active={active === "manager"} /></li>
+
+
               <li onClick={() => {
                 setActive("users");
                 setSidebarSelection("users");
               }}>
                 <IconItem icon={faUsers} label="Users" active={active === "users"} />
               </li>
-              <li><IconItem icon={faLifeRing} label="Support" /></li>
+
+
+              <li  onClick={() => {
+                setActive("support");
+                setSidebarSelection("support");
+              }}
+              ><IconItem icon={faLifeRing} label="Support"  active={active === "support"} /></li>
+
+              <li  onClick={() => {
+                setActive("notes");
+                setSidebarSelection("notes");
+              }}
+              ><IconItem icon={faClipboard} label="Create Notes"  active={active === "notes"} /></li>
             </ul>
           </nav>
 
