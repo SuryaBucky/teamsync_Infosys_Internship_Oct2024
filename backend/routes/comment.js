@@ -6,11 +6,12 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const {
-    tokenValidate
+    tokenValidate,
+    messageSchemaCheck
 } = require("../middlewares/CommentMiddlewares");
 
 
-router.post("/test",tokenValidate,async (req,res)=>{
+router.post("/test",tokenValidate, messageSchemaCheck, async (req,res)=>{
     //success
     res.json({message:"ok"});
 })

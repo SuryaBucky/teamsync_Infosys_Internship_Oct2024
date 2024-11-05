@@ -47,6 +47,17 @@ async function tokenValidate(req,res,next){
     }
 }
 
+async function messageSchemaCheck(req,res,next){
+    try {
+        const result = CommentZodSchema.parse(req.body);
+        next();
+    } catch (error) {
+        return res.status(400).send({ message: error.issues[0].message });
+    }
+}
+
 
 //exort
-module.exports = {tokenValidate};
+module.exports = {tokenValidate,
+    messageSchemaCheck
+};
