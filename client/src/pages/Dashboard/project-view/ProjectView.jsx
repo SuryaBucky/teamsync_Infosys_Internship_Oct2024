@@ -4,21 +4,20 @@ import { Navigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { authenticationState } from '../../../store/atoms/authVerifierSelector';
 import { sidebarSelection } from '../../../store/atoms/adminDashboardAtoms';
+import ChatModal from './components/ChatModal';
 
 const ProjectView = () => {
-  let selectedSidebar=useRecoilValue(sidebarSelection);
+  let selectedSidebar = useRecoilValue(sidebarSelection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const auth = useRecoilValue(authenticationState);
-  const token=localStorage.getItem("token");
-  if(!token){
+  const token = localStorage.getItem("token");
+
+  if (!token) {
     return <Navigate to="/" />;
   }
+
   setTimeout(() => {
-    if (!auth.isValid) {
-      return <Navigate to="/" />;
-    }
-  
-    if (auth.isAdmin) {
+    if (!auth.isValid || auth.isAdmin) {
       return <Navigate to="/" />;
     }
   }, 100);
@@ -26,16 +25,21 @@ const ProjectView = () => {
   return (
     <>
       <Hero />
-    </>
-    // <div className="min-h-screen bg-gray-50">
-    //   <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Add ChatModal here */}
+      <div className="fixed bottom-4 right-4">
+        <ChatModal />
+      </div>
       
-    //   {/* Main Content */}
-    //   <div className="lg:ml-56">
-    //     {selectedSidebar==="project-view"&&<ProjectView />}
-    //     <Hero sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-    //   </div>
-    // </div>
+      {/* Uncomment and modify the main layout if needed */}
+      {/* <div className="min-h-screen bg-gray-50">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="lg:ml-56">
+          {selectedSidebar === "project-view" && <ProjectView />}
+          <Hero sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        </div>
+      </div> */}
+    </>
   );
 };
 
