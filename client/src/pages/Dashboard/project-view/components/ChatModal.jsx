@@ -6,6 +6,7 @@ const ChatModal = () => {
   const [message, setMessage] = useState('');
   const [media, setMedia] = useState(null); // State to hold the uploaded media
   const [messages, setMessages] = useState([]);
+  const [userReactions, setUserReactions] = useState({}); // State to track user reactions
   const messagesEndRef = useRef(null); // Reference for auto-scrolling
 
   useEffect(() => {
@@ -48,16 +49,25 @@ const ChatModal = () => {
     }
   };
 
-  const upvoteMessage = (index) => {
-    setMessages((prevMessages) => prevMessages.map((msg, i) =>
-      i === index ? { ...msg, likes: msg.likes + 1 } : msg
-    ));
-  };
+  const reactToMessage = (index, reactionType) => {
+    // Check if the user has already reacted to this message
+    if (!userReactions[index]) {
+      setUserReactions((prev) => ({
+        ...prev,
+        [index]: reactionType, // Store the user's reaction
+      }));
 
-  const downvoteMessage = (index) => {
-    setMessages((prevMessages) => prevMessages.map((msg, i) =>
-      i === index ? { ...msg, dislikes: msg.dislikes + 1 } : msg
-    ));
+      // Update likes or dislikes based on the reaction type
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages];
+        if (reactionType === 'like') {
+          updatedMessages[index].likes += 1;
+        } else if (reactionType === 'dislike') {
+          updatedMessages[index].dislikes += 1;
+        }
+        return updatedMessages;
+      });
+    }
   };
 
   return (
@@ -85,10 +95,18 @@ const ChatModal = () => {
                       <img src={msg.media} alt="uploaded" className="mt-2 max-w-full h-auto rounded" />
                     )}
                     <div className="flex items-center space-x-2 mt-1">
-                      <button onClick={() => upvoteMessage(index)} className="text-xs text-gray-600 hover:text-green-600">
+                      <button 
+                        onClick={() => reactToMessage(index, 'like')} 
+                        className={`text-xs ${userReactions[index] === 'like' ? 'text-green-600' : 'text-gray-600'} hover:text-green-600`}
+                        disabled={userReactions[index] === 'like'} // Disable if already reacted
+                      >
                         👍 {msg.likes}
                       </button>
-                      <button onClick={() => downvoteMessage(index)} className="text-xs text-gray-600 hover:text-red-600">
+                      <button 
+                        onClick={() => reactToMessage(index, 'dislike')} 
+                        className={`text-xs ${userReactions[index] === 'dislike' ? 'text-red-600' : 'text-gray-600'} hover:text-red-600`}
+                        disabled={userReactions[index] === 'dislike'} // Disable if already reacted
+                      >
                         👎 {msg.dislikes}
                       </button>
                     </div>
