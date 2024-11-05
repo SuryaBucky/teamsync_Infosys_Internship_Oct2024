@@ -428,12 +428,19 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
             </div>
           </div>
         )}
-
-      {/* Edit modal */}
+{/*Edit project modal */}
 {isEditModalOpen && (
   <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
-    <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md">
-      <h2 className="text-xl font-semibold mb-4">Edit Project</h2>
+    <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md relative">
+      
+      <button
+        onClick={() => setIsEditModalOpen(false)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <X className="h-5 w-5" />
+      </button>
+      
+      <h2 className="text-xl font-semibold mb-4 pr-8">Edit Project</h2>
       <label className="block mb-2">
         Description
         <input
