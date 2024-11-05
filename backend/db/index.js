@@ -19,7 +19,7 @@ mongoose.connect(process.env.DB_CONNECTION_STRING)
 
 const generateRandomOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-digit random number
-};
+};  
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -299,38 +299,41 @@ const TaskHistorySchema = new mongoose.Schema({
 
 // Comment Schema
 const CommentSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        default: uuidv4,
-        required: true,
-        unique: true
-    },
     project_id: {
         type: String,
         ref: 'Project',
         required: true
     },
+    task_id:{
+        type:String,
+        ref: 'Task',
+    },
     creator_id: {
         type: String,
-        ref: 'User',
+        ref: 'User',    
         required: true
-    },
+    },  
     content: {
-        type: String,
-        required: true
+        type: String
     },
     file_name: String,
-    file_path: String,
     file_size: Number,
     file_type: String,
+    file_data: String,
     created_at: {
         type: Date,
         default: Date.now
     },
-    updated_at: {
-        type: Date,
-        default: Date.now
-    }
+    likes:[{  
+        type: String, 
+        ref: 'User',
+        default: []
+    }],
+    dislike:[{
+        type: String,
+        ref: 'User',
+        default: []
+    }]
 });
 
 // Project Statistic Schema
