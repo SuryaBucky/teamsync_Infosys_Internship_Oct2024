@@ -96,7 +96,7 @@ const testimonialsData = [
 
 const Testimonials = () => {
   return (
-    <TestimonialsContainer> //need some changes
+    <TestimonialsContainer id="testi">
       <Title>What Our Users Say</Title>
       <TestimonialsWrapper>
         {testimonialsData.map(testimonial => (
