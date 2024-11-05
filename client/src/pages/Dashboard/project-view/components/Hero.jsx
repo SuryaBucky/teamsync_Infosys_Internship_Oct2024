@@ -7,6 +7,7 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
 import TaskTable from '../table/TaskTable';
 import UserTable from '../table/UserTable';
+import FileTable from '../table/FileTable'; // Import the FileTable component
 
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,6 +102,11 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
 
       <TaskTable refreshTrigger={refreshTrigger} />
       <UserTable />
+      
+      {/* Add spacing between User Table and File Table */}
+      <div className="my-6" /> {/* Spacing div */}
+      
+      <FileTable /> {/* Add FileTable here */}
 
       {/* Add Task Modal */}
       <AddTaskModal isOpen={isModalOpen} onClose={closeModal} />
