@@ -27,7 +27,7 @@ const ProjectView = () => {
       <Hero />
 
       {/* Add ChatModal here */}
-      <div className="fixed bottom-4 right-4">
+      <div className="absolute top-10 right-40 z-10">
         <ChatModal />
       </div>
       

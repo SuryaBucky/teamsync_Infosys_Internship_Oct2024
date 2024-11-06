@@ -78,11 +78,11 @@ const ChatModal = () => {
   </button>*/}
       <button 
   onClick={openModal} 
-  className="fixed bottom-10 right-7 bg-blue-950 hover:bg-blue-900 text-white font-bold p-3 rounded-full shadow-lg transition duration-300 ease-in-out"
+  className="bg-blue-950 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out mr-2"
   aria-label="Open Chat"
   title="Open Chat"
 >
-  <BiChat className="w-8 h-8" />
+  <BiChat className="w-5 h-5 inline" />
 </button>
 
       {isOpen && (
