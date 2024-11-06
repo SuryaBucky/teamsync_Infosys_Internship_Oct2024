@@ -299,6 +299,12 @@ const TaskHistorySchema = new mongoose.Schema({
 
 // Comment Schema
 const CommentSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        default: uuidv4,
+        required: true,
+        unique: true
+    },
     project_id: {
         type: String,
         ref: 'Project',
@@ -315,6 +321,9 @@ const CommentSchema = new mongoose.Schema({
     },  
     content: {
         type: String
+    },
+    file_content:{
+        type:String
     },
     file_name: String,
     file_size: Number,

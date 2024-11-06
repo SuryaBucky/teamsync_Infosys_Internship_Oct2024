@@ -5,18 +5,30 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 // Define the schema for fields that are expected in the request body
-const CommentZodSchema = z.object({
+const FileSchema = z.object({
+    fileName: z.string(),
+    fileType: z.string(),
+    fileSize: z.number(),
+    data: z.string() // Base64 encoded file data
+  });
+  
+  const CommentZodSchema = z.object({
     project_id: z.string().min(1, "Project ID is required."),
     task_id: z.string().optional(),
     creator_id: z.string().min(1, "Creator ID is required."),
     content: z.string().optional(),
-}).refine(
-    (data) => data.content || data.file, // Ensure either content or a file is provided
+    file: FileSchema.optional()
+  }).refine(
+    (data) => {
+      // Check if either content or file is provided
+      return !!(data.content || data.file);
+    },
     {
-        message: "Either content or a file must be provided.",
-        path: ["content", "file"], // Specifies the path in error messages
+      message: "Either content or a file must be provided.",
+      path: ["content", "file"]
     }
-);
+  );
+  
 
 async function tokenValidate(req,res,next){
     //check if token is in headers
@@ -32,6 +44,7 @@ async function tokenValidate(req,res,next){
         if(!user) return res.status(401).send({message: 'User not found'})
         //get project_id from req body
         const projectId = req.body.project_id;
+        console.log(projectId)
         //check if project exists
         const project = await Project.findOne({id: projectId});
         if(!project) return res.status(404).send({message: 'Project not found'});
@@ -47,6 +60,17 @@ async function tokenValidate(req,res,next){
     }
 }
 
+async function messageSchemaCheck(req,res,next){
+    try {
+        const result = CommentZodSchema.parse(req.body);
+        next();
+    } catch (error) {
+        return res.status(400).send({ message: error.issues[0].message });
+    }
+}
+
 
 //exort
-module.exports = {tokenValidate};
+module.exports = {tokenValidate,
+    messageSchemaCheck
+};
