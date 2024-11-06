@@ -76,8 +76,8 @@ const Navbar = ({ setSignInOpen }) => {
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              FAQs
+            <a href="#testi" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+              Testimonials
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
@@ -155,8 +155,8 @@ const Navbar = ({ setSignInOpen }) => {
               <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
             </li>
             <li className="group relative mt-5">
-              <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
-                FAQs
+              <a href="#testi" onClick={handleMenuItemClick} className="font-semibold text-lg text-gray-700 transition-colors duration-300 group-hover:text-[#6B5BCD]">
+                Testimonials
               </a>
               <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
             </li>
