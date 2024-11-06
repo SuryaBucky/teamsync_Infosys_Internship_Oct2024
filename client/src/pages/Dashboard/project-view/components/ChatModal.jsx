@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dummyData from '../data/dummyData.json';
+import { BiChat } from 'react-icons/bi';
 
 const ChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,9 +73,18 @@ const ChatModal = () => {
 
   return (
     <>
-      <button onClick={openModal} className="ml-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
+      {/*<button onClick={openModal} className="ml-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
         Open Chat
-      </button>
+  </button>*/}
+      <button 
+  onClick={openModal} 
+  className="fixed bottom-10 right-7 bg-blue-950 hover:bg-blue-900 text-white font-bold p-3 rounded-full shadow-lg transition duration-300 ease-in-out"
+  aria-label="Open Chat"
+  title="Open Chat"
+>
+  <BiChat className="w-8 h-8" />
+</button>
+
       {isOpen && (
         <div className="fixed z-10 inset-0 overflow-y-auto bg-black bg-opacity-50">
           <div className="flex items-center justify-center min-h-screen">
