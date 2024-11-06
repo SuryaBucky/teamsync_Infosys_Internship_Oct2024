@@ -76,23 +76,23 @@ const ChatModal = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed z-0 top-40 right-5 bg-black bg-opacity-50">
+        <div className="fixed z-10 top-40 right-5 bg-transparent">
           <div className="flex items-center justify-center min-h-[300px]">
-            <div className="bg-white rounded-2xl shadow-xl transform transition-all sm:max-w-md w-full">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 border-b rounded-t-lg">
+            <div className="bg-white rounded-2xl shadow-xl transform transition-all sm:max-w-md w-full overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 border-b rounded-t-2xl">
                 <h3 className="text-lg font-bold text-white">Chat Room</h3>
               </div>
-              <div className="px-6 py-5 h-80 overflow-y-auto space-y-3 bg-gray-100 rounded-lg">
+              <div className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-100 rounded-b-2xl">
                 {messages.map((msg, index) => (
                   <div
                     key={index}
-                    className={`p-2 rounded-lg ${index % 2 === 0 ? 'bg-green-100 text-gray-800 ml-auto' : 'bg-gray-300 text-gray-900 mr-auto'}`}
+                    className={`p-2 rounded-2xl ${index % 2 === 0 ? 'bg-green-100 text-gray-800 ml-auto' : 'bg-gray-300 text-gray-900 mr-auto'}`}
                     style={{ maxWidth: '70%' }}
                   >
                     <p className="font-semibold">{msg.user}:</p>
                     <p>{msg.message}</p>
                     {msg.media && (
-                      <img src={msg.media} alt="uploaded" className="mt-2 max-w-full h-auto rounded" />
+                      <img src={msg.media} alt="uploaded" className="mt-2 max-w-full h-auto rounded-2xl" />
                     )}
                     <div className="flex items-center space-x-2 mt-1">
                       <button 
@@ -114,7 +114,7 @@ const ChatModal = () => {
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="bg-gray-50 px-4 py-3 flex items-center space-x-3 rounded-b-lg">
+              <div className="bg-gray-50 px-4 py-3 flex items-center space-x-3 rounded-b-2xl">
                 <input
                   type="text"
                   value={message}
