@@ -8,11 +8,12 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const {
     tokenValidate,
-    messageSchemaCheck
+    messageSchemaCheck,
+    userAuthorize
 } = require("../middlewares/CommentMiddlewares");
   
 
-router.post("/send-message", tokenValidate, messageSchemaCheck, async (req, res) => {
+router.post("/send-message", tokenValidate, userAuthorize, messageSchemaCheck, async (req, res) => {
   try {
       const { project_id, creator_id, content } = req.body;
       
@@ -70,7 +71,7 @@ router.post("/send-message", tokenValidate, messageSchemaCheck, async (req, res)
 });
 
 // Download route handler
-router.get("/download/:id", async (req, res) => {
+router.get("/download/:id",tokenValidate, async (req, res) => {
   try {
       const comment = await Comment.findById(req.params.id);
       

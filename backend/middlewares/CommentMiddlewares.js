@@ -42,22 +42,31 @@ async function tokenValidate(req,res,next){
         //check if user exists
         const user = await User.findOne({email});
         if(!user) return res.status(401).send({message: 'User not found'})
-        //get project_id from req body
-        const projectId = req.body.project_id;
-        console.log(projectId)
-        //check if project exists
-        const project = await Project.findOne({id: projectId});
-        if(!project) return res.status(404).send({message: 'Project not found'});
-        //check if user is a part of this project
-        const projectUser = await ProjectUser.findOne({
-            user_id:user.id,
-            project_id:projectId
-        });
-        if(!projectUser) return res.status(401).send({message: 'User is not part of this project'});
+          req.user=user;
         next();
     }catch(err){
         return res.status(401).send({message: 'Invalid token'});
     }
+}
+
+async function userAuthorize(req,res,next){
+  try {
+    //get project_id from req body
+    const projectId = req.body.project_id;
+    //check if project exists
+    const project = await Project.findOne({id: projectId});
+    if(!project) return res.status(404).send({message: 'Project not found'});
+    //check if user is a part of this project
+    const projectUser = await ProjectUser.findOne({
+        user_id:req.user.id,
+        project_id:projectId
+    });
+    if(!projectUser) return res.status(401).send({message: 'User is not part of this project'});
+    next();
+  } catch (error) {
+    console.log("dakha")
+    return res.status(500).send({ message: 'Internal Server Error' });
+  }
 }
 
 async function messageSchemaCheck(req,res,next){
@@ -72,5 +81,6 @@ async function messageSchemaCheck(req,res,next){
 
 //exort
 module.exports = {tokenValidate,
-    messageSchemaCheck
+    messageSchemaCheck,
+    userAuthorize
 };
