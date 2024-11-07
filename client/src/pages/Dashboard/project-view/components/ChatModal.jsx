@@ -72,6 +72,9 @@ const ChatModal = () => {
     if (bytes < 1024) return bytes + ' B';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
     else return (bytes / 1048576).toFixed(1) + ' MB';
+  const closeModal = () => {
+    setIsOpen(false);
+    setMedia(null);
   };
 
   const FileDisplay = ({ file }) => (
@@ -213,7 +216,7 @@ const ChatModal = () => {
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="bg-gray-50 px-4 py-3 flex items-center space-x-3 rounded-b-lg">
+              <div className="bg-gray-50 px-4 py-3 flex items-center space-x-3 rounded-b-2xl">
                 <input
                   type="text"
                   value={message}
