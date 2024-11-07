@@ -53,19 +53,35 @@ const ChatModal = () => {
   const handleLikeDislike = async (commentId, isLike) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
-        'http://localhost:3001/comment/like-dislike',
-        { 
-          like: isLike ? 1 : 0, 
-          comment_id: commentId 
-        },
-        { headers: { Authorization: token } }
-      );
-      
-      fetchMessages();
-    } catch (error) {
-      console.error('Error updating like/dislike:', error);
+
+    // Determine the current user's reaction to the message
+    const currentMessage = messages.find((msg) => msg._id === commentId);
+    const userHasLiked = currentMessage.likes.includes('user_id'); // Replace 'user_id' with actual user ID
+    const userHasDisliked = currentMessage.dislike.includes('user_id'); // Same here
+
+    // Define the new reaction status
+    let newLikeStatus = null; // null means removing all reactions
+    if (isLike && !userHasLiked) {
+      newLikeStatus = 1; // Like
+    } else if (!isLike && !userHasDisliked) {
+      newLikeStatus = 0; // Dislike
     }
+
+    // Send update to the server
+    await axios.put(
+      'http://localhost:3001/comment/like-dislike',
+      { 
+        like: newLikeStatus,
+        comment_id: commentId 
+      },
+      { headers: { Authorization: token } }
+    );
+
+    // Refresh messages to update like/dislike counts
+    fetchMessages();
+  } catch (error) {
+    console.error('Error updating like/dislike:', error);
+  }
   };
 
   const formatFileSize = (bytes) => {
@@ -201,14 +217,14 @@ const ChatModal = () => {
                     <div className="flex items-center space-x-4 mt-2">
                       <button 
                         onClick={() => handleLikeDislike(msg._id, true)}
-                        className="text-sm flex items-center space-x-1"
+                     className={`text-sm flex items-center space-x-1 ${msg.likes.includes('user_id') ? 'text-blue-500' : ''}`}
                       >
                         <span>👍</span>
                         <span>{msg.likes.length}</span>
                       </button>
                       <button 
                         onClick={() => handleLikeDislike(msg._id, false)}
-                        className="text-sm flex items-center space-x-1"
+                        className={`text-sm flex items-center space-x-1 ${msg.dislike.includes('user_id') ? 'text-red-500' : ''}`}
                       >
                         <span>👎</span>
                         <span>{msg.dislike.length}</span>
