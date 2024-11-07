@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MoreVertical } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 export const ProjectRow = ({ project }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleApproveClick = () => {
     setShowModal(true);
@@ -21,7 +22,7 @@ export const ProjectRow = ({ project }) => {
     const toastId = toast.loading('Approving project...');
     
     try {
-      const token = localStorage.getItem('token'); // Get JWT token from localStorage
+      const token = localStorage.getItem('token');
       
       const response = await axios.post(
         'http://localhost:3001/admin/approve-project',
@@ -37,12 +38,10 @@ export const ProjectRow = ({ project }) => {
         }
       );
 
-      console.log(response.status);
-
       if (response.status === 200) {
         toast.success('Project has been approved successfully.', { id: toastId });
         setShowModal(false);
-        window.location.reload(); // Hard reload the page
+        window.location.reload();
       }
     } catch (error) {
       let errorMessage = "An unexpected error occurred";
@@ -70,6 +69,24 @@ export const ProjectRow = ({ project }) => {
     month: '2-digit',
     year: '2-digit',
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   return (
     <>
@@ -112,7 +129,7 @@ export const ProjectRow = ({ project }) => {
           </div>
         </td>
         <td className="py-4 px-4">
-          <ProgressBar progress={project.progress || 0} />
+          <ProgressBar progress={project.progress || 0}  />
         </td>
         <td className="py-4 ps-7 px-4">
           <div className="text-xs text-gray-500">{formattedDeadline}</div>
@@ -122,7 +139,7 @@ export const ProjectRow = ({ project }) => {
             <MoreVertical className="h-5 w-5 text-gray-400" />
           </button>
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-md z-10">
+            <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-md z-10">
               {project.is_approved === false && (
                 <button
                   className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
