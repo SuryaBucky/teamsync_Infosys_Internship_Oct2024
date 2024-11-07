@@ -15,7 +15,9 @@ const FileTable = () => {
       try {
         const token = localStorage.getItem('token');
         const pid = localStorage.getItem('project_id');
-        const response = await axios.get(`http://localhost:3001/project/get-all-files/${pid}`, {
+        const response = await axios.post(`http://localhost:3001/comment/get-files`,
+          { project_id: pid }, 
+           {
           headers: {
             'authorization': token,
             'Content-Type': 'application/json'
@@ -118,16 +120,17 @@ const FileTable = () => {
                 <tbody>
                   {filteredFiles.length > 0 ? (
                     filteredFiles.map((file, index) => (
+                      file.file_name &&
                       <tr key={index} className="border-b last:border-b-0 hover:bg-gray-50">
                         <td className="py-4 px-6">
-                          <div className="font-medium text-sm">{file.name}</div>
+                          <div className="font-medium text-sm">{file.file_name}</div>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="text-sm text-gray-600">{file.uploader}</div>
+                          <div className="text-sm text-gray-600">{file.creator_id}</div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="text-sm text-gray-500">
-                            {formatDate(file.uploaded_at)}
+                            {formatDate(file.created_at)}
                           </div>
                         </td>
                         <td className="py-4 px-6">
