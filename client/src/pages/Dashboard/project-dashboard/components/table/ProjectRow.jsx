@@ -25,7 +25,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   );
   const dropdownRef = useRef(null);
   const modalRef = useRef(null);
-
+  const addUserModalRef = useRef(null); 
    // Validation flag to check if at least one field is changed
    const [isChanged, setIsChanged] = useState(false);
 
@@ -80,15 +80,41 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  //       setIsDropdownOpen(false);
+  //     }
+  //   };
+
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => document.removeEventListener('mousedown', handleClickOutside);
+  // }, []);
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+    const handleClickOutsideModal = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsEditModalOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutsideModal);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideModal);
+    };
+  }, [isEditModalOpen]);
+
+  useEffect(() => {
+    const handleClickOutsideAddUserModal = (event) => {
+      if (addUserModalRef.current && !addUserModalRef.current.contains(event.target)) {
+        setIsModalOpen(false);
+        setSelectedUsers([]);
+        setSearchTerm('');
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutsideAddUserModal);
+    return () => document.removeEventListener('mousedown', handleClickOutsideAddUserModal);
   }, []);
 
   const fetchMembers = async () => {
@@ -304,7 +330,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       {/* User Addition Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4 max-h-[90vh] flex flex-col">
+            <div ref={addUserModalRef} className="bg-white rounded-lg p-6 w-[425px] max-w-full mx-4 max-h-[90vh] flex flex-col">
               {/* Modal Header */}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Add Users</h3>
@@ -432,7 +458,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
 {/*Edit project modal */}
 {isEditModalOpen && (
   <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex justify-center items-center">
-    <div className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md relative">
+    <div ref={modalRef} className="bg-white p-6 rounded-md shadow-lg w-11/12 max-w-md relative">
       
       <button
         onClick={() => setIsEditModalOpen(false)}
