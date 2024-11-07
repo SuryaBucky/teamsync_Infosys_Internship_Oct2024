@@ -28,6 +28,11 @@ const FileSchema = z.object({
       path: ["content", "file"]
     }
   );
+
+  const getMessagesSchema=z.object({
+    project_id: z.string().min(1, "Project ID is required."),
+    task_id: z.string().optional()
+  })
   
 
 async function tokenValidate(req,res,next){
@@ -78,9 +83,19 @@ async function messageSchemaCheck(req,res,next){
     }
 }
 
+async function getMessagesSchemaCheck(req,res,next){
+  try {
+    const result = getMessagesSchema.parse(req.body);
+    next();
+  } catch (error) {
+    return res.status(400).send({ message: error.issues[0].message });
+  }
+}
+
 
 //exort
 module.exports = {tokenValidate,
     messageSchemaCheck,
-    userAuthorize
+    userAuthorize,
+    getMessagesSchemaCheck
 };

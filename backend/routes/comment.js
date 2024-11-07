@@ -9,7 +9,8 @@ require("dotenv").config();
 const {
     tokenValidate,
     messageSchemaCheck,
-    userAuthorize
+    userAuthorize,
+    getMessagesSchemaCheck
 } = require("../middlewares/CommentMiddlewares");
   
 
@@ -109,6 +110,72 @@ router.get("/download/:id",tokenValidate, async (req, res) => {
       });
   }
 });
+
+router.put("/like-dislike",tokenValidate, async (req,res)=>{
+    try {
+        //req body will have like which will be 0 or 1 and comment_id use zod to validate
+        const {comment_id,like} = req.body;
+        const comment = await Comment.findById(comment_id);
+        if(!comment){
+            return res.status(404).json({
+                success: false,
+                message: "Comment not found"
+            });
+        }
+        console.log(comment);
+        let t=-1;
+        if(like===1&&comment.likes.includes(req.user.id)){
+            const index = comment.likes.indexOf(req.user.id);
+            if(index>-1){
+                comment.likes.splice(index,1);
+            }
+            t=1;
+        }else if(like===1){
+            comment.likes.push(req.user.id);
+            t=1
+        }
+        if(like===0 && comment.dislike.includes(req.user.id) && t===-1){
+            const index = comment.dislike.indexOf(req.user.id);
+            if(index>-1){
+                comment.dislike.splice(index,1);
+            }
+            t=1;
+        }
+        else if(t===-1){
+            comment.dislike.push(req.user.id);
+        }
+        await comment.save();
+        return res.status(200).json({
+            success: true,
+            message: "Like/Dislike updated successfully"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error liking disliking messages",
+            error: error.message
+        });
+    }
+})
+
+router.post("/messages",tokenValidate,getMessagesSchemaCheck, async (req,res)=>{
+    const {project_id,task_id}=req.body;
+    try {
+        let comments;
+        if(task_id){
+            comments = await Comment.find({project_id,task_id});
+        }else{
+            comments = await Comment.find({project_id,task_id:null});
+        }
+        return res.status(200).json(comments);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching messages",
+            error: error.message
+        });
+    }
+})
 
 
 module.exports = router;
