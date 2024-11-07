@@ -177,6 +177,20 @@ router.post("/messages",tokenValidate,getMessagesSchemaCheck, async (req,res)=>{
     }
 })
 
+router.post("/get-files",tokenValidate,async(req,res)=>{
+    try {
+        const {project_id} = req.body;
+        const comments = await Comment.find({project_id,file_data:{$exists:true}});
+        return res.status(200).json(comments);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching files",
+            error: error.message
+        });
+    }
+})
+
 
 module.exports = router;
 
