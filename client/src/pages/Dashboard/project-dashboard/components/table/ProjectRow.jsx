@@ -146,7 +146,8 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
       const dataToSend = {
         project_id: project.id,
         description: updatedAbout,
-        status: updatedStatus
+        status: updatedStatus,
+        user_ids: selectedUsers.map(user => user.id)
       };
   
       if (updatedDeadline) {
