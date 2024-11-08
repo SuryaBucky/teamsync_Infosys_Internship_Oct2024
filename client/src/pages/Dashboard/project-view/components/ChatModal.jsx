@@ -76,6 +76,33 @@ const ChatModal = () => {
     else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
+  const handleFileDownload = async (file) => {
+    try {
+      // Convert base64 to blob
+      const byteCharacters = atob(file.file_data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: file.file_type });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
+
   const FileDisplay = ({ file }) => (
     <div className="mt-2 p-2 bg-gray-200 rounded-lg">
       <div className="flex items-center justify-between">
@@ -88,7 +115,7 @@ const ChatModal = () => {
         </div>
         <button 
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          onClick={() => window.open(`http://localhost:3001/comment/download/${file.id}`, '_blank')}
+          onClick={() => handleFileDownload(file)}
         >
           Download
         </button>
@@ -164,15 +191,15 @@ const ChatModal = () => {
 
       {isOpen && (
         <div className="fixed z-10 top-40 right-5 bg-transparent">
-        <div className="flex items-center justify-center min-h-[300px]">
-          <div className="bg-white rounded-2xl shadow-xl transform transition-all sm:max-w-md w-full overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 border-b rounded-t-2xl">
-              <h3 className="text-lg font-bold text-white">Chat Room</h3>
-            </div>
-            <div 
-              className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-100 rounded-b-2xl"
-              ref={messagesContainerRef}
-            >
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="bg-white rounded-2xl shadow-xl transform transition-all sm:max-w-md w-full overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 border-b rounded-t-2xl">
+                <h3 className="text-lg font-bold text-white">Chat Room</h3>
+              </div>
+              <div 
+                className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-100 rounded-b-2xl"
+                ref={messagesContainerRef}
+              >
                 {messages.map((msg, index) => (
                   <div
                     key={msg._id}
