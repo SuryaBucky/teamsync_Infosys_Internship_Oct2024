@@ -177,6 +177,22 @@ router.post("/messages",tokenValidate,getMessagesSchemaCheck, async (req,res)=>{
     }
 })
 
+router.post("/get-files",tokenValidate,async(req,res)=>{
+    try {
+        const {project_id} = req.body;
+        const comments = await Comment.find({project_id,file_data:{$exists:true}});
+        return res.status(200).json(comments);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching files",
+            error: error.message
+        });
+    }
+})
 
-module.exports = router;
+
+module.exports = router;    
+
+//listen carefully, in this frontend code of file table to the download icon button add the download functionality use the following two html and backend route code and use them in the finally sent FileTable.jsx code and already the file_data is recieved while getting data to display files so use it to get file related details and get code ref from backend route to convert data to stuff and get ref from html file how to use that binary data to generate file back with proper extension and stuff and then download it on user end. 
 
