@@ -192,65 +192,81 @@ const ChatModal = () => {
       {isOpen && (
         <div className="fixed z-10 top-40 right-5 bg-transparent">
           <div className="flex items-center justify-center min-h-[300px]">
-            <div className="bg-white rounded-2xl shadow-xl transform transition-all sm:max-w-md w-full overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 border-b rounded-t-2xl">
-                <h3 className="text-lg font-bold text-white">Chat Room</h3>
+            <div className="bg-gradient-to-br from-blue-900 via-blue-400 to-blue-900 rounded-2xl shadow-2xl transform transition-all sm:max-w-md w-full overflow-hidden border border-blue-200">
+              <div className="bg-gradient-to-r from-blue-900 via-blue-400 to-blue-900 px-4 py-4 border-b border-blue-900 shadow-md">
+                <h3 className="text-lg font-bold text-white tracking-wide">Chat Room</h3>
               </div>
-              <div 
-                className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-100 rounded-b-2xl"
+              <div
+                className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gradient-to-br from-blue-950 via-blue-400 to-blue-950 backdrop-blur-sm"
                 ref={messagesContainerRef}
               >
                 {messages.map((msg, index) => (
                   <div
-                    key={msg._id}
-                    className={`p-2 rounded-2xl ${
+                  key={msg._id}
+                  className={`p-3 rounded-2xl shadow-md backdrop-blur-sm ${
                       msg.creator_id === localStorage.getItem('userEmail')
-                        ? 'bg-green-100 text-gray-800 ml-auto'
-                        : 'bg-gray-300 text-gray-900 mr-auto'
+                        ? 'bg-gradient-to-r from-blue-800 to-blue-900 text-white ml-auto'
+                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white mr-auto'
                     }`}
-                    style={{ maxWidth: '70%' }}
+                  style={{ maxWidth: '70%' }}
                   >
                     <div className="flex justify-between items-start">
-                      <p className="font-semibold text-sm">{msg.creator_id}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-semibold text-sm text-white/90">{msg.creator_id}</p>
+                      <p className="text-xs text-white/70">
                         {formatDate(msg.created_at)}
                       </p>
                     </div>
                     
                     {msg.content && (
-                      <p className="mt-1 text-gray-800">{msg.content}</p>
+                      <p className="mt-1 text-white/90">{msg.content}</p>
                     )}
                     
                     {msg.file_name && (
-                      <FileDisplay file={msg} />
+                      <div className="mt-2 p-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span className="text-sm font-medium text-white/90">{msg.file_name}</span>
+                            <span className="text-xs text-white/70">({formatFileSize(msg.file_size)})</span>
+                          </div>
+                          <button 
+                            className="text-white/90 hover:text-white text-sm font-medium transition-colors"
+                            onClick={() => handleFileDownload(msg)}
+                          >
+                            Download
+                          </button>
+                        </div>
+                      </div>
                     )}
                     
                     <div className="flex items-center space-x-4 mt-2">
                       <button 
                         onClick={() => handleLikeDislike(msg._id, true)}
-                        className="text-sm flex items-center space-x-1"
+                        className="text-sm flex items-center space-x-1 hover:bg-white/10 p-1 rounded-full transition-colors"
                       >
                         <span>👍</span>
-                        <span>{msg.likes.length}</span>
+                        <span className="text-white/90">{msg.likes.length}</span>
                       </button>
                       <button 
                         onClick={() => handleLikeDislike(msg._id, false)}
-                        className="text-sm flex items-center space-x-1"
+                        className="text-sm flex items-center space-x-1 hover:bg-white/10 p-1 rounded-full transition-colors"
                       >
                         <span>👎</span>
-                        <span>{msg.dislike.length}</span>
+                        <span className="text-white/90">{msg.dislike.length}</span>
                       </button>
                     </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="bg-gray-50 px-4 py-3 flex items-center space-x-3 rounded-b-2xl">
+              <div className="bg-gradient-to-r from-blue-300 to-blue-100 px-4 py-4 flex items-center space-x-3 border-t border-blue-200 backdrop-blur-sm">
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-grow border border-blue-300 rounded-full p-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/90 backdrop-blur-sm shadow-inner"
                   placeholder="Type a message..."
                 />
                 <label className="flex items-center cursor-pointer">
@@ -260,21 +276,21 @@ const ChatModal = () => {
                     className="hidden"
                     accept="*/*"
                   />
-                  <span className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v.01M12 16v.01M12 8v.01M4.5 12A7.5 7.5 0 0112 4.5 7.5 7.5 0 0119.5 12 7.5 7.5 0 0112 19.5 7.5 7.5 0 014.5 12z" />
-                    </svg>
+                  <span className="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-full hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transition-colors shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-white">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v.01M12 16v.01M12 8v.01M4.5 12A7.5 7.5 0 0112 4.5 7.5 7.5 0 0119.5 12 7.5 7.5 0 0112 19.5 7.5 7.5 0 014.5 12z" />
+                  </svg>
                   </span>
                 </label>
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-600 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full px-6 py-2 shadow-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out font-medium"
                 >
                   Send
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-gray-600 hover:text-gray-800 focus:outline-none"
+                  className="text-gray-600 hover:text-gray-800 focus:outline-none p-2 hover:bg-white/50 rounded-full transition-colors"
                 >
                   ✕
                 </button>
