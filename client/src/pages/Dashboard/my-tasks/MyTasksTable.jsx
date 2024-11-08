@@ -359,7 +359,6 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       setTasks(sortedTasks);
       setFilteredTasks(sortedTasks);
       setLoading(false);
-      showToast("Tasks loaded successfully", "success");
     } catch (error) {
       setLoading(false);
       showToast("Failed to fetch tasks", "error");
