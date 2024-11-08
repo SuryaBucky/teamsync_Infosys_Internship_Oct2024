@@ -36,12 +36,43 @@ const FileTable = () => {
     fetchFiles();
   }, []);
 
+  const handleFileDownload = async (file) => {
+    try {
+      // Convert base64 to blob
+      const byteCharacters = atob(file.file_data);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: file.file_type });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      // Optionally show an error message to the user
+      setError('Failed to download file. Please try again.');
+    }
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = files.filter((file) =>
-      file.name.toLowerCase().includes(lowerCaseQuery) ||
-      file.uploader.toLowerCase().includes(lowerCaseQuery)
+      file.file_name.toLowerCase().includes(lowerCaseQuery) ||
+      file.creator_id.toLowerCase().includes(lowerCaseQuery)
     );
     setFilteredFiles(filtered);
   };
@@ -57,7 +88,6 @@ const FileTable = () => {
   return (
     <div className="pt-2 max-w-[1200px] mx-auto">
       <div className="border rounded-lg shadow-sm">
-        {/* Dropdown Header */}
         <button
           onClick={() => setIsTableVisible(!isTableVisible)}
           className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200 rounded-lg"
@@ -73,15 +103,13 @@ const FileTable = () => {
           />
         </button>
 
-        {/* Collapsible Content */}
         <div className={`transition-all duration-300 overflow-hidden ${isTableVisible ? 'max-h-[800px]' : 'max-h-0'}`}>
-          {/* Search Bar */}
           <div className="px-6 py-4 border-t border-gray-200">
             <div className="flex gap-4">
               <form onSubmit={handleSearch} className="flex-1">
                 <input
                   type="text"
-                  placeholder="Search files..." // Custom placeholder
+                  placeholder="Search files..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
@@ -97,7 +125,6 @@ const FileTable = () => {
             </div>
           </div>
 
-          {/* Table Content */}
           <div className="overflow-x-auto">
             {loading ? (
               <div className="flex justify-center items-center h-32">
@@ -134,7 +161,10 @@ const FileTable = () => {
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <button className="text-blue-600 hover:text-blue-800">
+                          <button 
+                            onClick={() => handleFileDownload(file)}
+                            className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                          >
                             <Download className="w-5 h-5" />
                           </button>
                         </td>
@@ -153,9 +183,7 @@ const FileTable = () => {
           </div>
         </div>
       </div>
-
-      {/* Add spacing between User Table and File Table */}
-      <div className="my-6" /> {/* Spacing div */}
+      <div className="my-6" />
     </div>
   );
 };
