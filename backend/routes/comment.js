@@ -131,6 +131,8 @@ router.put("/like-dislike",tokenValidate, async (req,res)=>{
             }
             t=1;
         }else if(like===1){
+            //if user has dislike this than first remove that dislike
+            comment.dislike=comment.dislike.filter(id=>id!==req.user.id);
             comment.likes.push(req.user.id);
             t=1
         }
@@ -142,6 +144,8 @@ router.put("/like-dislike",tokenValidate, async (req,res)=>{
             t=1;
         }
         else if(t===-1){
+            //if user has like this than first remove that like
+            comment.likes=comment.likes.filter(id=>id!==req.user.id);
             comment.dislike.push(req.user.id);
         }
         await comment.save();
