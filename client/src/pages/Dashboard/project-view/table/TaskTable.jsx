@@ -348,7 +348,6 @@ const TaskTable = ({ refreshTrigger }) => {
       setTasks(data);
       setFilteredTasks(data);
       setLoading(false);
-      showToast("Tasks loaded successfully", "success");
     } catch (error) {
       console.error('Fetch tasks error:', error);
       setLoading(false);
