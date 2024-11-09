@@ -208,11 +208,11 @@ const ChatModal = () => {
                         ? 'bg-gradient-to-r from-blue-800 to-blue-900 text-white ml-auto'
                         : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white mr-auto'
                     }`}
-                  style={{ maxWidth: '70%' }}
+                  style={{ maxWidth: '70%',position: 'relative' }}
                   >
                     <div className="flex justify-between items-start">
                       <p className="font-semibold text-sm text-white/90">{msg.creator_id}</p>
-                      <p className="text-xs text-white/70">
+                      <p className="text-xs text-white/70 absolute bottom-1 right-4">
                         {formatDate(msg.created_at)}
                       </p>
                     </div>
