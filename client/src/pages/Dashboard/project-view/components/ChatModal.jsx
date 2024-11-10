@@ -128,7 +128,7 @@ const ChatModal = () => {
       try {
         const token = localStorage.getItem('token');
         const projectId = localStorage.getItem('project_id');
-        const creatorId = localStorage.getItem('userEmail');
+        const creatorId = localStorage.getItem('userName');
         
         const requestBody = {
           project_id: projectId,
@@ -204,7 +204,7 @@ const ChatModal = () => {
                   <div
                   key={msg._id}
                   className={`p-3 rounded-2xl shadow-md backdrop-blur-sm ${
-                      msg.creator_id === localStorage.getItem('userEmail')
+                      msg.creator_id === localStorage.getItem('userName')
                         ? 'bg-gradient-to-r from-blue-800 to-blue-900 text-white ml-auto'
                         : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white mr-auto'
                     }`}
