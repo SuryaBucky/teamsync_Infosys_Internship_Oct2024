@@ -8,6 +8,7 @@ const ChatModal = () => {
   const [media, setMedia] = useState(null);
   const [messages, setMessages] = useState([]);
   const [userReactions, setUserReactions] = useState({});
+  const [isLikeDislikeUpdate, setIsLikeDislikeUpdate] = useState(false); // New state
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
@@ -25,7 +26,7 @@ const ChatModal = () => {
     return `${month} ${day}, ${year} ${hours}:${minutes} ${ampm}`;
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (isReactionUpdate = false) => { // Accept parameter
     try {
       const token = localStorage.getItem('token');
       const projectId = localStorage.getItem('project_id');
@@ -37,10 +38,12 @@ const ChatModal = () => {
       );
       
       setMessages(response.data);
+      setIsLikeDislikeUpdate(isReactionUpdate); // Set the reaction update state
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
   };
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -49,8 +52,12 @@ const ChatModal = () => {
   }, [isOpen]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!isLikeDislikeUpdate) { // Only scroll if it's not a like/dislike update
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsLikeDislikeUpdate(false); // Reset after handling
   }, [messages]);
+  
 
   const handleLikeDislike = async (commentId, isLike) => {
     try {
@@ -64,11 +71,12 @@ const ChatModal = () => {
         { headers: { Authorization: token } }
       );
       
-      fetchMessages();
+      fetchMessages(true); // Pass true to indicate a reaction update
     } catch (error) {
       console.error('Error updating like/dislike:', error);
     }
   };
+  
 
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
