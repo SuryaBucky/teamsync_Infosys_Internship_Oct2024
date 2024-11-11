@@ -57,6 +57,23 @@ const ChatModal = () => {
     }
     setIsLikeDislikeUpdate(false); // Reset after handling
   }, [messages]);
+
+  // Add this useEffect hook for keyboard events
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      } else if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [message, isOpen]);
   
 
   const handleLikeDislike = async (commentId, isLike) => {
