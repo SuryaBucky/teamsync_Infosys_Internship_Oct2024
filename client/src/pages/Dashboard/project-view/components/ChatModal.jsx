@@ -183,10 +183,10 @@ const ChatModal = () => {
   return (
     <>
       <button 
-        onClick={() => setIsOpen(true)} 
+        onClick={() => setIsOpen(prevIsOpen => !prevIsOpen)} 
         className="bg-blue-950 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg"
-        aria-label="Open Chat"
-        title="Open Chat"
+        aria-label="Toggle Chat"
+        title="Toggle Chat"
       >
         <BiChat className="w-5 h-5 inline" />
       </button>
