@@ -162,7 +162,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="w-full py-2 px-4 bg-blue-950 text-white rounded hover:bg-blue-900 transition-colors"
               >
                 {loading ? 'Adding...' : 'Add Task'}
               </button>
