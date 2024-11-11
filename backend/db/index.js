@@ -266,6 +266,15 @@ const TaskSchema = new mongoose.Schema({
         required:true
     }
 });
+// Pre-save middleware to detect changes to 'status' field
+TaskSchema.pre('save', async function (next) {
+    if (this.isModified('status') && this.status === '2') {
+        console.log(`Status changed to "complete" for Task ID: ${this._id}`);
+        await updateProjectStatistics(this.project_id);  // Update project statistics on status change
+    }
+    next();
+});
+
 
 // Task History Schema
 const TaskHistorySchema = new mongoose.Schema({
@@ -411,6 +420,35 @@ const TaskHistory = mongoose.model('TaskHistory', TaskHistorySchema);
 const Comment = mongoose.model('Comment', CommentSchema);
 const ProjectStatistic = mongoose.model('ProjectStatistic', ProjectStatisticSchema);
 const ProjectTag = mongoose.model('ProjectTag', ProjectTagSchema);
+
+
+// Function to update ProjectStatistics
+async function updateProjectStatistics(projectId) {
+    try {
+        const projectStat = await ProjectStatistic.findOne({ project_id: projectId });
+
+        if (projectStat) {
+            // Increment completed tasks
+            projectStat.completed_tasks += 1;
+
+            // Update completion percentage
+            projectStat.completion_percentage = 
+                (projectStat.completed_tasks / projectStat.total_tasks) * 100;
+
+            projectStat.last_updated = Date.now();
+
+            // Save updated statistics
+            await projectStat.save();
+            console.log('Project statistics updated:', projectStat);
+
+        } else {
+            console.log('No project statistics found for this task.');
+        }
+    } catch (error) {
+        console.error('Error updating project statistics:', error);
+    }
+}
+
 
 // const bcrypt = require("bcrypt");
 // async function test(){

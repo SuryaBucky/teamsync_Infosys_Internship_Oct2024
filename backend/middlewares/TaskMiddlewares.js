@@ -1,5 +1,5 @@
 const { z } = require('zod');
-const { Task, Project,User, ProjectUser } = require('../db/index'); // Import necessary models
+const { Task, Project,User, ProjectUser,ProjectStatistic } = require('../db/index'); // Import necessary models
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -118,8 +118,10 @@ const createTask = async (req, res) => {
             assignees: assignees || [],
             project_name
         });
-
         await newTask.save();
+
+        // Update ProjectStatistics for the project
+        await updateProjectStatistics(project_id);
 
         return res.status(201).json({
             message: 'Task created successfully',
@@ -132,6 +134,28 @@ const createTask = async (req, res) => {
         });
     }
 };
+// Function to update ProjectStatistics
+async function updateProjectStatistics(projectId) {
+    try {
+        // Find existing project statistics for the project
+        const projectStat = await ProjectStatistic.findOne({ project_id: projectId });
+
+        if (projectStat) {
+            // Increment the total task count
+            projectStat.total_tasks += 1;
+            await projectStat.save();
+        } else {
+            // Create a new entry if no statistics exist for the project
+            await ProjectStatistic.create({
+                project_id: projectId,
+                total_tasks: 1,
+                completed_tasks: 0
+            });
+        }
+    } catch (error) {
+        console.error('Error updating project statistics:', error);
+    }
+}
 
 const viewTasksByProject = async (req, res) => {
     try {
@@ -273,7 +297,7 @@ const editTaskDetails = async (req, res) => {
         // Apply updates and save
         Object.assign(task, updates);
         task.updated_at = new Date();
-        await task.save();
+        await task.save();// This will trigger the pre-save middleware if status has changed
 
         return res.status(200).json({
             message: 'Task updated successfully',
