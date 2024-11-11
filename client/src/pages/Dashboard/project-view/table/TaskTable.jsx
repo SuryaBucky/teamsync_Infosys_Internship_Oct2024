@@ -496,7 +496,7 @@ const TaskTable = ({ refreshTrigger }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
                 <Filter className="h-4 w-4" />
                 <span>Search</span>
               </button>
