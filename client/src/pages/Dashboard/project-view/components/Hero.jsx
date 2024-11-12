@@ -49,7 +49,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <div className="p-4">
       {/* Header with max width for content */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
+      <div className="relative flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
         <div className="flex items-start gap-4 max-w-[800px]">
           <button
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors mt-1"
@@ -92,11 +92,11 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
 
         {/* Add Task button always aligned to the top right */}
         <button
-          className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors whitespace-nowrap self-start ml-auto lg:ml-0 mt-6"
+          className="absolute right-0 top-0 flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors whitespace-nowrap self-start mt-6 lg:static "
           onClick={openModal}
         >
           <FontAwesomeIcon icon={faPlus} />
-          <span className="hidden sm:inline">Add Task</span>
+          <span className="inline-flex">Add Task</span>
         </button>
       </div>
 
