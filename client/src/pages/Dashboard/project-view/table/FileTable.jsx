@@ -103,7 +103,7 @@ const FileTable = () => {
           />
         </button>
 
-        <div className={`transition-all duration-300 overflow-hidden ${isTableVisible ? 'max-h-[800px]' : 'max-h-0'}`}>
+        <div className={`transition-all duration-300 overflow-y-auto max-h-[800px] ${isTableVisible ? 'max-h-[800px]' : 'max-h-0'}`}>
           <div className="px-6 py-4 border-t border-gray-200">
             <div className="flex gap-4">
               <form onSubmit={handleSearch} className="flex-1">
@@ -135,16 +135,17 @@ const FileTable = () => {
                 Error: {error}
               </div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-t border-b bg-gray-100">
-                    <th className="text-left py-4 px-6 font-medium text-xs">File Name</th>
-                    <th className="text-left py-4 px-6 font-medium text-xs">Uploader</th>
-                    <th className="text-left py-4 px-6 font-medium text-xs">Uploaded On</th>
-                    <th className="text-left py-4 px-6 font-medium text-xs">Download</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <div className="max-h-[500px] overflow-y-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-t border-b bg-gray-100 sticky" style={{ top: '-1px' }}>
+                      <th className="text-left py-4 px-6 font-medium text-xs bg-gray-100">File Name</th>
+                      <th className="text-left py-4 px-6 font-medium text-xs bg-gray-100">Uploader</th>
+                      <th className="text-left py-4 px-6 font-medium text-xs bg-gray-100">Uploaded On</th>
+                      <th className="text-left py-4 px-6 font-medium text-xs bg-gray-100">Download</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                   {filteredFiles.length > 0 ? (
                     filteredFiles.map((file, index) => (
                       file.file_name &&
@@ -167,18 +168,19 @@ const FileTable = () => {
                           >
                             <Download className="w-5 h-5" />
                           </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4 text-gray-500">
+                          No files found.
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="text-center py-4 text-gray-500">
-                        No files found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
