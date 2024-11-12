@@ -274,6 +274,23 @@ TaskSchema.pre('save', async function (next) {
     }
     next();
 });
+// Middleware for handling the deletion trigger
+TaskSchema.pre('deleteOne', async function (next) {
+    try {
+        const query = this.getFilter();
+        const task = await this.model.findOne(query);
+
+        if (task) {
+            // Update project statistics based on task deletion
+            await updateProjectStatisticsOnTaskDeletion(task);
+        }
+
+        next();
+    } catch (error) {
+        console.error('Error in pre-delete middleware:', error);
+        next(error);
+    }
+});
 
 
 // Task History Schema
@@ -448,7 +465,37 @@ async function updateProjectStatistics(projectId) {
         console.error('Error updating project statistics:', error);
     }
 }
+// Function to update ProjectStatistics on task deletion
+async function updateProjectStatisticsOnTaskDeletion(task) {
+    try {
+        const projectStat = await ProjectStatistic.findOne({ project_id: task.project_id });
 
+        if (projectStat) {
+            // Decrement total tasks and, if the task was completed, decrement completed tasks
+            projectStat.total_tasks -= 1;
+            if (task.status === '2') {
+                projectStat.completed_tasks -= 1;
+            }
+
+            // Update completion percentage
+            projectStat.completion_percentage = 
+                projectStat.total_tasks > 0
+                    ? (projectStat.completed_tasks / projectStat.total_tasks) * 100
+                    : 0;
+
+            projectStat.last_updated = Date.now();
+
+            // Save updated statistics
+            await projectStat.save();
+            console.log('Project statistics updated on task deletion:', projectStat);
+
+        } else {
+            console.log('No project statistics found for this task.');
+        }
+    } catch (error) {
+        console.error('Error updating project statistics on task deletion:', error);
+    }
+}
 
 // const bcrypt = require("bcrypt");
 // async function test(){
