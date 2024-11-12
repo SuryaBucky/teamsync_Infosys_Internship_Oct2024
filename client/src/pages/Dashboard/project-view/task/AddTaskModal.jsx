@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddAssigneesModal from '../components/AddAssigneesModal';
 
 const AddTaskModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
@@ -11,6 +12,16 @@ const AddTaskModal = ({ isOpen, onClose }) => {
   const [priority, setPriority] = useState('1');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [assigneesModal, setAssigneesModal] = useState({
+    isOpen: false,
+    taskId: null,
+  });
+  const handleAddAssigneesClick = (taskId) => {
+    setAssigneesModal({
+      isOpen: true,
+      taskId,
+    });
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -158,6 +169,17 @@ const AddTaskModal = ({ isOpen, onClose }) => {
                 </select>
               </div>
 
+              {/* Add Assignee Button */}
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => handleAddAssigneesClick(' ')}
+                  className="w-full py-2 px-4 bg-blue-950 text-white rounded hover:bg-blue-900 transition-colors"
+                >
+                  Add Assignee
+                </button>
+              </div>
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -170,6 +192,15 @@ const AddTaskModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       )}
+
+      <AddAssigneesModal
+        isOpen={assigneesModal.isOpen}
+        onClose={() => setAssigneesModal({ isOpen: false, taskId: null })}
+        taskId={assigneesModal.taskId}
+        onSuccess={() => {
+
+        }}
+      />
     </>
   );
 };
