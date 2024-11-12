@@ -152,18 +152,18 @@ const FileTable = () => {
                         <td className="py-4 px-6">
                           <div className="font-medium text-sm">{file.file_name}</div>
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-2">
                           <div className="text-sm text-gray-600">{file.creator_id}</div>
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-8">
                           <div className="text-sm text-gray-500">
                             {formatDate(file.created_at)}
                           </div>
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-4 px-8">
                           <button 
                             onClick={() => handleFileDownload(file)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                            className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors duration-200"
                           >
                             <Download className="w-5 h-5" />
                           </button>
