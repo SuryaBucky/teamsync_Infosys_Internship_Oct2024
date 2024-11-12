@@ -143,6 +143,11 @@ async function updateProjectStatistics(projectId) {
         if (projectStat) {
             // Increment the total task count
             projectStat.total_tasks += 1;
+            // Update completion percentage
+            projectStat.completion_percentage = 
+                projectStat.total_tasks > 0
+                    ? (projectStat.completed_tasks / projectStat.total_tasks) * 100
+                    : 0;
             await projectStat.save();
         } else {
             // Create a new entry if no statistics exist for the project
