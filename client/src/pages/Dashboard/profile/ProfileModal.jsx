@@ -113,7 +113,7 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => {
               <FaUserEdit className="mr-2" />
               Edit Profile
             </button>
-            <button className="flex items-center justify-center flex-1 bg-gray-500 text-white py-2 rounded-lg shadow hover:bg-gray-600" onClick={onResetPassword}>
+            <button className="flex items-center justify-center flex-1 bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-500" onClick={onResetPassword}>
               <FaKey className="mr-2" />
               Reset Password
             </button>
