@@ -2,24 +2,26 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid'); // Import uuid
 require('dotenv').config();
 
+// Create a function to connect to MongoDB
+const connectDB = async () => {
+    if (!process.env.DB_CONNECTION_STRING) {
+        console.error("DB_CONNECTION_STRING is not defined in .env file");
+        process.exit(1);
+    }
 
-// Connect to MongoDB
-if (!process.env.DB_CONNECTION_STRING) {
-    console.error("DB_CONNECTION_STRING is not defined in .env file");
-    process.exit(1); // Exit the process with failure
-}
-
-mongoose.connect(process.env.DB_CONNECTION_STRING)
-    .then(() => {
+    try {
+        await mongoose.connect(process.env.DB_CONNECTION_STRING);
         console.log("Successfully connected to the database.");
-    })
-    .catch((error) => {
+    } catch (error) {
         console.error("Error connecting to the database:", error);
-    });
+        throw error; // Propagate the error
+    }
+};
+
 
 const generateRandomOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-digit random number
-};  
+};
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -63,7 +65,7 @@ const UserSchema = new mongoose.Schema({
 }); // Disables MongoDB's default _id field
 
 // Cascade delete related entries in ProjectUser when a User is deleted
-UserSchema.pre('remove', async function(next) {
+UserSchema.pre('remove', async function (next) {
     try {
         await ProjectUser.deleteMany({ user_id: this.id }); // Remove associated projects in ProjectUser
         next();
@@ -145,14 +147,14 @@ const ProjectSchema = new mongoose.Schema({
         enum: ['low', 'medium', 'high'],
         default: 'medium'
     },//a number of users field that is 1 at project creation
-    noUsers:{
-        type:Number,
-        default:1
+    noUsers: {
+        type: Number,
+        default: 1
     }
 });
 
 // Cascade delete related entries in ProjectUser when a Project is deleted
-ProjectSchema.pre('remove', async function(next) {
+ProjectSchema.pre('remove', async function (next) {
     try {
         await ProjectUser.deleteMany({ project_id: this.id }); // Remove associated users in ProjectUser
         next();
@@ -235,21 +237,21 @@ const TaskSchema = new mongoose.Schema({
     deadline: Date,
     status: {
         type: String,
-        enum: ['0', '1','2'],
+        enum: ['0', '1', '2'],
         required: true
     },
-    priority:{
+    priority: {
         type: String,
-        enum:['0','1','2'],
-        required:true
+        enum: ['0', '1', '2'],
+        required: true
     },
     creator_id: {
         type: String,
         ref: 'User',
         required: true
     },
-    assignees: [{  
-        type: String, 
+    assignees: [{
+        type: String,
         ref: 'User',
         default: []
     }],
@@ -261,9 +263,9 @@ const TaskSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    project_name:{
-        type:String,
-        required:true
+    project_name: {
+        type: String,
+        required: true
     }
 });
 // Pre-save middleware to detect changes to 'status' field
@@ -273,23 +275,6 @@ TaskSchema.pre('save', async function (next) {
         await updateProjectStatistics(this.project_id);  // Update project statistics on status change
     }
     next();
-});
-// Middleware for handling the deletion trigger
-TaskSchema.pre('deleteOne', async function (next) {
-    try {
-        const query = this.getFilter();
-        const task = await this.model.findOne(query);
-
-        if (task) {
-            // Update project statistics based on task deletion
-            await updateProjectStatisticsOnTaskDeletion(task);
-        }
-
-        next();
-    } catch (error) {
-        console.error('Error in pre-delete middleware:', error);
-        next(error);
-    }
 });
 
 
@@ -336,20 +321,20 @@ const CommentSchema = new mongoose.Schema({
         ref: 'Project',
         required: true
     },
-    task_id:{
-        type:String,
+    task_id: {
+        type: String,
         ref: 'Task',
     },
     creator_id: {
         type: String,
-        ref: 'User',    
+        ref: 'User',
         required: true
-    },  
+    },
     content: {
         type: String
     },
-    file_content:{
-        type:String
+    file_content: {
+        type: String
     },
     file_name: String,
     file_size: Number,
@@ -359,12 +344,12 @@ const CommentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    likes:[{  
-        type: String, 
+    likes: [{
+        type: String,
         ref: 'User',
         default: []
     }],
-    dislike:[{
+    dislike: [{
         type: String,
         ref: 'User',
         default: []
@@ -449,7 +434,7 @@ async function updateProjectStatistics(projectId) {
             projectStat.completed_tasks += 1;
 
             // Update completion percentage
-            projectStat.completion_percentage = 
+            projectStat.completion_percentage =
                 (projectStat.completed_tasks / projectStat.total_tasks) * 100;
 
             projectStat.last_updated = Date.now();
@@ -465,37 +450,7 @@ async function updateProjectStatistics(projectId) {
         console.error('Error updating project statistics:', error);
     }
 }
-// Function to update ProjectStatistics on task deletion
-async function updateProjectStatisticsOnTaskDeletion(task) {
-    try {
-        const projectStat = await ProjectStatistic.findOne({ project_id: task.project_id });
 
-        if (projectStat) {
-            // Decrement total tasks and, if the task was completed, decrement completed tasks
-            projectStat.total_tasks -= 1;
-            if (task.status === '2') {
-                projectStat.completed_tasks -= 1;
-            }
-
-            // Update completion percentage
-            projectStat.completion_percentage = 
-                projectStat.total_tasks > 0
-                    ? (projectStat.completed_tasks / projectStat.total_tasks) * 100
-                    : 0;
-
-            projectStat.last_updated = Date.now();
-
-            // Save updated statistics
-            await projectStat.save();
-            console.log('Project statistics updated on task deletion:', projectStat);
-
-        } else {
-            console.log('No project statistics found for this task.');
-        }
-    } catch (error) {
-        console.error('Error updating project statistics on task deletion:', error);
-    }
-}
 
 // const bcrypt = require("bcrypt");
 // async function test(){
@@ -523,5 +478,6 @@ module.exports = {
     TaskHistory,
     Comment,
     ProjectStatistic,
-    ProjectTag
+    ProjectTag,
+    connectDB
 };
