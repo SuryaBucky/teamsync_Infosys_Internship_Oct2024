@@ -67,8 +67,8 @@ const FileTable = () => {
     e.preventDefault();
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = files.filter((file) =>
-      file.file_name.toLowerCase().includes(lowerCaseQuery) ||
-      file.creator_id.toLowerCase().includes(lowerCaseQuery)
+      file.file_name?.toLowerCase().includes(lowerCaseQuery) ||
+      file.creator_id?.toLowerCase().includes(lowerCaseQuery)
     );
     setFilteredFiles(filtered);
   };
