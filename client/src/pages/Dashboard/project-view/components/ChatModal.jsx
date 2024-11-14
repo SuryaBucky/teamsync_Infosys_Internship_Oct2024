@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { BiChat, BiFile, BiX, BiDownload } from 'react-icons/bi';
+import { BiChat, BiFile, BiX, BiDownload, BiDownArrowAlt } from 'react-icons/bi';
 import { 
   FaFileWord, FaFilePdf, FaFileExcel, FaFileImage, 
   FaFileAudio, FaFileVideo, FaFileArchive, FaFileCode,
@@ -9,16 +9,16 @@ import {
 
 const ChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const [media, setMedia] = useState(null);
+  const [message, setMessage] = useState(''); // State to manage the message input
+  const [media, setMedia] = useState(null); // State to manage the media file
   const [mediaPreview, setMediaPreview] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLikeDislikeUpdate, setIsLikeDislikeUpdate] = useState(false);
-  const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   const getFileIcon = (fileType) => {
     const fileTypes = {
@@ -49,7 +49,7 @@ const ChatModal = () => {
 
     return fileTypes[fileType] || <BiFile className="w-8 h-8 text-gray-500" />;
   };
-
+  // Function to get the file type description
   const getFileTypeDescription = (fileType) => {
     const typeMap = {
       'application/pdf': 'PDF Document',
@@ -71,7 +71,7 @@ const ChatModal = () => {
       'audio/mpeg': 'MP3 Audio',
       'audio/wav': 'WAV Audio',
     };
-
+    // Check if the file type starts with 'image/', 'video/', 'audio/', or 'text/'
     if (fileType.startsWith('image/')) return 'Image File';
     if (fileType.startsWith('video/')) return 'Video File';
     if (fileType.startsWith('audio/')) return 'Audio File';
@@ -80,6 +80,7 @@ const ChatModal = () => {
     return typeMap[fileType] || 'File';
   };
 
+  // Function to format the date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -94,24 +95,14 @@ const ChatModal = () => {
     return `${month} ${day}, ${year} ${hours}:${minutes} ${ampm}`;
   };
 
+  // Function to format the file size
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
     else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
-  const downloadFile = (file) => {
-    const fileBlob = file.url ? file.url : new Blob([file.data], { type: file.file_type });
-    const fileName = file.name || 'downloaded_file';
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(fileBlob);
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  
-
+  // Function to handle media change
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -133,6 +124,7 @@ const ChatModal = () => {
         };
         reader.readAsDataURL(file);
       } else if (file.type.startsWith('video/')) {
+        // Handle video file
         const reader = new FileReader();
         reader.onload = () => {
           setMediaPreview({
@@ -161,14 +153,16 @@ const ChatModal = () => {
     }
   };
 
+  // Function to remove media
   const removeMedia = () => {
     setMedia(null);
     setMediaPreview(null);
   };
 
+  // Media preview component
   const MediaPreview = ({ preview }) => {
     if (!preview) return null;
-
+    // Preview header component
     const PreviewHeader = () => (
       <div className="flex items-center justify-between p-2 bg-gray-50 border-b">
         <div className="flex items-center space-x-2">
@@ -188,6 +182,7 @@ const ChatModal = () => {
       </div>
     );
 
+    // Preview details component
     const PreviewDetails = () => (
       <div className="px-3 py-2 space-y-1">
         <p className="text-xs text-gray-600">
@@ -198,7 +193,7 @@ const ChatModal = () => {
         </p>
       </div>
     );
-
+    
     return (
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <PreviewHeader />
@@ -225,6 +220,7 @@ const ChatModal = () => {
     );
   };
 
+  // File display component
   const FileDisplay = ({ file }) => {
     const fileIcon = getFileIcon(file.file_type);
     const typeDescription = getFileTypeDescription(file.file_type);
@@ -250,7 +246,6 @@ const ChatModal = () => {
             <BiDownload className="w-5 h-5" />
           </button>
         </div>
-
 
         {isPreviewable && (
           <div className="p-2 bg-gray-50">
@@ -289,14 +284,14 @@ const ChatModal = () => {
       fetchMessages();
     }
   }, [isOpen]);
-
+  
   useEffect(() => {
     if (!isLikeDislikeUpdate) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
     setIsLikeDislikeUpdate(false);
   }, [messages]);
-
+  // Add event listener for keydown
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Enter') {
@@ -305,11 +300,12 @@ const ChatModal = () => {
         setIsOpen(false);
       }
     };
-
+    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [message, isOpen]);
 
+  // Fetch messages function
   const fetchMessages = async (isReactionUpdate = false) => {
     try {
       const token = localStorage.getItem('token');
@@ -320,7 +316,7 @@ const ChatModal = () => {
         { project_id: projectId },
         { headers: { Authorization: token } }
       );
-      
+      // Set messages and update state
       setMessages(response.data);
       setIsLikeDislikeUpdate(isReactionUpdate);
     } catch (error) {
@@ -328,6 +324,7 @@ const ChatModal = () => {
     }
   };
 
+  // Image modal component
   const ImageModal = ({ imageUrl, onClose }) => {
     if (!imageUrl) return null;
   
@@ -346,7 +343,7 @@ const ChatModal = () => {
     );
   };
   
-
+  // Handle like/dislike function
   const handleLikeDislike = async (commentId, isLike) => {
     try {
       const token = localStorage.getItem('token');
@@ -365,6 +362,7 @@ const ChatModal = () => {
     }
   };
 
+  // Handle file download function
   const handleFileDownload = (file) => {
     try {
       const byteCharacters = atob(file.file_data);
@@ -389,6 +387,7 @@ const ChatModal = () => {
     }
   };
 
+  // Handle search function
   const sendMessage = async () => {
     if (message.trim() !== '' || media) {
       try {
@@ -423,6 +422,7 @@ const ChatModal = () => {
     }
   };
 
+  // Send request to server function
   const sendRequestToServer = async (requestBody, token) => {
     try {
       await axios.post(
@@ -444,74 +444,129 @@ const ChatModal = () => {
       console.error('Error sending message to server:', error);
     }
   };
+  
+  // Scroll position handler
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      setShowScrollButton(distanceFromBottom > 100);
+    }
+  };
+
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Add scroll event listener
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  // Auto scroll on new messages
+  useEffect(() => {
+    if (!isLikeDislikeUpdate && messages.length > 0) {
+      scrollToBottom();
+    }
+    setIsLikeDislikeUpdate(false);
+  }, [messages]);
 
   return (
     <>
       <button 
-        onClick={() => setIsOpen(prevIsOpen => !prevIsOpen)} 
+        onClick={() => setIsOpen(prevIsOpen => !prevIsOpen)}
         className="bg-blue-950 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg"
         aria-label="Toggle Chat"
-        title="Toggle Chat"
-      >
+        title="Toggle Chat"      
+        >
         <BiChat className="w-5 h-5 inline" />
       </button>
-
+      
       {isOpen && (
         <div className="fixed z-10 top-20 right-5 bg-transparent">
           <div className="flex items-center justify-center min-h-[300px]">
             <div className="bg-white rounded-2xl shadow-2xl sm:max-w-md w-full overflow-hidden border border-gray-200">
+              {/* Chat Header */}
               <div className="bg-blue-950 px-4 py-4 border-b border-gray-950 shadow-md">
                 <h3 className="text-lg font-bold text-white">Chat Room</h3>
               </div>
-              <div
-                className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-50"
-                ref={messagesContainerRef}
-              >
-                {messages.map((msg, index) => (
-                  <div
-                    key={msg._id}
-                    className={`p-3 rounded-lg shadow-sm ${
-                      msg.creator_id === localStorage.getItem('userName')
-                        ? 'bg-blue-100 text-gray-800 ml-auto'
-                        : 'bg-gray-100 text-gray-800 mr-auto'
-                    }`}
-                    style={{ maxWidth: '70%', position: 'relative' }}
+
+              {/* Messages Container */}
+              <div className="relative">
+                <div
+                  ref={messagesContainerRef}
+                  className="px-4 py-5 h-80 overflow-y-auto space-y-3 bg-gray-50"
+                  onScroll={handleScroll}
+                >
+                  {messages.map((msg) => (
+                    <div
+                      key={msg._id}
+                      className={`p-3 rounded-lg shadow-sm ${
+                        msg.creator_id === localStorage.getItem('userName')
+                          ? 'bg-blue-100 text-gray-800 ml-auto'
+                          : 'bg-gray-100 text-gray-800 mr-auto'
+                      }`}
+                      style={{ maxWidth: '70%', position: 'relative' }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <p className="font-semibold text-sm text-gray-700">{msg.creator_id}</p>
+                        <p className="text-xs text-gray-500 absolute bottom-1 right-4">
+                          {formatDate(msg.created_at)}
+                        </p>
+                      </div>
+                      
+                      {msg.content && (
+                        <p className="mt-1 text-gray-800">{msg.content}</p>
+                      )}
+                      
+                      {msg.file_name && (
+                        <FileDisplay file={msg} />
+                      )}
+                      
+                      <div className="flex items-center space-x-4 mt-2">
+                        <button 
+                          onClick={() => handleLikeDislike(msg._id, true)}
+                          className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
+                        >
+                          <span>👍</span>
+                          <span>{msg.likes.length}</span>
+                        </button>
+                        <button 
+                          onClick={() => handleLikeDislike(msg._id, false)}
+                          className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
+                        >
+                          <span>👎</span>
+                          <span>{msg.dislike.length}</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Scroll to bottom button */}
+                {showScrollButton && (
+                  <button
+                    onClick={scrollToBottom}
+                    className="absolute bottom-4 right-4 bg-blue-950 text-white rounded-full p-2 shadow-lg hover:bg-blue-900 transition-all duration-200 z-10"
+                    aria-label="Scroll to bottom"
                   >
-                    <div className="flex justify-between items-start">
-                      <p className="font-semibold text-sm text-gray-700">{msg.creator_id}</p>
-                      <p className="text-xs text-gray-500 absolute bottom-1 right-4">
-                        {formatDate(msg.created_at)}
-                      </p>
-                    </div>
-                    
-                    {msg.content && (
-                      <p className="mt-1 text-gray-800">{msg.content}</p>
-                    )}
-                    
-                    {msg.file_name && (
-                      <FileDisplay file={msg} />
-                    )}
-                    
-                    <div className="flex items-center space-x-4 mt-2">
-                      <button 
-                        onClick={() => handleLikeDislike(msg._id, true)}
-                        className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
-                      >
-                        <span>👍</span>
-                        <span>{msg.likes.length}</span>
-                      </button>
-                      <button 
-                        onClick={() => handleLikeDislike(msg._id, false)}
-                        className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
-                      >
-                        <span>👎</span>
-                        <span>{msg.dislike.length}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
+                    <BiDownArrowAlt className="w-6 h-6" />
+                  </button>
+                )}
               </div>
+
+              {/* Input Area */}
               <div className="bg-gray-200 px-4 py-4 flex flex-col border-t border-gray-300">
                 {mediaPreview && (
                   <div className="mb-3">
@@ -555,7 +610,7 @@ const ChatModal = () => {
           </div>
         </div>
       )}
-
+      {/*  Image modal */}
       {isImageModalOpen && (
         <ImageModal
           imageUrl={selectedImage}
