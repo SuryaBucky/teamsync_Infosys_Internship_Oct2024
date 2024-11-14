@@ -544,9 +544,9 @@ const TaskTable = ({ refreshTrigger }) => {
                       </td>
                      
                       <td className="py-4 px-6">
-                      <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)} max-w-xs whitespace-nowrap overflow-hidden text-ellipsis`}>
-                        {getStatusText(task.status)}
-                      </span>
+                         <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}truncate max-w-[100px]`}>
+                          {getStatusText(task.status)}
+                         </span>
                       </td>
 
                       <td className="py-4 px-6">

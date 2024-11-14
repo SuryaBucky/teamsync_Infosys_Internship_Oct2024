@@ -566,7 +566,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}`}>
+                          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)} truncate max-w-[100px]`}>
                             {getStatusText(task.status)}
                           </span>
                         </td>
