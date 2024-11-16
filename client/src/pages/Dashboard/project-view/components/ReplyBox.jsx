@@ -23,7 +23,7 @@ const ReplyBox = ({ message, onSendReply, onCancelReply }) => (
         Send Reply
       </button>
       <button
-        onClick={onCancelReply} // Trigger cancel reply action when clickedconsole.log('ReplyBox component rendered
+        onClick={onCancelReply} // Trigger cancel reply action when clicked
         className="bg-gray-500 text-white rounded-full px-6 py-2"
       >
         Cancel
