@@ -6,6 +6,8 @@ import {
   FaFileAudio, FaFileVideo, FaFileArchive, FaFileCode,
   FaFileCsv, FaFileAlt
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -383,10 +385,14 @@ const ChatModal = () => {
   
       window.URL.revokeObjectURL(url);
       a.remove();
+      
+      toast.success('File downloaded successfully!');
     } catch (error) {
       console.error('Error downloading file:', error);
+      toast.error('Failed to download the file. Please try again.');
     }
   };
+  
 
   // Handle search function
   const sendMessage = async () => {
@@ -419,6 +425,7 @@ const ChatModal = () => {
         }
       } catch (error) {
         console.error('Error sending message:', error);
+        toast.error('Failed to send your message. Please try again.');
       }
     }
   };
@@ -441,8 +448,10 @@ const ChatModal = () => {
       setMedia(null);
       setMediaPreview(null);
       fetchMessages();
+      toast.success('Message sent successfully!');
     } catch (error) {
       console.error('Error sending message to server:', error);
+      toast.error('Failed to send your message. Please try again.');
     }
   };
   
