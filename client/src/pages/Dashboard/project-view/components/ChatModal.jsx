@@ -9,8 +9,8 @@ import {
 
 const ChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState(''); // State to manage the message input
-  const [media, setMedia] = useState(null); // State to manage the media file
+  const [message, setMessage] = useState('');
+  const [media, setMedia] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLikeDislikeUpdate, setIsLikeDislikeUpdate] = useState(false);
@@ -20,6 +20,7 @@ const ChatModal = () => {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
+  // Get file icon based on file type
   const getFileIcon = (fileType) => {
     const fileTypes = {
       'application/pdf': <FaFilePdf className="w-8 h-8 text-red-500" />,
@@ -34,6 +35,7 @@ const ChatModal = () => {
       'application/x-rar-compressed': <FaFileArchive className="w-8 h-8 text-yellow-600" />,
     };
 
+    // Check for different media types like image, video, audio, etc.
     if (fileType.startsWith('image/')) {
       return <FaFileImage className="w-8 h-8 text-purple-500" />;
     }
@@ -49,7 +51,7 @@ const ChatModal = () => {
 
     return fileTypes[fileType] || <BiFile className="w-8 h-8 text-gray-500" />;
   };
-  // Function to get the file type description
+  // Get file type description
   const getFileTypeDescription = (fileType) => {
     const typeMap = {
       'application/pdf': 'PDF Document',
@@ -71,7 +73,7 @@ const ChatModal = () => {
       'audio/mpeg': 'MP3 Audio',
       'audio/wav': 'WAV Audio',
     };
-    // Check if the file type starts with 'image/', 'video/', 'audio/', or 'text/'
+    
     if (fileType.startsWith('image/')) return 'Image File';
     if (fileType.startsWith('video/')) return 'Video File';
     if (fileType.startsWith('audio/')) return 'Audio File';
@@ -80,7 +82,7 @@ const ChatModal = () => {
     return typeMap[fileType] || 'File';
   };
 
-  // Function to format the date
+  // Format date to readable format
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -95,7 +97,7 @@ const ChatModal = () => {
     return `${month} ${day}, ${year} ${hours}:${minutes} ${ampm}`;
   };
 
-  // Function to format the file size
+  // Function to format file size in a human-readable format
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
@@ -107,7 +109,7 @@ const ChatModal = () => {
     const file = e.target.files[0];
     if (file) {
       setMedia(file);
-      
+      // Image file preview
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = () => {
@@ -123,8 +125,7 @@ const ChatModal = () => {
           });
         };
         reader.readAsDataURL(file);
-      } else if (file.type.startsWith('video/')) {
-        // Handle video file
+      } else if (file.type.startsWith('video/')) { // Video file preview
         const reader = new FileReader();
         reader.onload = () => {
           setMediaPreview({
@@ -139,7 +140,7 @@ const ChatModal = () => {
           });
         };
         reader.readAsDataURL(file);
-      } else {
+      } else { // Other file types
         setMediaPreview({
           type: 'file',
           name: file.name,
@@ -162,7 +163,7 @@ const ChatModal = () => {
   // Media preview component
   const MediaPreview = ({ preview }) => {
     if (!preview) return null;
-    // Preview header component
+    
     const PreviewHeader = () => (
       <div className="flex items-center justify-between p-2 bg-gray-50 border-b">
         <div className="flex items-center space-x-2">
