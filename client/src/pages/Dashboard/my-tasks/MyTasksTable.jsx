@@ -549,6 +549,8 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                       <th className="text-left py-4 px-6 font-medium text-xs">Created</th>
                       <th className="text-left py-4 px-6 font-medium text-xs">Deadline</th>
                       <th className="w-10"></th>
+                      <th className="w-10"></th>
+                      <th className="w-10"></th>
                     </tr>
                   </thead>
                   <tbody>
