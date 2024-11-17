@@ -4,12 +4,17 @@ import { Search } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
 
 const UsersProject = () => {
+  // State management for users data and UI controls
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /**
+   * Effect hook to fetch users data when component mounts
+   * Makes authenticated API call using token from localStorage
+   */
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -33,6 +38,7 @@ const UsersProject = () => {
     fetchUsers();
   }, []);
 
+  //Filters users based on name or email matching the search query
   const handleSearch = (e) => {
     e.preventDefault();
     const filtered = users.filter((user) => {
@@ -53,6 +59,7 @@ const UsersProject = () => {
     });
   };
 
+  // Loading state UI
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -61,6 +68,7 @@ const UsersProject = () => {
     );
   }
 
+  // Error state UI
   if (error) {
     return (
       <div className="text-red-600 p-4 text-center">
@@ -69,6 +77,7 @@ const UsersProject = () => {
     );
   }
 
+  // Main component render with search and users table
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6">
@@ -91,6 +100,7 @@ const UsersProject = () => {
           </button>
         </div>
 
+        {/* Users table with responsive scroll */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
