@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Search, ChevronDown, Download } from 'lucide-react';
 
 const FileTable = () => {
+  // State management for UI controls and data
   const [isTableVisible, setIsTableVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [files, setFiles] = useState([]);
@@ -36,8 +37,14 @@ const FileTable = () => {
     fetchFiles();
   }, []);
 
+  /**
+   * Handles file download functionality
+   * Converts base64 file data to blob and triggers download
+   * @param {Object} file - File object containing file_data, file_type, and file_name
+   */
   const handleFileDownload = async (file) => {
     try {
+      // Convert base64 to blob
       const byteCharacters = atob(file.file_data);
       const byteNumbers = new Array(byteCharacters.length);
       
@@ -48,6 +55,7 @@ const FileTable = () => {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: file.file_type });
 
+      // Create and trigger download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -55,6 +63,7 @@ const FileTable = () => {
       document.body.appendChild(a);
       a.click();
 
+      // Cleanup
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (error) {
@@ -63,6 +72,7 @@ const FileTable = () => {
     }
   };
 
+  // Filters files based on file name or creator ID matching the search query
   const handleSearch = (e) => {
     e.preventDefault();
     const lowerCaseQuery = searchQuery.toLowerCase();
@@ -84,6 +94,7 @@ const FileTable = () => {
   return (
     <div className="pt-2 max-w-[1200px] mx-auto">
       <div className="border rounded-lg shadow-sm">
+        {/* Collapsible header with file count */}
         <button
           onClick={() => setIsTableVisible(!isTableVisible)}
           className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200 rounded-lg"
@@ -123,6 +134,7 @@ const FileTable = () => {
               </div>
             </div>
 
+            {/* Table section with loading, error, and data states */}
             <div className="overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center h-32">
@@ -143,6 +155,7 @@ const FileTable = () => {
                         <th className="text-left py-4 px-6 font-medium text-xs bg-gray-100">Download</th>
                       </tr>
                     </thead>
+                    {/* Table body with conditional rendering for no files found */}
                     <tbody>
                       {filteredFiles.length > 0 ? (
                         filteredFiles.map((file, index) => (
