@@ -5,15 +5,17 @@ import { SearchBar } from './common/SearchBar';
 import toast from 'react-simple-toasts';
 
 const Users = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // State to hold the search query input by the user
+  const [searchQuery, setSearchQuery] = useState('');  // State to hold the list of all users fetched from the server
+  const [users, setUsers] = useState([]);         // State to hold the filtered list of users based on the search query
+  const [filteredUsers, setFilteredUsers] = useState([]);  // State to indicate whether the data is currently being loaded
+  const [loading, setLoading] = useState(true);     // State to hold any error messages encountered during data fetching
+  const [error, setError] = useState(null);        // State to manage the visibility of the modal for user actions
+  const [isModalOpen, setIsModalOpen] = useState(false);  // State to hold the currently selected user for actions
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
+    // Fetches the list of users from the server
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -32,6 +34,7 @@ const Users = () => {
     fetchUsers();
   }, []);
 
+  // Handles the search functionality for filtering users
   const handleSearch = (e) => {
     e.preventDefault();
     const lowerCaseQuery = searchQuery.toLowerCase();
@@ -41,6 +44,7 @@ const Users = () => {
     setFilteredUsers(filtered);
   };
 
+  // Formats the date string into a more readable format
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -49,11 +53,13 @@ const Users = () => {
     });
   };
 
+  // Toggles the modal for user actions and sets the selected user
   const toggleModal = (user) => {
     setSelectedUser(user);
     setIsModalOpen(!isModalOpen);
   };
 
+  // Handles the state change of a user (verified/blocked)
   const handleStateChange = async () => {
     try {
       const token = localStorage.getItem('token');

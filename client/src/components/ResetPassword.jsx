@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { CloseRounded, EmailRounded, PasswordRounded } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
+import {
+  CloseRounded,
+  EmailRounded,
+  PasswordRounded,
+} from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import { openSnackbar } from "../redux/snackbarSlice";
 // import { Modal } from '@mui/material';
-import { logout } from '../redux/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { logout } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
+  // State variables for managing form inputs and loading state
   const [resetOtp, setResetOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const dispatch=useDispatch();
-  const navigate=useNavigate();
-  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [errors, setErrors] = useState({
     password: [],
     confirmPassword: "",
-    otp: ""
+    otp: "",
   });
 
+  // Method to validate the password based on specific criteria
   const validatePassword = (value) => {
     const errors = [];
     if (value.length < 8) {
@@ -40,11 +46,14 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
       errors.push("Password must contain at least one number");
     }
     if (!/[!@#$%^&*]/.test(value)) {
-      errors.push("Password must contain at least one special character (!@#$%^&*)");
+      errors.push(
+        "Password must contain at least one special character (!@#$%^&*)"
+      );
     }
     return errors;
   };
 
+  // Method to validate the confirmation password against the original password
   const validateConfirmPassword = (password, confirmValue) => {
     if (!confirmValue) return "Confirm password is required";
     if (password !== confirmValue) return "Passwords do not match";
@@ -52,34 +61,35 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
   };
 
   useEffect(() => {
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       password: validatePassword(password),
-      confirmPassword: validateConfirmPassword(password, confirmPassword)
+      confirmPassword: validateConfirmPassword(password, confirmPassword),
     }));
   }, [password, confirmPassword]);
 
+  // Method to handle form submission for password reset
   const handleSubmit = async () => {
     if (errors.password.length > 0 || errors.confirmPassword) {
       toast.error("Please fix all errors before submitting");
       return;
     }
-  
+
     if (!resetOtp) {
-      setErrors(prev => ({ ...prev, otp: "OTP is required" }));
+      setErrors((prev) => ({ ...prev, otp: "OTP is required" }));
       toast.error("OTP is required");
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const response = await axios.put("http://localhost:3001/user/reset", {
         email,
         resetOtp,
-        password
+        password,
       });
-  
+
       if (response.status === 200) {
         toast.success("Password reset successful!");
         // Clear all form states
@@ -89,16 +99,16 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
         setErrors({
           password: [],
           confirmPassword: "",
-          otp: ""
+          otp: "",
         });
-        
+
         // Close the reset password modal and open sign in
         setTimeout(() => {
           setResetPasswordOpen(false);
           setSignInOpen(true);
           dispatch(logout());
           localStorage.clear();
-          navigate("/")
+          navigate("/");
         }, 1500); // Small delay to allow the success message to be seen
       }
     } catch (err) {
@@ -113,11 +123,11 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   return (
     <div className="space-y-4">
-    <ToastContainer position="top-center" autoClose={5000} hideProgressBar />
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar />
       <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
         <input
           type="text"
@@ -125,7 +135,7 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
           value={resetOtp}
           onChange={(e) => {
             setResetOtp(e.target.value);
-            setErrors(prev => ({ ...prev, otp: "" }));
+            setErrors((prev) => ({ ...prev, otp: "" }));
           }}
           className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
         />
@@ -145,7 +155,9 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
         />
       </div>
       {errors.password.map((error, index) => (
-        <p key={index} className="text-red-500 text-xs mx-7 my-0.5">{error}</p>
+        <p key={index} className="text-red-500 text-xs mx-7 my-0.5">
+          {error}
+        </p>
       ))}
 
       <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
@@ -159,14 +171,20 @@ const PasswordResetForm = ({ email, setResetPasswordOpen, setSignInOpen }) => {
         />
       </div>
       {errors.confirmPassword && (
-        <p className="text-red-500 text-xs mx-7 my-0.5">{errors.confirmPassword}</p>
+        <p className="text-red-500 text-xs mx-7 my-0.5">
+          {errors.confirmPassword}
+        </p>
       )}
 
       <div
         onClick={handleSubmit}
         disabled={loading}
         className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
-          ${loading ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
+          ${
+            loading
+              ? "bg-gray-200 dark:bg-gray-800 text-gray-500"
+              : "bg-blue-500 text-white"
+          }`}
       >
         {loading ? (
           <CircularProgress size={20} className="text-inherit" />
@@ -196,6 +214,7 @@ const ResetPassword = ({ setResetPasswordOpen, setSignInOpen }) => {
     };
   }, []);
 
+  // Method to handle closing the reset password modal
   const handleClose = () => {
     // Reset all states when closing
     setEmail("");
@@ -205,13 +224,16 @@ const ResetPassword = ({ setResetPasswordOpen, setSignInOpen }) => {
     setResetPasswordOpen(false);
   };
 
+  // Method to send OTP for password reset
   const handleSendOTP = async () => {
     if (!email) {
       setError("Email is required");
-      dispatch(openSnackbar({
-        message: "Email is required",
-        severity: "error"
-      }));
+      dispatch(
+        openSnackbar({
+          message: "Email is required",
+          severity: "error",
+        })
+      );
       return;
     }
 
@@ -220,89 +242,97 @@ const ResetPassword = ({ setResetPasswordOpen, setSignInOpen }) => {
 
     try {
       await axios.post("http://localhost:3001/user/reset", { email });
-      dispatch(openSnackbar({
-        message: "Password reset OTP sent to your email!",
-        severity: "success"
-      }));
+      dispatch(
+        openSnackbar({
+          message: "Password reset OTP sent to your email!",
+          severity: "success",
+        })
+      );
       setOtpSent(true);
     } catch (err) {
       const errorMessage = "Error sending reset OTP. Please try again.";
       setError(errorMessage);
-      dispatch(openSnackbar({
-        message: errorMessage,
-        severity: "error"
-      }));
+      dispatch(
+        openSnackbar({
+          message: errorMessage,
+          severity: "error",
+        })
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
-          <CloseRounded
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
+        <CloseRounded
           className="absolute top-6 right-8 cursor-pointer"
           onClick={handleClose}
         />
 
-          <div className="text-[22px] font-medium mx-7 my-4 text-center">
-            Reset Password
-          </div>
+        <div className="text-[22px] font-medium mx-7 my-4 text-center">
+          Reset Password
+        </div>
 
-          {!otpSent ? (
-            <div className="space-y-4">
-              <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
-                <EmailRounded className="text-xl mr-3" />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setError("");
-                  }}
-                  className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
-                />
-              </div>
-              {error && (
-                <p className="text-red-500 text-xs mx-7 my-0.5">{error}</p>
-              )}
-
-              <div
-                onClick={handleSendOTP}
-                disabled={loading}
-                className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
-                  ${loading ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
-              >
-                {loading ? (
-                  <CircularProgress size={20} className="text-inherit" />
-                ) : (
-                  "Send OTP"
-                )}
-              </div>
+        {!otpSent ? (
+          <div className="space-y-4">
+            <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
+              <EmailRounded className="text-xl mr-3" />
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
+                className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+              />
             </div>
-          ) : (
-            <PasswordResetForm 
-              email={email}
-              setResetPasswordOpen={setResetPasswordOpen}
-              setSignInOpen={setSignInOpen}
-            />
-          )}
+            {error && (
+              <p className="text-red-500 text-xs mx-7 my-0.5">{error}</p>
+            )}
 
-          <div className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-4 text-center">
-            Remembered your password?{" "}
-            <span
-              onClick={() => {
-                setResetPasswordOpen(false);
-                setSignInOpen(true);
-              }}
-              className="text-blue-500 hover:underline cursor-pointer font-medium"
+            <div
+              onClick={handleSendOTP}
+              disabled={loading}
+              className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
+                  ${
+                    loading
+                      ? "bg-gray-200 dark:bg-gray-800 text-gray-500"
+                      : "bg-blue-500 text-white"
+                  }`}
             >
-              Sign In
-            </span>
+              {loading ? (
+                <CircularProgress size={20} className="text-inherit" />
+              ) : (
+                "Send OTP"
+              )}
+            </div>
           </div>
+        ) : (
+          <PasswordResetForm
+            email={email}
+            setResetPasswordOpen={setResetPasswordOpen}
+            setSignInOpen={setSignInOpen}
+          />
+        )}
+
+        <div className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-4 text-center">
+          Remembered your password?{" "}
+          <span
+            onClick={() => {
+              setResetPasswordOpen(false);
+              setSignInOpen(true);
+            }}
+            className="text-blue-500 hover:underline cursor-pointer font-medium"
+          >
+            Sign In
+          </span>
         </div>
       </div>
+    </div>
   );
 };
 

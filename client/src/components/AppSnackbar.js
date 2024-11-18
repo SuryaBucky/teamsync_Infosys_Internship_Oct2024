@@ -3,10 +3,12 @@ import { Snackbar } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeSnackbar } from '../redux/snackbarSlice';
 
+// Functional component that renders a Snackbar for notifications
 const AppSnackbar = () => {
   const dispatch = useDispatch();
   const { open, message, severity } = useSelector((state) => state.snackbar);
 
+  // Handles the closing of the Snackbar
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;

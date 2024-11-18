@@ -4,20 +4,24 @@ import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Functional component that represents a row for a project with approval functionality.
 export const ProjectRow = ({ project }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Handles the click event for approving a project, opens the modal and closes the dropdown.
   const handleApproveClick = () => {
     setShowModal(true);
     setDropdownOpen(false);
   };
 
+  // Closes the modal when called.
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
+  // Confirms the approval of a project and handles the API request.
   const handleConfirmApprove = async () => {
     const toastId = toast.loading('Approving project...');
     
@@ -64,6 +68,7 @@ export const ProjectRow = ({ project }) => {
     }
   };
 
+  // Formats the project deadline into a readable date format.
   const formattedDeadline = new Date(project.deadline).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
@@ -71,6 +76,7 @@ export const ProjectRow = ({ project }) => {
   });
 
   useEffect(() => {
+    // Handles clicks outside the dropdown to close it.
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);

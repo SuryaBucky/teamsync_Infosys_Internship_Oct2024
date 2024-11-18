@@ -17,121 +17,141 @@ import OTP from "./OTP";
 import ResetPassword from "./ResetPassword";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import { userEmailState, userIdState, isAdminState, userNameState } from "../store/atoms/authAtoms";
-import {jwtDecode} from "jwt-decode"
+import {
+  userEmailState,
+  userIdState,
+  isAdminState,
+  userNameState,
+} from "../store/atoms/authAtoms";
+import { jwtDecode } from "jwt-decode";
 
+/**
+ * SignIn component handles user authentication and login functionality.
+ * It manages local state for email, password, loading status, and error messages.
+ * It also integrates with Redux for global state management and Recoil for local state.
+ */
 const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
-  const navigate = useNavigate();
-  const setEmailRecoil = useSetRecoilState(userEmailState);
-  const setIsAdminRecoil = useSetRecoilState(isAdminState);
-  const setUserIdRecoil = useSetRecoilState(userIdState);
-  const setNameRecoil = useSetRecoilState(userNameState);
+  const navigate = useNavigate(); // Hook for navigation
+  const setEmailRecoil = useSetRecoilState(userEmailState); // Recoil state for user email
+  const setIsAdminRecoil = useSetRecoilState(isAdminState); // Recoil state for admin status
+  const setUserIdRecoil = useSetRecoilState(userIdState); // Recoil state for user ID
+  const setNameRecoil = useSetRecoilState(userNameState); // Recoil state for user name
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [Loading, setLoading] = useState(false);
-  const [disabled, setDisabled] = useState(true);
+  const [email, setEmail] = useState(""); // Local state for email input
+  const [password, setPassword] = useState(""); // Local state for password input
+  const [Loading, setLoading] = useState(false); // Local state for loading status
+  const [disabled, setDisabled] = useState(true); // Local state for button disable status
   const [values, setValues] = useState({
+    // Local state for password visibility
     password: "",
     showPassword: false,
   });
-  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const dispatch = useDispatch();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userBlocked, setUserBlocked] = useState(false);
-  const [needsOTPVerification, setNeedsOTPVerification] = useState(false);
-  const [apiResponse, setApiResponse] = useState(null);
-  const [emailError, setEmailError] = useState("");
-  const [credentialError, setcredentialError] = useState("");
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false); // Local state for reset password modal
+  const [showOTP, setShowOTP] = useState(false); // Local state for OTP visibility
+  const [otpVerified, setOtpVerified] = useState(false); // Local state for OTP verification status
+  const dispatch = useDispatch(); // Hook for dispatching Redux actions
+  const [isAdmin, setIsAdmin] = useState(false); // Local state for admin status
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Local state for login status
+  const [userBlocked, setUserBlocked] = useState(false); // Local state for user block status
+  const [needsOTPVerification, setNeedsOTPVerification] = useState(false); // Local state for OTP requirement
+  const [apiResponse, setApiResponse] = useState(null); // Local state for API response
+  const [emailError, setEmailError] = useState(""); // Local state for email error message
+  const [credentialError, setcredentialError] = useState(""); // Local state for credential error message
 
   useEffect(() => {
-    if (email !== "") validateEmail();
+    if (email !== "") validateEmail(); // Validate email if not empty
     if (validator.isEmail(email) && password.length > 5) {
-      setDisabled(false);
+      setDisabled(false); // Enable button if email is valid and password length is sufficient
     } else {
-      setDisabled(true);
+      setDisabled(true); // Disable button otherwise
     }
   }, [email, password]);
 
   useEffect(() => {
     if (otpVerified && needsOTPVerification && apiResponse) {
-      localStorage.setItem("token", apiResponse.data.token);
-      dispatch(loginSuccess("Success"));
-      setIsLoggedIn(true);
-      setSignInOpen(false);
+      localStorage.setItem("token", apiResponse.data.token); // Store token in local storage
+      dispatch(loginSuccess("Success")); // Dispatch success action
+      setIsLoggedIn(true); // Update login status
+      setSignInOpen(false); // Close sign-in modal
       dispatch(
         openSnackbar({
-          message: "Logged In Successfully",
+          message: "Logged In Successfully", // Show success message
           severity: "success",
         })
       );
     }
   }, [otpVerified, needsOTPVerification, apiResponse]);
 
+  /**
+   * handleLogin function manages the login process, including API calls and state updates.
+   * It handles various response statuses and updates the UI accordingly.
+   */
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
 
     if (!disabled) {
-      dispatch(loginStart());
-      setDisabled(true);
-      setLoading(true);
+      dispatch(loginStart()); // Dispatch login start action
+      setDisabled(true); // Disable button during login
+      setLoading(true); // Set loading state
 
-      setUserBlocked(false);
-      setNeedsOTPVerification(false);
-      setcredentialError("");
+      setUserBlocked(false); // Reset user block status
+      setNeedsOTPVerification(false); // Reset OTP requirement
+      setcredentialError(""); // Clear credential error
 
       try {
         const res = await axios.post(
-          `${isAdmin ? "http://localhost:3001/admin/signin" : "http://localhost:3001/user/signin"}`,
-          { email, password }
+          `${
+            isAdmin
+              ? "http://localhost:3001/admin/signin"
+              : "http://localhost:3001/user/signin"
+          }`,
+          { email, password } // Send email and password to API
         );
 
-        setApiResponse(res);
+        setApiResponse(res); // Store API response
 
         switch (res.status) {
           case 200:
-            localStorage.setItem("token", res.data.token);
-            const decoded = jwtDecode(res.data.token);
-          
-            setEmailRecoil(decoded.email);
-            setIsAdminRecoil(!!decoded.admin_id);
-            setUserIdRecoil(decoded.admin_id || decoded.user_id);
-            setNameRecoil(res.data.name);
-            localStorage.setItem("userName",res.data.name)
-            localStorage.setItem("userEmail",decoded.email)
-            localStorage.setItem("isAdmin",!!decoded.admin_id)
-            localStorage.setItem("userId",decoded.admin_id || decoded.user_id)
-            localStorage.setItem("userJoindate", res.data.joined_at )
-            dispatch(loginSuccess(res.data));
-            setIsLoggedIn(true);
-            setSignInOpen(false);
+            localStorage.setItem("token", res.data.token); // Store token in local storage
+            const decoded = jwtDecode(res.data.token); // Decode JWT token
+
+            setEmailRecoil(decoded.email); // Update Recoil state with email
+            setIsAdminRecoil(!!decoded.admin_id); // Update Recoil state with admin status
+            setUserIdRecoil(decoded.admin_id || decoded.user_id); // Update Recoil state with user ID
+            setNameRecoil(res.data.name); // Update Recoil state with user name
+            localStorage.setItem("userName", res.data.name); // Store user name in local storage
+            localStorage.setItem("userEmail", decoded.email); // Store user email in local storage
+            localStorage.setItem("isAdmin", !!decoded.admin_id); // Store admin status in local storage
+            localStorage.setItem("userId", decoded.admin_id || decoded.user_id); // Store user ID in local storage
+            localStorage.setItem("userJoindate", res.data.joined_at); // Store join date in local storage
+            dispatch(loginSuccess(res.data)); // Dispatch success action with user data
+            setIsLoggedIn(true); // Update login status
+            setSignInOpen(false); // Close sign-in modal
             dispatch(
               openSnackbar({
-                message: "Logged In Successfully",
+                message: "Logged In Successfully", // Show success message
                 severity: "success",
               })
             );
             setTimeout(() => {
               console.log(isAdmin);
               if (!isAdmin) {
-                navigate('/dashboard/user');
-              }
-              else {
-                navigate('/dashboard/admin');
+                navigate("/dashboard/user"); // Navigate to user dashboard
+              } else {
+                navigate("/dashboard/admin"); // Navigate to admin dashboard
               }
             }, 100);
             break;
 
           case 401:
-            setUserBlocked(true);
-            dispatch(loginFailure());
-            setcredentialError("Your account has been blocked. Please contact support.");
+            setUserBlocked(true); // Set user block status
+            dispatch(loginFailure()); // Dispatch failure action
+            setcredentialError(
+              "Your account has been blocked. Please contact support."
+            ); // Set error message
             dispatch(
               openSnackbar({
-                message: "Account blocked",
+                message: "Account blocked", // Show error message
                 severity: "error",
               })
             );
@@ -140,79 +160,86 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           case 402:
             dispatch(
               openSnackbar({
-                message: "Please verify your account",
+                message: "Please verify your account", // Show verification message
                 severity: "success",
               })
             );
-            setNeedsOTPVerification(true);
-            setShowOTP(true);
+            setNeedsOTPVerification(true); // Set OTP requirement
+            setShowOTP(true); // Show OTP component
             break;
 
           case 400:
-            dispatch(loginFailure());
-            setcredentialError(res.data.errors[0]);
+            dispatch(loginFailure()); // Dispatch failure action
+            setcredentialError(res.data.errors[0]); // Set error message
             dispatch(
               openSnackbar({
-                message: `Error: ${res.data.errors[0]}`,
+                message: `Error: ${res.data.errors[0]}`, // Show error message
                 severity: "error",
               })
             );
             break;
 
           default:
-            dispatch(loginFailure());
-            setcredentialError(`Unexpected Error: ${res.data}`);
+            dispatch(loginFailure()); // Dispatch failure action
+            setcredentialError(`Unexpected Error: ${res.data}`); // Set unexpected error message
         }
       } catch (err) {
-        console.log(err);
+        console.log(err); // Log error
         if (err.response) {
           switch (err.response.status) {
             case 400:
-              setcredentialError("Invalid credentials");
+              setcredentialError("Invalid credentials"); // Set invalid credentials error
               break;
             case 401:
-              setUserBlocked(true);
-              setcredentialError("Your account has been blocked. Please contact support.");
+              setUserBlocked(true); // Set user block status
+              setcredentialError(
+                "Your account has been blocked. Please contact support."
+              ); // Set error message
               break;
             case 402:
-              setNeedsOTPVerification(true);
-              setShowOTP(true);
+              setNeedsOTPVerification(true); // Set OTP requirement
+              setShowOTP(true); // Show OTP component
               break;
             default:
-              setcredentialError(err.response.data.errors[0] || "An error occurred");
+              setcredentialError(
+                err.response.data.errors[0] || "An error occurred"
+              ); // Set general error message
           }
         } else {
-          setcredentialError("Network error. Please try again.");
+          setcredentialError("Network error. Please try again."); // Set network error message
         }
 
-        dispatch(loginFailure());
+        dispatch(loginFailure()); // Dispatch failure action
         dispatch(
           openSnackbar({
-            message: credentialError,
+            message: credentialError, // Show error message
             severity: "error",
           })
         );
       } finally {
-        setLoading(false);
-        setDisabled(false);
+        setLoading(false); // Reset loading state
+        setDisabled(false); // Enable button
       }
     }
 
     if (email === "" || password === "") {
       dispatch(
         openSnackbar({
-          message: "Please fill all the fields",
+          message: "Please fill all the fields", // Show error message for empty fields
           severity: "error",
         })
       );
     }
   };
 
+  /**
+   * validateEmail function checks if the email is valid and updates the email error state.
+   */
   const validateEmail = () => {
     if (validator.isEmail(email)) {
-      setEmailError("");
+      setEmailError(""); // Clear email error if valid
     } else {
-      setEmailError("Enter a valid Email Id!");
+      setEmailError("Enter a valid Email Id!"); // Set email error if invalid
     }
   };
 
@@ -223,7 +250,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
             <CloseRounded
               className="absolute top-6 right-8 cursor-pointer"
-              onClick={() => setSignInOpen(false)}
+              onClick={() => setSignInOpen(false)} // Close sign-in modal
             />
             {needsOTPVerification && showOTP ? (
               <OTP
@@ -231,34 +258,49 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 name="User"
                 otpVerified={otpVerified}
                 setOtpVerified={setOtpVerified}
-                reason="LOGIN"
+                reason="LOGIN" // Reason for OTP
               />
             ) : (
               <>
-                <div className="text-[22px] font-medium mx-7 my-4 text text-center">Sign In</div>
+                <div className="text-[22px] font-medium mx-7 my-4 text text-center">
+                  Sign In
+                </div>
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
                   <EmailRounded className="text-xl mr-3" />
                   <input
                     className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                     placeholder="Email Id"
                     type="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)} // Update email state
                   />
                 </div>
-                {emailError && <div className="text-red-500 text-xs mx-7 my-0.5">{emailError}</div>}
+                {emailError && (
+                  <div className="text-red-500 text-xs mx-7 my-0.5">
+                    {emailError}
+                  </div>
+                )}
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
                   <PasswordRounded className="text-xl mr-3" />
                   <input
                     className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
                     placeholder="Password"
-                    type={values.showPassword ? "text" : "password"}
-                    onChange={(e) => setPassword(e.target.value)}
+                    type={values.showPassword ? "text" : "password"} // Toggle password visibility
+                    onChange={(e) => setPassword(e.target.value)} // Update password state
                   />
                   <IconButton
                     color="inherit"
-                    onClick={() => setValues({ ...values, showPassword: !values.showPassword })}
+                    onClick={() =>
+                      setValues({
+                        ...values,
+                        showPassword: !values.showPassword,
+                      })
+                    } // Toggle show password state
                   >
-                    {values.showPassword ? <Visibility className="text-xl" /> : <VisibilityOff className="text-xl" />}
+                    {values.showPassword ? (
+                      <Visibility className="text-xl" />
+                    ) : (
+                      <VisibilityOff className="text-xl" />
+                    )}
                   </IconButton>
                 </div>
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 mt-3 flex items-center px-4">
@@ -266,32 +308,48 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                     type="checkbox"
                     id="admin"
                     checked={isAdmin}
-                    onChange={(e) => setIsAdmin(e.target.checked)}
+                    onChange={(e) => setIsAdmin(e.target.checked)} // Update admin status
                     className="mr-3"
                   />
                   <label htmlFor="admin">Admin</label>
                 </div>
-                {credentialError && <div className="text-red-500 text-xs mx-7 my-0.5">{credentialError}</div>}
-                {userBlocked && <div className="text-red-500 text-xs mx-7 my-0.5">{credentialError}</div>}
+                {credentialError && (
+                  <div className="text-red-500 text-xs mx-7 my-0.5">
+                    {credentialError}
+                  </div>
+                )}
+                {userBlocked && (
+                  <div className="text-red-500 text-xs mx-7 my-0.5">
+                    {credentialError}
+                  </div>
+                )}
                 <div
                   className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
-                  onClick={() => setResetPasswordOpen(true)}
+                  onClick={() => setResetPasswordOpen(true)} // Open reset password modal
                 >
                   <b>Forgot password?</b>
                 </div>
                 <div
                   className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
-                    ${disabled ? 'bg-gray-200 dark:bg-gray-800 text-gray-500' : 'bg-blue-500 text-white'}`}
-                  onClick={handleLogin}
-                  disabled={disabled}
+                    ${
+                      disabled
+                        ? "bg-gray-200 dark:bg-gray-800 text-gray-500"
+                        : "bg-blue-500 text-white"
+                    }`}
+                  onClick={handleLogin} // Trigger login on click
+                  disabled={disabled} // Disable button if necessary
                 >
-                  {Loading ? <CircularProgress color="inherit" size={20} /> : "Sign In"}
+                  {Loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : (
+                    "Sign In"
+                  )}
                 </div>
                 <div
                   className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-center cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
                   onClick={() => {
-                    setSignUpOpen(true);
-                    setSignInOpen(false);
+                    setSignUpOpen(true); // Open sign-up modal
+                    setSignInOpen(false); // Close sign-in modal
                   }}
                 >
                   Don't have an account? <b>Sign Up</b>
@@ -301,14 +359,14 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           </div>
         )}
         {resetPasswordOpen && (
-          <ResetPassword 
-            setResetPasswordOpen={setResetPasswordOpen} 
-            setSignInOpen={setSignInOpen} 
+          <ResetPassword
+            setResetPasswordOpen={setResetPasswordOpen} // Pass function to close reset password modal
+            setSignInOpen={setSignInOpen} // Pass function to close sign-in modal
           />
         )}
       </div>
     </Modal>
-  ) : null;
+  ) : null; // Return null if logged in
 };
 
-export default SignIn;
+export default SignIn; // Export SignIn component

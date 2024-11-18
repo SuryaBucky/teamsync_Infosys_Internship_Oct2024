@@ -18,6 +18,7 @@ const UnifiedProjectTable = ({
 
   const isCreatedProjectsView = endpoint === "my-created-projects";
 
+  //fetch projects 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -48,6 +49,7 @@ const UnifiedProjectTable = ({
     fetchProjects();
   }, [endpoint, filterApproved]);
 
+  //search function
   const handleSearch = (e) => {
     e.preventDefault();
     const filtered = projects.filter((project) => {

@@ -11,6 +11,7 @@ const FileTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //fetch files with authorization
   useEffect(() => {
     const fetchFiles = async () => {
       try {

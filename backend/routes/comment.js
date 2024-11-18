@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const { Comment } = require("../db/index");
-const multer = require('multer');  
+// const multer = require('multer');  
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();

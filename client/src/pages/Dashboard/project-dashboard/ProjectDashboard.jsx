@@ -7,6 +7,7 @@ import { authenticationState } from '../../../store/atoms/authVerifierSelector';
 import { sidebarSelection } from '../../../store/atoms/adminDashboardAtoms';
 import ProjectView from '../project-view/ProjectView';
 
+//project dashboard
 const ProjectDashboard = () => {
   let selectedSidebar=useRecoilValue(sidebarSelection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
