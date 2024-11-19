@@ -6,6 +6,7 @@ import { useRecoilValue } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
 import TaskTable from '../table/TaskTable';
+import CompletedTaskTable from '../table/CompletedTaskTable'; // Import the CompletedTaskTable
 import UserTable from '../table/UserTable';
 import FileTable from '../table/FileTable';
 
@@ -104,8 +105,9 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         </button>
       </div>
 
-      {/* Task, User, and File Tables */}
+      {/* Task, CompletedTask, User, and File Tables */}
       <TaskTable refreshTrigger={refreshTrigger} />
+      <CompletedTaskTable /> {/* Added CompletedTaskTable here */}
       <UserTable />
       
       {/* Add spacing between User Table and File Table */}
