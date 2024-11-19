@@ -111,48 +111,15 @@ const ChatModal = () => {
     const file = e.target.files[0];
     if (file) {
       setMedia(file);
-      // Image file preview
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setMediaPreview({
-            type: 'image',
-            url: reader.result,
-            name: file.name,
-            size: file.size,
-            fileType: file.type,
-            icon: getFileIcon(file.type),
-            typeDescription: getFileTypeDescription(file.type),
-            lastModified: new Date(file.lastModified).toLocaleString()
-          });
-        };
-        reader.readAsDataURL(file);
-      } else if (file.type.startsWith('video/')) { // Video file preview
-        const reader = new FileReader();
-        reader.onload = () => {
-          setMediaPreview({
-            type: 'video',
-            url: reader.result,
-            name: file.name,
-            size: file.size,
-            fileType: file.type,
-            icon: getFileIcon(file.type),
-            typeDescription: getFileTypeDescription(file.type),
-            lastModified: new Date(file.lastModified).toLocaleString()
-          });
-        };
-        reader.readAsDataURL(file);
-      } else { // Other file types
-        setMediaPreview({
-          type: 'file',
-          name: file.name,
-          size: file.size,
-          fileType: file.type,
-          icon: getFileIcon(file.type),
-          typeDescription: getFileTypeDescription(file.type),
-          lastModified: new Date(file.lastModified).toLocaleString()
-        });
-      }
+      setMediaPreview({
+        type: 'file', // Treat all files, including images, as generic files
+        name: file.name,
+        size: file.size,
+        fileType: file.type,
+        icon: getFileIcon(file.type),
+        typeDescription: getFileTypeDescription(file.type),
+        lastModified: new Date(file.lastModified).toLocaleString(),
+      });
     }
   };
 
@@ -184,42 +151,31 @@ const ChatModal = () => {
         </button>
       </div>
     );
-
-    // Preview details component
-    const PreviewDetails = () => (
-      <div className="px-3 py-2 space-y-1">
-        <p className="text-xs text-gray-600">
-          Size: {formatFileSize(preview.size)}
-        </p>
-        <p className="text-xs text-gray-600">
-          Last modified: {preview.lastModified}
-        </p>
-      </div>
-    );
-    
+  
+    // Main rendering of MediaPreview
     return (
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <PreviewHeader />
-        {preview.type === 'image' && (
-          <div className="relative group">
-            <img 
+        {/* Conditionally render image or video */}
+        {preview.type === "image" && (
+          <div className="relative">
+            <img
               src={preview.url}
               alt={preview.name}
               className="max-h-12 w-full object-contain bg-gray-50 p-2 overflow-hidden"
             />
           </div>
         )}
-        {preview.type === 'video' && (
-          <div className="relative group">
-            <video 
+        {preview.type === "video" && (
+          <div className="relative">
+            <video
               src={preview.url}
               controls
-              className="max-h-12 w-full bg-gray-50 p-2 overflow-hidden"
-            />
-          </div>
+              className="max-h-12 w-full bg-gray-50 p-2 overflow-hidden"           
+               />
+               </div>
         )}
-        <PreviewDetails />
-      </div>
+              </div>
     );
   };
 
