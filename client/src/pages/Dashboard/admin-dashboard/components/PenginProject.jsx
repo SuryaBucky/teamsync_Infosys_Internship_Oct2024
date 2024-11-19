@@ -77,9 +77,9 @@ const PendingProject = () => {
         </div>
       </form>
 
-      <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
+      <div className="border border-gray-300 rounded-lg overflow-auto">
+        <table className="w-full border-separate border-spacing-0">
+          <thead className="bg-gray-100 border-b border-gray-300">
             <TableHeader />
           </thead>
           <tbody>
