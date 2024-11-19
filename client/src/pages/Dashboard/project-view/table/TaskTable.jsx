@@ -345,8 +345,11 @@ const TaskTable = ({ refreshTrigger }) => {
       
       const { data } = await api.get(`/task/project/${projectId}/view-tasks`);
       
-      setTasks(data);
-      setFilteredTasks(data);
+      // Filter out completed tasks (status "2")
+      const nonCompletedTasks = data.filter(task => task.status !== "2");
+  
+      setTasks(nonCompletedTasks);
+      setFilteredTasks(nonCompletedTasks);
       setLoading(false);
     } catch (error) {
       console.error('Fetch tasks error:', error);
@@ -354,6 +357,7 @@ const TaskTable = ({ refreshTrigger }) => {
       showToast("Failed to fetch tasks", "error");
     }
   };
+  
 
   // Rest of the component remains exactly the same
   const handleSearch = (e) => {
