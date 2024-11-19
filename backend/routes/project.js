@@ -187,6 +187,7 @@ router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExist
     try {
         // Get project id from the URL params
         const project_id = req.params.project_id;
+        console.log("hii")
 
         // Get all users assigned to the project
         const users = await ProjectUser.aggregate([

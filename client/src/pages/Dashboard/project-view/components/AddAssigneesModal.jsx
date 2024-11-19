@@ -21,9 +21,9 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-
+      const pid=localStorage.getItem('project_id');
       // Fetch all available users
-      const allUsersResponse = await axios.get('http://localhost:3001/admin/all-users-Users', {
+      const allUsersResponse = await axios.get(`http://localhost:3001/project/get-all-users/${pid}`, {
         headers: { authorization: token }
       });
 
