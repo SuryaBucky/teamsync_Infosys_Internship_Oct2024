@@ -61,6 +61,9 @@ export const ProjectRow = ({ project }) => {
           case 500:
             errorMessage = "Server error. Please try again later.";
             break;
+          default:
+            errorMessage = `Unexpected error ${error.response.status}: ${error.response.statusText}`;
+            break;
         }
       }
       
