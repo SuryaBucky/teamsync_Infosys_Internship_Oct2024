@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddAssigneesModal from '../components/AddAssigneesModal';
 
+// AddTaskModal component for creating a new task
 const AddTaskModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -16,6 +17,8 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     isOpen: false,
     taskId: null,
   });
+  
+  // Opens the assignees modal for a specific task
   const handleAddAssigneesClick = (taskId) => {
     setAssigneesModal({
       isOpen: true,
@@ -23,6 +26,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     });
   };
 
+  // Validates the form inputs and returns any errors found
   const validateForm = () => {
     const newErrors = {};
     const currentDate = new Date();
@@ -43,12 +47,14 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     return newErrors;
   };
 
+  // Handles input changes and clears any associated errors
   const handleInputChange = (e, setFieldValue, fieldName) => {
     const { value } = e.target;
     setFieldValue(value);
     setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: '' })); // Clear error for the field
   };
 
+  // Submits the form data to create a new task
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
@@ -97,7 +103,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
       setLoading(false);
     }
   };
-
+  
   return (
     <>
       <ToastContainer />

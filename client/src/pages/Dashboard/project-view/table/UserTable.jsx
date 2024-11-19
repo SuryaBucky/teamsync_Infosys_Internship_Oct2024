@@ -11,6 +11,7 @@ const UserTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch users from the server
   useEffect(() => {
     const fetchUsers = async () => {
       try {

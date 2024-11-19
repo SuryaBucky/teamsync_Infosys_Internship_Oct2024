@@ -276,7 +276,21 @@ TaskSchema.pre('save', async function (next) {
     }
     next();
 });
-
+// Middleware for handling the deletion trigger
+TaskSchema.pre('deleteOne', async function (next) {
+    try {
+        const query = this.getFilter();
+        const task = await this.model.findOne(query);
+        if (task) {
+            // Update project statistics based on task deletion
+            await updateProjectStatisticsOnTaskDeletion(task);
+        }
+        next();
+    } catch (error) {
+        console.error('Error in pre-delete middleware:', error);
+        next(error);
+    }
+});
 
 // Task History Schema
 const TaskHistorySchema = new mongoose.Schema({
@@ -355,7 +369,80 @@ const CommentSchema = new mongoose.Schema({
         default: []
     }]
 });
+CommentSchema.post('save', async function (doc, next) {
+    try {
+        // Fetch all users associated with the project except the commenter
+        const projectUsers = await ProjectUser.find({ project_id: doc.project_id })
+            .select('user_id')
+            .lean();
 
+        if (!projectUsers || projectUsers.length === 0) {
+            console.error('No users found for the project.');
+            return next();
+        }
+
+        // Filter out the commenter
+        const usersToUpdate = projectUsers
+            .map(user => user.user_id)
+            .filter(userId => userId.toString() !== doc.creator_id.toString());
+
+
+        // Increment the unread count for each user (excluding commenter)
+        for (const userId of usersToUpdate) {
+            const notification = await Notification.findOneAndUpdate(
+                {
+                    user_id: userId,        // Match the user ID
+                    project_id: doc.project_id // Match the project ID
+                },
+                { $inc: { unread_messages: 1 } }, // Increment the unread count
+                { upsert: false, new: true } // Create if it doesn't exist
+            );
+
+            if (!notification) {
+                // If no notification exists, create a new one
+                for (const userId of usersToUpdate){
+                    await Notification.create({
+                        user_id: userId, // Add the correct user_id
+                        project_id: doc.project_id,
+                        // email: doc.email,
+                        unread_messages: 1, // Initialize unread count to 1
+                    });
+                }
+            }
+        }
+
+        next();
+    } catch (error) {
+        console.error('Error updating unread count for multiple users:', error);
+        next(error);
+    }
+});
+
+
+//Notification schema
+const NotificationSchema= new mongoose.Schema({
+    id: {
+        type: String,
+        default: uuidv4,
+        required: true,
+        unique: true
+    },
+    user_id: {
+        type: String,
+        ref: 'User',
+        required: true
+    },
+    project_id: {
+        type: String,
+        ref: 'Project',
+        required: true
+    },
+    unread_messages: {
+        type: Number,
+        default: 0,
+        min: 0, // Ensures the count is never negative
+      },
+})
 // Project Statistic Schema
 const ProjectStatisticSchema = new mongoose.Schema({
     id: {
@@ -422,6 +509,7 @@ const TaskHistory = mongoose.model('TaskHistory', TaskHistorySchema);
 const Comment = mongoose.model('Comment', CommentSchema);
 const ProjectStatistic = mongoose.model('ProjectStatistic', ProjectStatisticSchema);
 const ProjectTag = mongoose.model('ProjectTag', ProjectTagSchema);
+const Notification = mongoose.model('Notification', NotificationSchema);
 
 
 // Function to update ProjectStatistics
@@ -448,6 +536,33 @@ async function updateProjectStatistics(projectId) {
         }
     } catch (error) {
         console.error('Error updating project statistics:', error);
+    }
+}
+// Function to update ProjectStatistics on task deletion
+async function updateProjectStatisticsOnTaskDeletion(task) {
+    try {
+        const projectStat = await ProjectStatistic.findOne({ project_id: task.project_id });
+        if (projectStat) {
+            // Decrement total tasks and, if the task was completed, decrement completed tasks
+            projectStat.total_tasks -= 1;
+            if (task.status === '2') {
+                projectStat.completed_tasks -= 1;
+            }
+            // Update completion percentage
+            projectStat.completion_percentage = 
+                projectStat.total_tasks > 0
+                    ? (projectStat.completed_tasks / projectStat.total_tasks) * 100
+                    : 0;
+            projectStat.last_updated = Date.now();
+            // Save updated statistics
+            await projectStat.save();
+            console.log('Project statistics updated on task deletion:', projectStat);
+
+        } else {
+            console.log('No project statistics found for this task.');
+        }
+    } catch (error) {
+        console.error('Error updating project statistics on task deletion:', error);
     }
 }
 
@@ -479,5 +594,6 @@ module.exports = {
     Comment,
     ProjectStatistic,
     ProjectTag,
+    Notification,
     connectDB
 };
