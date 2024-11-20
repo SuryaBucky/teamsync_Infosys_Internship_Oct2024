@@ -11,8 +11,8 @@ const Navbar = ({ setSignInOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const dispatch = useDispatch();
-  const { currentUser, isLoggedIn } = useSelector((state) => state.user);
-
+  const { isLoggedIn } = useSelector((state) => state.user);
+  
   // Scroll event to fade the navbar
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -100,7 +100,7 @@ const Navbar = ({ setSignInOpen }) => {
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
               <button className="flex items-center gap-2 py-1 px-2 font-bold text-white bg-slate-950 border-2 border-[#6B5BCD] rounded-full hover:bg-white hover:text-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl" onClick={()=>{
-                    navigate("/dashboard/user")
+                    localStorage.getItem("isAdmin") === "true" ? navigate("/dashboard/admin") : navigate("/dashboard/user")
                   }}>
                 <img
                   src="https://i.pravatar.cc/150"
