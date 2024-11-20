@@ -12,8 +12,8 @@ const {
     userAuthorize,
     getMessagesSchemaCheck
 } = require("../middlewares/CommentMiddlewares");
-
-const { getUnreadMessagesByProject, getTotalUnreadMessages } = require('../controllers/NotificationController');
+const {tokenValidation} = require("../middlewares/NotificationMiddlewares");
+const { getUnreadMessagesByProject, getTotalUnreadMessages, markMessagesAsRead } = require('../controllers/NotificationController');
   
 
 router.post("/send-message", tokenValidate, userAuthorize, messageSchemaCheck, async (req, res) => {
@@ -202,6 +202,10 @@ router.get('/unread-by-project/:user_id', getUnreadMessagesByProject);
 
 // Route to get the total unread messages for a user
 router.get('/total-unread/:user_id', getTotalUnreadMessages);
+
+// Route to mark unread messages as read
+router.post('/markAsRead', tokenValidation, markMessagesAsRead);
+
 
 module.exports = router;    
 
