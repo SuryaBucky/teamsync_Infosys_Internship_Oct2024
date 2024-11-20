@@ -1,8 +1,9 @@
 const express = require("express");
 // Import the validation and creation middleware
 require("dotenv").config();
-const { validateTaskCreation, validateAddAssignee, validateEditDetails } = require("../middlewares/TaskMiddlewares");
-const { createTask, viewTasksByProject, addAssignee, editTaskDetails, deleteTask, getTasksCreatedByUser, getTasksAssignedToUser, getAssignedUsers } = require("../controller/TaskMiddlewares");
+const { validateTaskCreation, createTask,viewTasksByProject,validateAddAssignee,addAssignee,
+    validateEditDetails,editTaskDetails,
+    deleteTask , getTasksCreatedByUser, getTasksAssignedToUser, getAssignedUsers} = require('../middlewares/TaskMiddlewares'); 
 
 const router = express.Router();
 
