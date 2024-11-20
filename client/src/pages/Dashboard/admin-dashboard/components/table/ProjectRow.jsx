@@ -124,7 +124,7 @@ export const ProjectRow = ({ project, onDelete, onArchive }) => {
   return (
     <>
       <tr className="border-b last:border-b-0 hover:bg-gray-50">
-        <td className="py-4 px-4">
+        <td className="py-4 px-4 md:px-4 max-w-[150px] truncate">
           <div className="flex items-center gap-2">
             <div>
               <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
@@ -143,13 +143,13 @@ export const ProjectRow = ({ project, onDelete, onArchive }) => {
             {project.is_approved ? project.status : 'Need Approval'}
           </span>
         </td>
-        <td className="hidden sm:table-cell py-4 px-4 text-black text-xs">
-          <div className="max-w-[200px] truncate" title={project.description}>
+        <td className="py-3 px-2 md:px-4 text-xs md:table-cell">
+          <div className="break-words max-w-[200px]" title={project.description}>
             {project.description}
           </div>
         </td>
         <td className="py-4 px-4">
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-2 relative">
             {[...Array(Math.min(3, project.noUsers))].map((_, i) => (
               <img
                 key={i}
@@ -165,7 +165,7 @@ export const ProjectRow = ({ project, onDelete, onArchive }) => {
             )}
           </div>
         </td>
-        <td className="py-4 px-4">
+        <td className="py-4 px-4 md:px-4">
           <ProgressBar progress={project.progress || 0} />
         </td>
         <td className="py-4 ps-7 px-4">
@@ -263,3 +263,4 @@ const ConfirmationModal = ({ action, onClose, onConfirm }) => {
 };
 
 export default ProjectRow;
+
