@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddAssigneesModal from '../components/AddAssigneesModal';
+import { FaUserPlus } from 'react-icons/fa';
 
 // AddTaskModal component for creating a new task
 const AddTaskModal = ({ isOpen, onClose }) => {
@@ -176,14 +177,15 @@ const AddTaskModal = ({ isOpen, onClose }) => {
               </div>
 
               {/* Add Assignee Button */}
-              <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => handleAddAssigneesClick(' ')}
-                  className="w-full py-2 px-4 bg-blue-950 text-white rounded hover:bg-blue-900 transition-colors"
-                >
-                  Add Assignee
-                </button>
+              <div className="mb-4 flex justify-end">
+                  <button
+                      type="button"
+                      onClick={() => handleAddAssigneesClick(' ')}
+                      className="text-blue-950 hover:text-blue-900 transition-colors"
+                      title="Add Assignee"
+                  >
+                    <FaUserPlus size={24} />
+                  </button>
               </div>
 
               {/* Submit Button */}

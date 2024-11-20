@@ -9,6 +9,7 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import PendingProject from './PenginProject';
 import Users from './Users';
+import ArchivedProjectsTable from './table/ArchivedProjectsTable'; // Import ArchivedProjectsTable
 
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const selectedSidebar = useRecoilValue(sidebarSelection);
@@ -35,10 +36,10 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
           <div>
             <h1 className="text-2xl font-semibold">
-              {selectedSidebar === 'approved' ? 'Approved Projects' : selectedSidebar ==='users' ? 'All Users' : selectedSidebar==="need-approval" ? 'Projects Waiting for approval' : "" }
+              {selectedSidebar === 'approved' ? 'Approved Projects' : selectedSidebar === 'users' ? 'All Users' : selectedSidebar === "need-approval" ? 'Projects Waiting for Approval' : ''}
             </h1>
             <p className="text-gray-600 text-sm mt-1">
-              {selectedSidebar === 'approved' ? 'Approved projects by the admin' : selectedSidebar ==='users' ? 'All users of the application' : selectedSidebar==="need-approval" ? 'Projects waiting for approval by the admin' : "" }
+              {selectedSidebar === 'approved' ? 'Approved projects by the admin' : selectedSidebar === 'users' ? 'All users of the application' : selectedSidebar === "need-approval" ? 'Projects waiting for approval by the admin' : ''}
             </p>
           </div>
         </div>
@@ -51,8 +52,14 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         </button> */}
       </div>
 
-      {/* Project Table only if sidebar selection is approved */}
-      {selectedSidebar === 'approved' && <ProjectTable />}
+      {/* Conditional rendering for main content based on sidebar selection */}
+      {selectedSidebar === 'approved' && (
+        <>
+          <ProjectTable />
+          {/* Archived Projects Dropdown */}
+          <ArchivedProjectsTable /> 
+        </>
+      )}
       {selectedSidebar === 'need-approval' && <PendingProject />}
       {selectedSidebar === 'users' && <Users />}
 
