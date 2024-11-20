@@ -100,20 +100,20 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => { // Retrieve use
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="border border-gray-300 rounded-lg p-2 mb-3"
+              className="border-2 border-blue-500 rounded-lg p-2 mb-3"
               placeholder="Enter new username"
             />
             <div className="flex justify-between space-x-2">
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center justify-center w-full bg-indigo-500 text-white py-2 rounded-lg shadow hover:bg-indigo-600"
+                className="flex items-center justify-center w-full bg-indigo-600 text-white py-2 rounded-lg shadow hover:bg-indigo-700"
               >
                 {loading ? 'Saving...' : 'Save'}
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-full bg-gray-500 text-white py-2 rounded-lg shadow hover:bg-gray-600"
+                className="w-full bg-gray-700 text-white py-2 rounded-lg shadow hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -122,11 +122,11 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => { // Retrieve use
         ) : (
           <div className="flex space-x-4 mt-4">
             <button onClick={handleEditProfile} className="flex items-center justify-center flex-1 bg-indigo-500 text-white py-2 rounded-lg shadow hover:bg-indigo-600">
-              <FaUserEdit className="mr-2" />
+              <FaUserEdit className="mr-4" />
               Edit Profile
             </button>
-            <button className="flex items-center justify-center flex-1 bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-500" onClick={onResetPassword}>
-              <FaKey className="mr-2" />
+            <button className="flex items-center justify-center flex-1 bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700" onClick={onResetPassword}>
+              <FaKey className="mr-1" />
               Reset Password
             </button>
           </div>
