@@ -4,41 +4,41 @@ import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// Functional component that represents a row for a project with approval functionality.
-export const ProjectRow = ({ project }) => {
+export const ProjectRow = ({ project, onDelete }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [modalAction, setModalAction] = useState(null); // "approve" or "delete"
   const dropdownRef = useRef(null);
 
-  // Handles the click event for approving a project, opens the modal and closes the dropdown.
-  const handleApproveClick = () => {
+  // Opens the modal and sets the action type (approve/delete)
+  const openModal = (action) => {
+    setModalAction(action);
     setShowModal(true);
     setDropdownOpen(false);
   };
 
-  // Closes the modal when called.
+  // Closes the modal
   const handleCloseModal = () => {
     setShowModal(false);
+    setModalAction(null);
   };
 
-  // Confirms the approval of a project and handles the API request.
-  const handleConfirmApprove = async () => {
+  // Handles project approval
+  const handleApprove = async () => {
     const toastId = toast.loading('Approving project...');
-    
     try {
       const token = localStorage.getItem('token');
-      
       const response = await axios.post(
         'http://localhost:3001/admin/approve-project',
         {
           project_id: project.id,
-          status: 'approved'
+          status: 'approved',
         },
         {
           headers: {
             authorization: token,
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -48,30 +48,27 @@ export const ProjectRow = ({ project }) => {
         window.location.reload();
       }
     } catch (error) {
-      let errorMessage = "An unexpected error occurred";
-      
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            errorMessage = "Invalid request. Please check your data.";
-            break;
-          case 404:
-            errorMessage = "Project not found.";
-            break;
-          case 500:
-            errorMessage = "Server error. Please try again later.";
-            break;
-          default:
-            errorMessage = `Unexpected error ${error.response.status}: ${error.response.statusText}`;
-            break;
-        }
-      }
-      
-      toast.error(errorMessage, { id: toastId });
+      toast.error('Failed to approve the project.', { id: toastId });
     }
   };
 
-  // Formats the project deadline into a readable date format.
+  // Handles project deletion
+  const handleDelete = async () => {
+    const toastId = toast.loading('Deleting project...');
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/admin/project/${project.id}`, {
+        headers: { authorization: token },
+      });
+
+      toast.success('Project has been deleted successfully.', { id: toastId });
+      setShowModal(false);
+      onDelete(project.id); // Notify the parent to remove the project from the list
+    } catch (error) {
+      toast.error('Failed to delete the project.', { id: toastId });
+    }
+  };
+
   const formattedDeadline = new Date(project.deadline).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: '2-digit',
@@ -79,7 +76,6 @@ export const ProjectRow = ({ project }) => {
   });
 
   useEffect(() => {
-    // Handles clicks outside the dropdown to close it.
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
@@ -100,7 +96,7 @@ export const ProjectRow = ({ project }) => {
   return (
     <>
       <tr className="border-b last:border-b-0 hover:bg-gray-50">
-        <td className="py-4 px-4 md:px-4 max-w-[150px] truncate">
+        <td className="py-4 px-4">
           <div className="flex items-center gap-2">
             <div>
               <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
@@ -110,18 +106,22 @@ export const ProjectRow = ({ project }) => {
             </div>
           </div>
         </td>
-        <td className="py-4 px-2 text-xs md:text-sm">
-          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${project.is_approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-            {project.is_approved ? project.status : "Need Approval"}
+        <td className="py-4 px-2">
+          <span
+            className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${
+              project.is_approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}
+          >
+            {project.is_approved ? project.status : 'Need Approval'}
           </span>
         </td>
-        <td className="py-3 px-2 md:px-4 text-xs md:table-cell">
-          <div className="max-w-[200px] break-words" title={project.description}>
+        <td className="hidden sm:table-cell py-4 px-4 text-black text-xs">
+          <div className="max-w-[200px] truncate" title={project.description}>
             {project.description}
           </div>
         </td>
-        <td className="py-4 px-4 md:px-4">
-          <div className="flex -space-x-2 relative">
+        <td className="py-4 px-4">
+          <div className="flex -space-x-2">
             {[...Array(Math.min(3, project.noUsers))].map((_, i) => (
               <img
                 key={i}
@@ -131,14 +131,14 @@ export const ProjectRow = ({ project }) => {
               />
             ))}
             {project.noUsers > 3 && (
-              <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative">
+              <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
                 +{project.noUsers - 3}
               </div>
             )}
           </div>
         </td>
-        <td className="py-4 px-4 md:px-4">
-          <ProgressBar progress={project.progress || 0}  />
+        <td className="py-4 px-4">
+          <ProgressBar progress={project.progress || 0} />
         </td>
         <td className="py-4 ps-7 px-4">
           <div className="text-xs text-gray-500">{formattedDeadline}</div>
@@ -149,14 +149,20 @@ export const ProjectRow = ({ project }) => {
           </button>
           {dropdownOpen && (
             <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-md z-10">
-              {project.is_approved === false && (
+              {!project.is_approved && (
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
-                  onClick={handleApproveClick}
+                  className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-100"
+                  onClick={() => openModal('approve')}
                 >
                   Approve Project
                 </button>
               )}
+              <button
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                onClick={() => openModal('delete')}
+              >
+                Delete Project
+              </button>
             </div>
           )}
         </td>
@@ -164,15 +170,16 @@ export const ProjectRow = ({ project }) => {
 
       {showModal && (
         <ConfirmationModal
+          action={modalAction}
           onClose={handleCloseModal}
-          onConfirm={handleConfirmApprove}
+          onConfirm={modalAction === 'approve' ? handleApprove : handleDelete}
         />
       )}
     </>
   );
 };
 
-const ConfirmationModal = ({ onClose, onConfirm }) => {
+const ConfirmationModal = ({ action, onClose, onConfirm }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
@@ -181,11 +188,17 @@ const ConfirmationModal = ({ onClose, onConfirm }) => {
     setIsLoading(false);
   };
 
+  const modalTitle = action === 'approve' ? 'Approve Project' : 'Delete Project';
+  const modalMessage =
+    action === 'approve'
+      ? 'Are you sure you want to approve this project?'
+      : 'Are you sure you want to delete this project? This action cannot be undone.';
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-lg font-semibold mb-4">Approve Project</h2>
-        <p className="text-gray-700 mb-4">Are you sure you want to approve this project?</p>
+        <h2 className="text-lg font-semibold mb-4">{modalTitle}</h2>
+        <p className="text-gray-700 mb-4">{modalMessage}</p>
         <div className="flex justify-end space-x-4">
           <button
             onClick={onClose}
@@ -196,7 +209,7 @@ const ConfirmationModal = ({ onClose, onConfirm }) => {
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md flex items-center justify-center min-w-[100px]"
+            className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md flex items-center justify-center min-w-[100px]"
             disabled={isLoading}
           >
             {isLoading ? (
