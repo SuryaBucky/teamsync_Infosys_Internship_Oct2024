@@ -63,4 +63,27 @@ const getTotalUnreadMessages = async (req, res) => {
     }
 };
 
-module.exports = {getUnreadMessagesByProject, getTotalUnreadMessages}
+// Mark all unread messages as read for a user and a project
+const markMessagesAsRead = async (req, res) => {
+    const { project_id } = req.body; // Extract the project ID from the request body
+    const user_id = req.user.id; // Extract the user ID from authenticated middleware
+  
+    try {
+      const result = await Notification.findOneAndUpdate(
+        { project_id, user_id },
+        { unread_count: 0 }, // Set unread_count to 0
+        { new: true } // Return the updated document
+      );
+  
+      if (!result) {
+        return res.status(404).json({ message: 'No unread messages found for this project.' });
+      }
+  
+      res.status(200).json({ message: 'Unread messages marked as read.', notification: result });
+    } catch (error) {
+      console.error('Error updating unread messages:', error);
+      res.status(500).json({ message: 'Failed to mark messages as read.', error });
+    }
+};
+
+module.exports = {getUnreadMessagesByProject, getTotalUnreadMessages,markMessagesAsRead}
