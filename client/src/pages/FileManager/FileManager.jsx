@@ -159,7 +159,7 @@ const FileManager = () => {
           {selectedFile.type.startsWith("image/") ? (
             <img src={selectedFile.url} alt="Preview" className="w-64" />
           ) : selectedFile.type === "application/pdf" ? (
-            <iframe src={selectedFile.url} width="100%" height="400px" />
+            <iframe src={selectedFile.url} width="100%" height="400px" title={`Preview of ${selectedFile.name}`}/>
           ) : (
             <p>Preview not available for this file type.</p>
           )}

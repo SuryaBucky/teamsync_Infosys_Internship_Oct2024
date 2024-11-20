@@ -449,15 +449,15 @@ const ChatModal = () => {
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(prevIsOpen => !prevIsOpen)}
+      <button
+        onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}
         className="bg-blue-950 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg"
         aria-label="Toggle Chat"
-        title="Toggle Chat"      
-        >
+        title="Toggle Chat"
+      >
         <BiChat className="w-5 h-5 inline" />
       </button>
-      
+
       {isOpen && (
         <div className="fixed z-10 top-20 right-5 bg-transparent">
           <div className="flex items-center justify-center min-h-[300px]">
@@ -478,36 +478,36 @@ const ChatModal = () => {
                     <div
                       key={msg._id}
                       className={`p-3 rounded-lg shadow-sm ${
-                        msg.creator_id === localStorage.getItem('userName')
-                          ? 'bg-blue-100 text-gray-800 ml-auto'
-                          : 'bg-gray-100 text-gray-800 mr-auto'
+                        msg.creator_id === localStorage.getItem("userName")
+                          ? "bg-blue-100 text-gray-800 ml-auto"
+                          : "bg-gray-100 text-gray-800 mr-auto"
                       }`}
-                      style={{ maxWidth: '70%', position: 'relative' }}
+                      style={{ maxWidth: "70%", position: "relative" }}
                     >
                       <div className="flex justify-between items-start">
-                        <p className="font-semibold text-sm text-gray-700">{msg.creator_id}</p>
+                        <p className="font-semibold text-sm text-gray-700">
+                          {msg.creator_id}
+                        </p>
                         <p className="text-xs text-gray-500 absolute bottom-1 right-4">
                           {formatDate(msg.created_at)}
                         </p>
                       </div>
-                      
+
                       {msg.content && (
                         <p className="mt-1 text-gray-800">{msg.content}</p>
                       )}
-                      
-                      {msg.file_name && (
-                        <FileDisplay file={msg} />
-                      )}
-                      
+
+                      {msg.file_name && <FileDisplay file={msg} />}
+
                       <div className="flex items-center space-x-4 mt-2">
-                        <button 
+                        <button
                           onClick={() => handleLikeDislike(msg._id, true)}
                           className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
                         >
                           <span>👍</span>
                           <span>{msg.likes.length}</span>
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleLikeDislike(msg._id, false)}
                           className="text-sm flex items-center space-x-1 hover:bg-gray-200 p-1 rounded-full"
                         >
@@ -555,7 +555,7 @@ const ChatModal = () => {
                       accept="*/*"
                     />
                     <span className="bg-blue-950 text-white rounded-full p-2 shadow-md hover:bg-blue-900">
-                      📎
+                      🔗
                     </span>
                   </label>
                   <button
