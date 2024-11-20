@@ -61,7 +61,7 @@ const FeatureDescription = styled.p`
   font-size: 20px;
   line-height: 1.5;
   width: 100%;
-  max-width: 700px;
+  max-width: 850px;
   text-align: center;
   color: hsl(246, 6%, 65%);
   margin-bottom: 25px; // Reduced margin
@@ -84,7 +84,7 @@ const FeaturesContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px; // Reduced gap between cards
-  max-width: 750px; // Slightly reduced max-width to bring cards closer
+  max-width: 825px; // Slightly reduced max-width to bring cards closer
   margin: 0 auto;
   padding: 0 20px;
   
@@ -166,8 +166,8 @@ const featuresData = [
 const Benefits = () => {
   return (
     <FeaturesWrapper>
-      <Number>2</Number>
-      <FeaturesTitle id="benefits">Benefits</FeaturesTitle>
+      <Number id="benefits">2</Number>
+      <FeaturesTitle >Benefits</FeaturesTitle>
       <FeatureDescription>Discover the numerous advantages of using our app for effective project management.</FeatureDescription>
       <Content>
         <FeaturesContainer>
