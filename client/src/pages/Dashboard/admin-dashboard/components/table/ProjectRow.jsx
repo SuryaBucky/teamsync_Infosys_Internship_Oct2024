@@ -4,13 +4,13 @@ import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-export const ProjectRow = ({ project, onDelete }) => {
+export const ProjectRow = ({ project, onDelete, onArchive }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [modalAction, setModalAction] = useState(null); // "approve" or "delete"
+  const [modalAction, setModalAction] = useState(null); // "approve", "delete", or "archive"
   const dropdownRef = useRef(null);
 
-  // Opens the modal and sets the action type (approve/delete)
+  // Opens the modal and sets the action type (approve/delete/archive)
   const openModal = (action) => {
     setModalAction(action);
     setShowModal(true);
@@ -66,6 +66,34 @@ export const ProjectRow = ({ project, onDelete }) => {
       onDelete(project.id); // Notify the parent to remove the project from the list
     } catch (error) {
       toast.error('Failed to delete the project.', { id: toastId });
+    }
+  };
+
+  // Handles project archiving
+  const handleArchive = async () => {
+    const toastId = toast.loading('Archiving project...');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        'http://localhost:3001/admin/archive-project',
+        {
+          project_id: project.id,
+        },
+        {
+          headers: {
+            authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success('Project has been archived successfully.', { id: toastId });
+        setShowModal(false);
+        onArchive(project.id); // Notify the parent to archive the project
+      }
+    } catch (error) {
+      toast.error('Failed to archive the project.', { id: toastId });
     }
   };
 
@@ -163,6 +191,14 @@ export const ProjectRow = ({ project, onDelete }) => {
               >
                 Delete Project
               </button>
+              {project.is_approved && (
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-100"
+                  onClick={() => openModal('archive')}
+                >
+                  Archive Project
+                </button>
+              )}
             </div>
           )}
         </td>
@@ -172,7 +208,7 @@ export const ProjectRow = ({ project, onDelete }) => {
         <ConfirmationModal
           action={modalAction}
           onClose={handleCloseModal}
-          onConfirm={modalAction === 'approve' ? handleApprove : handleDelete}
+          onConfirm={modalAction === 'approve' ? handleApprove : modalAction === 'delete' ? handleDelete : handleArchive}
         />
       )}
     </>
@@ -188,11 +224,13 @@ const ConfirmationModal = ({ action, onClose, onConfirm }) => {
     setIsLoading(false);
   };
 
-  const modalTitle = action === 'approve' ? 'Approve Project' : 'Delete Project';
+  const modalTitle = action === 'approve' ? 'Approve Project' : action === 'delete' ? 'Delete Project' : 'Archive Project';
   const modalMessage =
     action === 'approve'
       ? 'Are you sure you want to approve this project?'
-      : 'Are you sure you want to delete this project? This action cannot be undone.';
+      : action === 'delete'
+      ? 'Are you sure you want to delete this project? This action cannot be undone.'
+      : 'Are you sure you want to archive this project?';
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
