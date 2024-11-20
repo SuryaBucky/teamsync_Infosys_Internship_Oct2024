@@ -1,11 +1,11 @@
 // routes/adminRoutes.js
 const express = require("express");
 const router = express.Router();
-const { Admin } = require("../db/index"); // Import the Admin model
-const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser, validateUserStateChange } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
-const { validateProjectApproval, approveProject, getAllProjects, getAllUsers } = require("../middlewares/AdminMiddlewares");
+const { Admin } = require("../db/index");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { validateAdminSignIn, tokenValidationAdmin, validateProjectApproval, validateUserStateChange, tokenValidationUser } = require("../middlewares/AdminMiddlewares");
+const { approveProject, getAllProjects, getAllUsers } = require("../controller/AdminController")
 require("dotenv").config();
 
 // Define admin sign-in route
