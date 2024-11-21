@@ -546,6 +546,11 @@ const ChatModal = () => {
                     onChange={(e) => setMessage(e.target.value)}
                     className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800"
                     placeholder="Type a message..."
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && (message.trim() || mediaPreview)) {
+                        sendMessage();
+                      }
+                    }}
                   />
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -560,7 +565,10 @@ const ChatModal = () => {
                   </label>
                   <button
                     onClick={sendMessage}
-                    className="bg-blue-950 text-white rounded-full px-6 py-2 shadow-lg hover:bg-blue-900"
+                    disabled={!message.trim() && !mediaPreview} // Disable the button when there's no message and no media
+  className={`bg-blue-950 text-white rounded-full px-6 py-2 shadow-lg hover:bg-blue-900 ${
+    !message.trim() && !mediaPreview ? 'cursor-not-allowed bg-gray-300 text-gray-500' : ''
+  }`}
                   >
                     Send
                   </button>
