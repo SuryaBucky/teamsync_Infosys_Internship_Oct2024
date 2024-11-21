@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search } from 'lucide-react';
-import { SearchBar } from './common/SearchBar';
+import { SearchBar } from './common/userSearchBar';
 
 const UsersProject = () => {
   // State management for users data and UI controls
