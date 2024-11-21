@@ -8,6 +8,7 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import UsersProject from './UsersProject';
 import MyTasksTable from '../../my-tasks/MyTasksTable';
+import Notifications from '../../notifications/Notifications';
 
   // Define the Hero component which takes sidebarOpen and setSidebarOpen as props
   const Hero = ({setSidebarOpen }) => {
@@ -56,6 +57,7 @@ import MyTasksTable from '../../my-tasks/MyTasksTable';
       </div>
 
       {selectedSidebar === 'users' && <UsersProject />} {/* Conditional rendering for UsersProject component */}
+      {selectedSidebar === 'notifications' && <Notifications />}
       {selectedSidebar === 'projects' && (
         <UnifiedProjectTable 
           endpoint="get-my-assigned-projects"

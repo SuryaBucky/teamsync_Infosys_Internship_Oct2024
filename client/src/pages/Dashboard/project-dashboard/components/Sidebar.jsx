@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing , faClipboard} from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing , faClipboard, faBell} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
@@ -10,12 +10,13 @@ import { logout } from '../../../../redux/userSlice';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ProfileModal from '../../profile/ProfileModal';
 import ResetPassword from "../../../../components/ResetPassword"
+import axios from 'axios';
 
-const IconItem = ({ icon, label, active = false }) => {
+const IconItem = ({ icon, label, active = false, unreadCount = 0 }) => {
   return (
     <a
       href="#"
-      className={`flex items-center p-2 rounded-lg hover:bg-gray-100 group transition-colors
+      className={`flex items-center p-2 rounded-lg hover:bg-gray-100 group transition-colors relative
         ${active ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
     >
       <FontAwesomeIcon 
@@ -24,12 +25,17 @@ const IconItem = ({ icon, label, active = false }) => {
           ${active ? 'text-blue-600' : 'text-gray-700 group-hover:text-gray-900'}`}
       />
       <span className="flex-1 ms-3 whitespace-nowrap">{label}</span>
+      {unreadCount > 0 && (
+        <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 
+          text-xs font-bold text-white bg-red-500 rounded-full">
+          {unreadCount}
+        </span>
+      )}
     </a>
   );
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
-
   const navigate = useNavigate();
   const userName = localStorage.getItem('userName');
   const userEmail = localStorage.getItem('userEmail');
@@ -39,26 +45,42 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const toggleModal = () => setModalOpen(!isModalOpen);
   const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const handleResetPasswordOpen = () => {
-    setModalOpen(false); // Close ProfileModal
-    setResetPasswordOpen(true); // Open ResetPassword
+    setModalOpen(false);
+    setResetPasswordOpen(true);
   };
 
   useEffect(() => {
-    // On initial render automatically set selection to 'projects'
     setSidebarSelection("projects");
+    fetchNotification();
   }, [setSidebarSelection]);
 
+  // In the useEffect where you handle sidebar selection
+  useEffect(() => {
+    fetchNotification(); // Re-fetch notifications when changing to notifications view
+  }, [active]);
+
+  const fetchNotification = async () => {
+    try {
+      const uid = localStorage.getItem("userId");
+      const res = await axios.get(`http://localhost:3001/comment/total-unread/${uid}`);
+      if (res.data.success) {
+        setUnreadNotifications(res.data.total_unread);
+      }
+      setActive("projects")
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
   const handleLogout = () => {
-    // Clear local storage items
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('authToken');
     dispatch(logout());
-
-    // Redirect to home page
     navigate('/');
   };
 
@@ -68,7 +90,6 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-    
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/30 backdrop-blur-sm lg:hidden"
@@ -121,11 +142,15 @@ const Sidebar = ({ isOpen, onClose }) => {
               }}><IconItem icon={faTasks} label="Created Tasks" active={active==="created-tasks"} /></li>
 
               <li onClick={() => {
-                setActive("manager");
-                setSidebarSelection("manager");
+                setActive("notifications");
+                setSidebarSelection("notifications");
               }}
-              ><IconItem icon={faFileAlt} label="File Manager" active={active === "manager"} /></li>
-
+              ><IconItem 
+                icon={faBell} 
+                label="Notifications" 
+                active={active === "notifications"}
+                unreadCount={unreadNotifications} 
+              /></li>
 
               <li onClick={() => {
                 setActive("users");
@@ -133,13 +158,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               }}>
                 <IconItem icon={faUsers} label="Users" active={active === "users"} />
               </li>
-
-
-              <li  onClick={() => {
-                setActive("support");
-                setSidebarSelection("support");
-              }}
-              ><IconItem icon={faLifeRing} label="Support"  active={active === "support"} /></li>
 
               <li  onClick={() => {
                 setActive("notes");
@@ -168,7 +186,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Logout Button */}
             <button 
               onClick={handleLogout}
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-white bg-red-400 hover:bg-red-500 rounded-lg transition-colors"

@@ -1,4 +1,4 @@
-const {Notification} = require("../db/index"); 
+const {Notification, Project, User} = require("../db/index"); 
 require("dotenv").config();
 
 const getUnreadMessagesByProject = async (req, res) => {
@@ -13,13 +13,33 @@ const getUnreadMessagesByProject = async (req, res) => {
             });
         }
 
+        const user=User.findOne({id:user_id})
+        if(!user) return res.status(401).json({success:false,message:'User not found'});
+
         // Fetch all notifications for the user
         const unreadMessages = await Notification.find(
             { user_id },
             { project_id: 1, unread_messages: 1, _id: 0 } // Select only necessary fields
-        );
-
-        res.status(200).json(unreadMessages);
+        ).lean(); // Ensure it returns plain JS objects
+        
+        // Get project names for all project IDs in unreadMessages
+        const projectNames = await Project.find(
+            { id: { $in: unreadMessages.map(message => message.project_id) } },
+            { _id: 0, name: 1, id: 1 }
+        ).lean();
+        
+        // Create a map for faster lookups
+        const projectMap = projectNames.reduce((acc, project) => {
+            acc[project.id] = project.name;
+            return acc;
+        }, {});
+        
+        // Add the project_name field to each unread message
+        const updatedUnreadMessages = unreadMessages.map(message => ({
+            ...message, // Spread the existing fields
+            project_name: projectMap[message.project_id] || "Unknown Project" // Add project name or fallback
+        }));
+        res.status(200).json(updatedUnreadMessages);
 
     } catch (error) {
         console.error('Error fetching unread messages by project:', error);
@@ -66,13 +86,12 @@ const getTotalUnreadMessages = async (req, res) => {
 // Mark all unread messages as read for a user and a project
 const markMessagesAsRead = async (req, res) => {
     const { project_id } = req.body; // Extract the project ID from the request body
-    const user_id = req.user.id; // Extract the user ID from authenticated middleware
+    const user_id = req.userId; // Extract the user ID from authenticated middleware
+    console.log(user_id)
   
     try {
-      const result = await Notification.findOneAndUpdate(
-        { project_id, user_id },
-        { unread_count: 0 }, // Set unread_count to 0
-        { new: true } // Return the updated document
+      const result = await Notification.findOneAndDelete(
+        { project_id, user_id }
       );
   
       if (!result) {
