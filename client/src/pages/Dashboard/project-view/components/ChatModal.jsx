@@ -8,8 +8,8 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-const ChatModal = () => {
+  
+  const ChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [media, setMedia] = useState(null);
@@ -545,7 +545,7 @@ const ChatModal = () => {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800"
+                    className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Type a message..."
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && (message.trim() || mediaPreview)) {
@@ -553,6 +553,7 @@ const ChatModal = () => {
                       }
                     }}
                   />
+                  
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="file"
@@ -567,11 +568,10 @@ const ChatModal = () => {
                   <button
                     onClick={sendMessage}
                     disabled={!message.trim() && !mediaPreview} // Disable the button when there's no message and no media
-  className={`bg-blue-950 text-white rounded-full px-6 py-2 shadow-lg hover:bg-blue-900 ${
-    !message.trim() && !mediaPreview ? 'cursor-not-allowed bg-gray-300 text-gray-500' : ''
-  }`}
+                    className={`bg-blue-950 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${!message.trim() && !mediaPreview ? 'cursor-not-allowed bg-gray-300 text-gray-500' : ''
+                      }`}
                   >
-                    Send
+                    ➤
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
