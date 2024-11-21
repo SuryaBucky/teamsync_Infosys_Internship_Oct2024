@@ -67,6 +67,7 @@ const PendingProject = () => {
         <div className="hidden lg:block font-medium text-lg">Table view</div>
         <div className="flex gap-4">
           <SearchBar 
+            placeholder="Search for projects.."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
