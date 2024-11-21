@@ -262,9 +262,15 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               />
             ) : (
               <>
-                <div className="text-[22px] font-medium mx-7 my-4 text text-center">
-                  Sign In
-                </div>
+                {/* Header for the sign-in form */}
+                <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4 text-center">
+                  Welcome back!
+                </h1>
+                <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
+                  We are so happy to have you here. It's great to see you again.
+                  We hope you had a safe and enjoyable time away.
+                </h1>
+
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
                   <EmailRounded className="text-xl mr-3" />
                   <input
@@ -327,33 +333,41 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
                   onClick={() => setResetPasswordOpen(true)} // Open reset password modal
                 >
-                  <b>Forgot password?</b>
+                  <b className="hover:underline">Forgot password?</b>
                 </div>
-                <div
-                  className={`h-11 rounded-xl mx-5 mt-1.5 flex items-center justify-center text-sm font-medium cursor-pointer
+
+                <div className="px-5">
+                  <button
+                    onClick={handleLogin} // Trigger login on click
+                    disabled={disabled} // Disable button if necessary
+                    className={`w-full h-11 rounded-md text-white text-base mt-3 transition-colors
                     ${
                       disabled
-                        ? "bg-gray-200 dark:bg-gray-800 text-gray-500"
-                        : "bg-blue-500 text-white"
+                        ? "bg-gray-400  text-gray-500 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                     }`}
-                  onClick={handleLogin} // Trigger login on click
-                  disabled={disabled} // Disable button if necessary
-                >
-                  {Loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : (
-                    "Sign In"
-                  )}
+                  >
+                    {Loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : (
+                      "Sign In"
+                    )}
+                  </button>
                 </div>
-                <div
-                  className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-center cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
-                  onClick={() => {
-                    setSignUpOpen(true); // Open sign-up modal
-                    setSignInOpen(false); // Close sign-in modal
-                  }}
-                >
-                  Don't have an account? <b>Sign Up</b>
-                </div>
+
+                {/* Link to sign up if the user already has not an account */}
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 mb-10 flex justify-center items-center">
+                  Don't have an account?&nbsp;{" "}
+                  <span
+                    className="text-blue-500 cursor-pointer hover:underline"
+                    onClick={() => {
+                      setSignUpOpen(true); // Opening sign-up modal
+                      setSignInOpen(false); // Closing sign-in modal
+                    }}
+                  >
+                    Sign Up
+                  </span>
+                </p>
               </>
             )}
           </div>
