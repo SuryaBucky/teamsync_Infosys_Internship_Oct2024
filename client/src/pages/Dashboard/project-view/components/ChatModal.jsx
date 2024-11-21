@@ -254,6 +254,7 @@ const ChatModal = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Enter') {
+        e.preventDefault();
         sendMessage();
       } else if (e.key === 'Escape') {
         setIsOpen(false);
