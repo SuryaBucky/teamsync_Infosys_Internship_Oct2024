@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Plus, X, Loader, Edit3 } from 'lucide-react';
+import {  Plus, X, Loader, Edit3 } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -10,8 +10,6 @@ import { sidebarSelection } from '../../../../../store/atoms/adminDashboardAtoms
 export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const setSidebar = useSetRecoilState(sidebarSelection);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
