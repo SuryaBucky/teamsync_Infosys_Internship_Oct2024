@@ -29,8 +29,9 @@ const ProjectView = () => {
 
       {/* Add ChatModal here */}
       <div className="absolute top-10 right-40 z-10 flex gap-4">
+        <ChatModal /> 
         <ReportModal />
-        <ChatModal />
+        
       </div>
       
       {/* Uncomment and modify the main layout if needed */}

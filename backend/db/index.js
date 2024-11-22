@@ -237,12 +237,12 @@ const TaskSchema = new mongoose.Schema({
     deadline: Date,
     status: {
         type: String,
-        enum: ['0', '1', '2'],
+        enum: ['0', '1', '2'], //To Do, In Progress, Completed
         required: true
     },
     priority: {
         type: String,
-        enum: ['0', '1', '2'],
+        enum: ['0', '1', '2'], 
         required: true
     },
     creator_id: {
