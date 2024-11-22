@@ -1,7 +1,8 @@
-const { z } = require('zod');
-const {User, Project, ProjectUser, Admin} = require("../db/index"); 
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+// Import necessary modules and dependencies
+const { z } = require('zod'); // Zod for schema validation
+const { User, Project, ProjectUser, Admin } = require("../db/index"); // Database models
+const jwt = require("jsonwebtoken"); // JSON Web Token for authentication
+require("dotenv").config(); // Load environment variables from .env file
 
 const projectCreateSchema = z.object({
     name: z.string().min(4, { message: "Name is required" }),   
