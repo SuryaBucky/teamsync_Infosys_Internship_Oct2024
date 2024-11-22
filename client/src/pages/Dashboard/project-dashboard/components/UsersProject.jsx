@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { SearchBar } from './common/userSearchBar';
 
 const UsersProject = () => {
@@ -81,23 +81,24 @@ const UsersProject = () => {
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6">
-        <h1 className="text-xl font-semibold mb-4">Users</h1>
-        
-        <div className="flex gap-4 mb-6">
-          <form onSubmit={handleSearch} className="flex-1">
-            <SearchBar
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </form>
-          <button
-            onClick={handleSearch}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            Search
-          </button>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-semibold">Users</h1>
+          <div className="flex gap-4">
+            <form onSubmit={handleSearch} className="flex-1">
+              <SearchBar
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
+            <button
+              onClick={handleSearch}
+              className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-200 hover:shadow-lg transition duration-300"
+            >
+              <Filter className="h-4 w-4" />
+              <span>Search</span>
+            </button>
+          </div>
         </div>
 
         {/* Users table with responsive scroll */}
@@ -112,7 +113,7 @@ const UsersProject = () => {
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((user, index) => (
+                filteredUsers.map((user, index) => ( 
                   <tr key={index} className="border-b last:border-b-0 hover:bg-gray-50">
                     <td className="py-4 px-6">
                       <div className="font-medium text-sm">{user.name}</div>
