@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Menu } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -6,7 +7,7 @@ import { useRecoilValue } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import AddTaskModal from '../task/AddTaskModal';
 import TaskTable from '../table/TaskTable';
-import CompletedTaskTable from '../table/CompletedTaskTable'; // Import the CompletedTaskTable
+import CompletedTaskTable from '../table/CompletedTaskTable';
 import UserTable from '../table/UserTable';
 import FileTable from '../table/FileTable';
 
@@ -15,29 +16,79 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const selectedSidebar = useRecoilValue(sidebarSelection);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Project state initialization
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [projectPriority, setProjectPriority] = useState('');
   const [projectTags, setProjectTags] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch project details from localStorage on component mount
   useEffect(() => {
-    setProjectName(localStorage.getItem('project_name') || '');
-    setProjectDescription(localStorage.getItem('project_description') || '');
-    setProjectPriority(localStorage.getItem('project_priority') || '');
-    const tags = localStorage.getItem('project_tags')?.split(',') || [];
-    setProjectTags(tags);
+    const fetchProjectDetails = async () => {
+      const projectId = localStorage.getItem('project_id');
+      const token = localStorage.getItem('token');
+
+      if (!projectId || !token) {
+        console.error('Missing project ID or token');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:3001/project/${projectId}`, {
+          headers: {
+            'authorization': token
+          }
+        });
+
+        const project = response.data;
+
+        // Update state
+        setProjectName(project.name);
+        setProjectDescription(project.description);
+        setProjectPriority(project.priority);
+
+        // Update localStorage
+        localStorage.setItem('project_name', project.name);
+        localStorage.setItem('project_description', project.description);
+        localStorage.setItem('project_priority', project.priority);
+        
+        // Optional: store additional project details
+        localStorage.setItem('project_status', project.status);
+        localStorage.setItem('project_deadline', project.deadline);
+        localStorage.setItem('project_users', project.noUsers);
+
+        // Empty tags array for this example - modify as per your backend
+        setProjectTags([]);
+
+      } catch (error) {
+        console.error('Error fetching project details:', error);
+        if (error.response) {
+          switch (error.response.status) {
+            case 400:
+              alert('Authentication error. Please log in again.');
+              break;
+            case 401:
+              alert('Project not found.');
+              break;
+            case 500:
+              alert('Internal server error. Please try again later.');
+              break;
+          }
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
   }, []);
 
-  // Open and close modal for adding a task
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
     setRefreshTrigger(prev => prev + 1);
   };
 
-  // Get color based on project priority
   const getPriorityColor = () => {
     switch (projectPriority.toLowerCase()) {
       case 'low':
@@ -50,6 +101,10 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         return 'bg-gray-300 text-gray-800';
     }
   };
+
+  if (isLoading) {
+    return <div>Loading project details...</div>;
+  }
 
   return (
     <div className="p-4">
@@ -105,17 +160,14 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         </button>
       </div>
 
-      {/* Task, CompletedTask, User, and File Tables */}
       <TaskTable refreshTrigger={refreshTrigger} />
-      <CompletedTaskTable /> {/* Added CompletedTaskTable here */}
+      <CompletedTaskTable />
       <UserTable />
       
-      {/* Add spacing between User Table and File Table */}
       <div className="my-6" />
       
       <FileTable />
 
-      {/* Add Task Modal */}
       <AddTaskModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );

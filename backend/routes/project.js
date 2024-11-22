@@ -319,4 +319,13 @@ router.get('/report/:project_id', tokenValidation, checkProjectExists,  async (r
     }
 });
 
+router.get("/:project_id",tokenValidation,checkProjectExists, (req,res)=>{
+    try {
+        const project=req.project;
+        res.status(200).json(project);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
 module.exports = router;

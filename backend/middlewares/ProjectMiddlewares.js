@@ -152,6 +152,7 @@ async function checkProjectExists(req,res,next){
         if(!project){
             return res.status(401).json({message:"Project not found"});
         }
+        req.project=project;
         next();
     }else{
         const schema=z.object({
