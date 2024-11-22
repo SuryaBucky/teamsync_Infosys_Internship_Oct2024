@@ -69,12 +69,15 @@ const Sidebar = ({ isOpen, onClose }) => {
       if (res.data.success) {
         setUnreadNotifications(res.data.total_unread);
       }
-      setActive("projects")
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
   };
-
+   const handleItemClick = (key) => {
+    setActive(key); // Update active state when an item is clicked
+    setSidebarSelection(key); // Set the sidebar selection state
+    navigate(`/${key}`);
+  };
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
