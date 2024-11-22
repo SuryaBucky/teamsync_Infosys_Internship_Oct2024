@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faFolder, faTasks, faFileAlt, faUsers, faLifeRing , faClipboard, faBell} from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFolder, faTasks, faUsers, faClipboard, faBell} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useDispatch } from "react-redux";
 import { logout } from '../../../../redux/userSlice';
@@ -16,7 +16,7 @@ const IconItem = ({ icon, label, active = false, unreadCount = 0 }) => {
   return (
     <a
       href="#"
-      className={`flex items-center p-2 rounded-lg hover:bg-gray-100 group transition-colors relative
+      className={`flex items-center p-3 rounded-lg hover:bg-gray-100 group transition-colors relative
         ${active ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}`}
     >
       <FontAwesomeIcon 
@@ -25,6 +25,7 @@ const IconItem = ({ icon, label, active = false, unreadCount = 0 }) => {
           ${active ? 'text-blue-600' : 'text-gray-700 group-hover:text-gray-900'}`}
       />
       <span className="flex-1 ms-3 whitespace-nowrap">{label}</span>
+      {/* Display unread count if available */}
       {unreadCount > 0 && (
         <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 
           text-xs font-bold text-white bg-red-500 rounded-full">
@@ -72,11 +73,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
-  };
-   const handleItemClick = (key) => {
-    setActive(key); // Update active state when an item is clicked
-    setSidebarSelection(key); // Set the sidebar selection state
-    navigate(`/${key}`);
   };
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -200,7 +196,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         
       </aside>
       {isModalOpen && <ProfileModal isOpen={isModalOpen} onClose={toggleModal} onResetPassword={handleResetPasswordOpen} />}
-
+        {/* Reset password modal */}
       {isResetPasswordOpen && (
         <ResetPassword
           setResetPasswordOpen={setResetPasswordOpen}
