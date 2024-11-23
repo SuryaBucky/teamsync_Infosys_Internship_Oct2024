@@ -16,12 +16,12 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
   const selectedSidebar = useRecoilValue(sidebarSelection);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Function to open the modal
+   // Function to open the modal
   const openModal = () => {
     setIsModalOpen(true);
   };
 
-    // Function to close the modal
+  // Function to close the modal
   const closeModal = () => {
     setIsModalOpen(false);
   };
