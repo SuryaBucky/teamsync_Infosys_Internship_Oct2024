@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Styling for the main App container */
 .App {
   text-align: center;
