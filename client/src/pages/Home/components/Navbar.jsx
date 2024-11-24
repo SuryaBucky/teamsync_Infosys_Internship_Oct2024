@@ -176,30 +176,7 @@ const Navbar = ({ setSignInOpen }) => {
               <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
             </li>
             
-            <div className="mt-5">
-              {isLoggedIn ? (
-                <button
-                  onClick={() => {
-                    dispatch(logout());
-                    setMenuOpen(false);
-                  }}
-                  className="w-full py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
-                >
-                  Logout
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setSignInOpen(true);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center justify-center gap-2"
-                >
-                  <AccountCircleOutlinedIcon />
-                  Sign In
-                </button>
-              )}
-            </div>
+            
           </ul>
         </div>
       )}
