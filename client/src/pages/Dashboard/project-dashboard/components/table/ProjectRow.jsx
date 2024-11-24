@@ -248,10 +248,16 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
 
   useEffect(() => {
     const fetchCompletionPercentage = async () => {
-      const projectid=localStorage.getItem('project_id')
+      const projectid=project.id;
       try {
-        const response = await axios.get(`http://localhost:3001/project/completion-percentage/${projectid}`);
-        const completionPercentage = parseFloat(response.data.completion_percentage || 0).toFixed(2);
+        const token=localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:3001/project/report/${projectid}`, {
+          headers: {
+            authorization: token,
+          },
+        });
+        const value=(response.data.completedTasks/response.data.totalTasks)*100;
+        const completionPercentage = parseFloat(value || 0).toFixed(2);
         setProgress(completionPercentage);
       } catch (error) {
         console.error('Error fetching completion percentage:', error);
