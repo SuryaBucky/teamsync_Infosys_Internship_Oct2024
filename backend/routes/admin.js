@@ -1,7 +1,7 @@
 // routes/adminRoutes.js
 const express = require("express");
 const router = express.Router();
-const { Admin } = require("../db/index"); // Import the Admin model
+const { Admin, User } = require("../db/index"); // Import the Admin model
 const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser, validateUserStateChange } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
 const { validateProjectApproval, approveProject, getAllProjects, getAllUsers,archiveProject } = require("../middlewares/AdminMiddlewares");
 const jwt = require("jsonwebtoken");
