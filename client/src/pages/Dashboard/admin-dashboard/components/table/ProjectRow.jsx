@@ -9,6 +9,7 @@ export const ProjectRow = ({ project, onArchive }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState(null); // "approve" or "archive"
   const dropdownRef = useRef(null);
+  const [progress, setProgress]=useState(0);
 
   // Opens the modal and sets the action type (approve/archive)
   const openModal = (action) => {
@@ -104,6 +105,27 @@ export const ProjectRow = ({ project, onArchive }) => {
     };
   }, [dropdownOpen]);
 
+  useEffect(() => {
+    const fetchCompletionPercentage = async () => {
+      const projectid=project.id;
+      try {
+        const token=localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:3001/project/report/${projectid}`, {
+          headers: {
+            authorization: token,
+          },
+        });
+        const value=(response.data.completedTasks/response.data.totalTasks)*100;
+        const completionPercentage = parseFloat(value || 0).toFixed(2);
+        setProgress(completionPercentage);
+      } catch (error) {
+        console.error('Error fetching completion percentage:', error);
+      }
+    };
+
+    fetchCompletionPercentage();
+  }, []);
+
   return (
     <>
       <tr className="border-b last:border-b-0 hover:bg-gray-50">
@@ -149,7 +171,7 @@ export const ProjectRow = ({ project, onArchive }) => {
           </div>
         </td>
         <td className="py-4 px-4 md:px-4">
-          <ProgressBar progress={project.progress || 0} />
+          <ProgressBar progress={progress || 0} />
         </td>
         <td className="py-4 ps-7 px-4">
           <div className="text-xs text-gray-500">{formattedDeadline}</div>
