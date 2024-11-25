@@ -8,13 +8,8 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-<<<<<<< HEAD
-
-const ChatModal = () => {
-=======
   
   const ChatModal = () => {
->>>>>>> main
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [media, setMedia] = useState(null);
@@ -80,11 +75,7 @@ const ChatModal = () => {
       'audio/mpeg': 'MP3 Audio',
       'audio/wav': 'WAV Audio',
     };
-<<<<<<< HEAD
-
-=======
     
->>>>>>> main
     if (fileType.startsWith('image/')) return 'Image File';
     if (fileType.startsWith('video/')) return 'Video File';
     if (fileType.startsWith('audio/')) return 'Audio File';
@@ -129,176 +120,6 @@ const ChatModal = () => {
         typeDescription: getFileTypeDescription(file.type),
         lastModified: new Date(file.lastModified).toLocaleString(),
       });
-<<<<<<< HEAD
-    }
-  };
-
-  // Function to remove media
-  const removeMedia = () => {
-    setMedia(null);
-    setMediaPreview(null);
-  };
-
-  // Media preview component
-  const MediaPreview = ({ preview }) => {
-    if (!preview) return null;
-
-    const PreviewHeader = () => (
-      <div className="flex items-center justify-between p-2 bg-gray-50 border-b">
-        <div className="flex items-center space-x-2">
-          {preview.icon}
-          <div>
-            <p className="font-medium text-sm truncate max-w-xs">{preview.name}</p>
-            <p className="text-xs text-gray-500">{preview.typeDescription}</p>
-          </div>
-        </div>
-        <button
-          onClick={removeMedia}
-          className="p-1 hover:bg-gray-200 rounded-full"
-          title="Remove file"
-        >
-          <BiX className="w-5 h-5" />
-        </button>
-      </div>
-    );
-
-    // Main rendering of MediaPreview
-    return (
-      <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-        <PreviewHeader />
-        {/* Conditionally render image or video */}
-        {preview.type === "image" && (
-          <div className="relative">
-            <img
-              src={preview.url}
-              alt={preview.name}
-              className="max-h-12 w-full object-contain bg-gray-50 p-2 overflow-hidden"
-            />
-          </div>
-        )}
-        {preview.type === "video" && (
-          <div className="relative">
-            <video
-              src={preview.url}
-              controls
-              className="max-h-12 w-full bg-gray-50 p-2 overflow-hidden"           
-               />
-               </div>
-        )}
-              </div>
-    );
-  };
-
-  // File display component
-  const FileDisplay = ({ file }) => {
-    const fileIcon = getFileIcon(file.file_type);
-    const typeDescription = getFileTypeDescription(file.file_type);
-    const isPreviewable = file.file_type.startsWith('image/') || file.file_type.startsWith('video/');
-
-    return (
-      <div className="mt-2 border rounded-lg overflow-hidden bg-white shadow-sm">
-        <div className="flex items-center justify-between p-2 bg-gray-50 border-b">
-          <div className="flex items-center space-x-2">
-            {fileIcon}
-            <div
-              style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-            >
-              <p className="font-medium text-sm">{file.file_name}</p>
-              <p className="text-xs text-gray-500">{typeDescription}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => handleFileDownload(file)}
-            className="p-1 hover:bg-gray-200 rounded-full"
-            title="Download file"
-          >
-            <BiDownload className="w-5 h-5" />
-          </button>
-        </div>
-
-        {isPreviewable && (
-          <div className="p-2 bg-gray-50">
-            {file.file_type.startsWith('image/') && (
-              <img
-                src={`data:${file.file_type};base64,${file.file_data}`}
-                alt={file.file_name}
-                className="max-h-48 w-full object-contain cursor-pointer"
-                onClick={() => {
-                  setSelectedImage(`data:${file.file_type};base64,${file.file_data}`);
-                  setIsImageModalOpen(true);
-                }}
-              />
-            )}
-            {file.file_type.startsWith('video/') && (
-              <video
-                src={`data:${file.file_type};base64,${file.file_data}`}
-                controls
-                className="max-h-48 w-full"
-              />
-            )}
-          </div>
-        )}
-        <div className="px-3 py-2">
-          <p className="text-xs text-gray-600">
-            Size: {formatFileSize(file.file_size)}
-          </p>
-        </div>
-      </div>
-    );
-  };
-
-  // Keep existing functionality
-  useEffect(() => {
-    if (isOpen) {
-      fetchMessages();
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isLikeDislikeUpdate) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsLikeDislikeUpdate(false);
-  }, [messages]);
-  // Add event listener for keydown
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-      } else if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [message, isOpen]);
-
-  // Fetch messages function
-  const fetchMessages = async (isReactionUpdate = false) => {
-    try {
-      const token = localStorage.getItem('token');
-      const projectId = localStorage.getItem('project_id');
-
-      const response = await axios.post(
-        'http://localhost:3001/comment/messages',
-        { project_id: projectId },
-        { headers: { Authorization: token } }
-      );
-      // Set messages and update state
-      setMessages(response.data);
-      setIsLikeDislikeUpdate(isReactionUpdate);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  };
-
-  // Image modal component
-  const ImageModal = ({ imageUrl, onClose }) => {
-    if (!imageUrl) return null;
-
-=======
     }
   };
 
@@ -467,7 +288,6 @@ const ChatModal = () => {
   const ImageModal = ({ imageUrl, onClose }) => {
     if (!imageUrl) return null;
   
->>>>>>> main
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div className="relative">
@@ -482,11 +302,7 @@ const ChatModal = () => {
       </div>
     );
   };
-<<<<<<< HEAD
-
-=======
   
->>>>>>> main
   // Handle like/dislike function
   const handleLikeDislike = async (commentId, isLike) => {
     try {
@@ -499,11 +315,7 @@ const ChatModal = () => {
         },
         { headers: { Authorization: token } }
       );
-<<<<<<< HEAD
-
-=======
       
->>>>>>> main
       fetchMessages(true);
     } catch (error) {
       console.error('Error updating like/dislike:', error);
@@ -520,28 +332,17 @@ const ChatModal = () => {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: file.file_type });
-<<<<<<< HEAD
-
-=======
   
->>>>>>> main
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = file.file_name;
       document.body.appendChild(a);
       a.click();
-<<<<<<< HEAD
-
-      window.URL.revokeObjectURL(url);
-      a.remove();
-
-=======
   
       window.URL.revokeObjectURL(url);
       a.remove();
       
->>>>>>> main
       toast.success('File downloaded successfully!');
     } catch (error) {
       console.error('Error downloading file:', error);
@@ -550,10 +351,6 @@ const ChatModal = () => {
   };
   
 
-<<<<<<< HEAD
-
-=======
->>>>>>> main
   // Handle search function
   const sendMessage = async () => {
     if (message.trim() !== '' || media) {
@@ -561,7 +358,7 @@ const ChatModal = () => {
         const token = localStorage.getItem('token');
         const projectId = localStorage.getItem('project_id');
         const creatorId = localStorage.getItem('userName');
-
+        
         const requestBody = {
           project_id: projectId,
           creator_id: creatorId,
@@ -603,7 +400,7 @@ const ChatModal = () => {
           }
         }
       );
-
+      
       setMessage('');
       setMedia(null);
       setMediaPreview(null);
@@ -612,20 +409,6 @@ const ChatModal = () => {
     } catch (error) {
       console.error('Error sending message to server:', error);
       toast.error('Failed to send your message. Please try again.');
-<<<<<<< HEAD
-    }
-  };
-
-  // Scroll position handler
-  const handleScroll = () => {
-    if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      setShowScrollButton(distanceFromBottom > 100);
-    }
-  };
-
-=======
     }
   };
   
@@ -638,7 +421,6 @@ const ChatModal = () => {
     }
   };
 
->>>>>>> main
   // Scroll to bottom function
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -763,11 +545,7 @@ const ChatModal = () => {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-<<<<<<< HEAD
-                    className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800"
-=======
                     className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
->>>>>>> main
                     placeholder="Type a message..."
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && (message.trim() || mediaPreview)) {
@@ -775,10 +553,7 @@ const ChatModal = () => {
                       }
                     }}
                   />
-<<<<<<< HEAD
-=======
                   
->>>>>>> main
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="file"
@@ -793,17 +568,6 @@ const ChatModal = () => {
                   <button
                     onClick={sendMessage}
                     disabled={!message.trim() && !mediaPreview} // Disable the button when there's no message and no media
-<<<<<<< HEAD
-  className={`bg-blue-950 text-white rounded-full px-6 py-2 shadow-lg hover:bg-blue-900 ${
-    !message.trim() && !mediaPreview ? 'cursor-not-allowed bg-gray-300 text-gray-500' : ''
-  }`}
-                  >
-                    Send
-                  </button>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-600 p-2 hover:bg-gray-200 rounded-full"
-=======
                     className={`bg-blue-850 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${!message.trim() && !mediaPreview ? 'cursor-not-allowed bg-blue-950 text-gray-500' : ''
                       }`}
                   >
@@ -812,7 +576,6 @@ const ChatModal = () => {
                   <button
                     onClick={() => setIsOpen(false)}
                     className="text-gray-800 p-2 hover:bg-gray-200 rounded-full"
->>>>>>> main
                   >
                     ✕
                   </button>
