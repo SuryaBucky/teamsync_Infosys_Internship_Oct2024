@@ -219,7 +219,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                 Join Teamsync
               </h1>
               <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
-                We are so exited to have you here!<br/> Create an account to join us. 
+                Create an account to join us. 
               </h1>
               {/* Input field for full name */}
               <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4 mt-6">
