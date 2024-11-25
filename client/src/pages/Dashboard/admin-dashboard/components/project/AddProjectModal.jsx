@@ -1,19 +1,23 @@
+// Import necessary modules and libraries
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
-import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
+import axios from 'axios'; // Axios for HTTP requests
+import { ToastContainer, toast } from 'react-toastify'; // Toastify for displaying notification messages
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 
+// Component to add a new project, with validation and error handling
 const AddProjectModal = ({ isOpen, onClose }) => {
+  // Define state for form fields and error handling
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({}); // Object to hold validation errors
   const [touched, setTouched] = useState({
     projectName: false,
     projectDescription: false,
     deadline: false,
-  });
+  }); // Tracks which fields have been interacted with
 
+  // Validation hooks for fields based on interaction-focus or blur
   useEffect(() => {
     if (touched.projectName) validateProjectName(projectName);
   }, [projectName, touched.projectName]);
@@ -26,13 +30,14 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     if (touched.deadline) validateDeadline(deadline);
   }, [deadline, touched.deadline]);
 
+  // Handle form submission with validation and API call to save project
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
     const validationErrors = validateForm();
     setTouched({
       projectName: true,
       projectDescription: true,
-      deadline: true,
+      deadline: true, // Mark all fields as touched
     });
     if (Object.keys(validationErrors).length === 0) {
       const token = localStorage.getItem('token'); // Get token from local storage
@@ -44,7 +49,8 @@ const AddProjectModal = ({ isOpen, onClose }) => {
         tags: [] // Replace with actual tags if needed
       };
 
-      try {
+      try { 
+         // Send project data to server using Axios
         const response = await axios.post('http://localhost:3001/project/create', projectData, {
           headers: {
             Authorization: token,
@@ -56,7 +62,8 @@ const AddProjectModal = ({ isOpen, onClose }) => {
           toast.success('Project created successfully!'); // Show success message
           onClose(); // Close modal after submission
         }
-      } catch (error) {
+      } catch (error) { 
+        // Error handling for API response
         if (error.response) {
           if (error.response.status === 401) {
             toast.error('Unauthorized! Please log in again.'); // Show unauthorized message
@@ -69,12 +76,12 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       }
     }
   };
-
+  // Helper function to format date in DD/MM/YYYY
   const formatDeadline = (date) => {
     const [year, month, day] = date.split('-'); // Assuming input format is YYYY-MM-DD
     return `${day}/${month}/${year}`; // Format to DD/MM/YYYY
   };
-
+  // Validate project name - must be at least 4 characters long
   const validateProjectName = (name) => {
     if (name.length < 4) {
       setErrors((prev) => ({ ...prev, projectName: 'Project name must be at least 4 characters long' }));
@@ -82,7 +89,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       setErrors((prev) => ({ ...prev, projectName: undefined }));
     }
   };
-
+// Validate project description - must contain at least 10 words
   const validateProjectDescription = (description) => {
     if (description.split(' ').length < 10) {
       setErrors((prev) => ({ ...prev, projectDescription: 'Project description must be at least 10 words long' }));
@@ -90,7 +97,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       setErrors((prev) => ({ ...prev, projectDescription: undefined }));
     }
   };
-
+// Validate deadline - must be at least 2 days from the current date
   const validateDeadline = (date) => {
     const selectedDate = new Date(date);
     const currentDate = new Date();
@@ -101,7 +108,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
       setErrors((prev) => ({ ...prev, deadline: undefined }));
     }
   };
-
+// Full form validation
   const validateForm = () => {
     const errors = {};
     if (projectName.length < 4) {
@@ -118,7 +125,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
     return errors;
   };
-
+// Mark field as touched when it gains focus
   const handleFocus = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };

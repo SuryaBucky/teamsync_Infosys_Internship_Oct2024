@@ -8,11 +8,12 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import UsersProject from './UsersProject';
 import MyTasksTable from '../../my-tasks/MyTasksTable';
+import Notifications from '../../notifications/Notifications';
 
-const Hero = ({ sidebarOpen, setSidebarOpen }) => {
+  // Define the Hero component which takes sidebarOpen and setSidebarOpen as props
+  const Hero = ({setSidebarOpen }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const selectedSidebar = useRecoilValue(sidebarSelection);
-
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -22,25 +23,25 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="flex items-center gap-4">
           <button
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(true)}
+            onClick={() => setSidebarOpen(true)} //  Open sidebar on button click
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6" /> {/* Menu icon */}
           </button>
-          {selectedSidebar === "projects" && (
+          {selectedSidebar === "projects" && ( // Conditional rendering based on selectedSidebar value
             <div>
-              <h1 className="text-2xl font-semibold">Projects</h1>
+              <h1 className="text-2xl font-semibold">Projects</h1> {/* Heading */}
               <p className="text-gray-600 text-sm mt-1">
-                View and Manage Your Teams Projects
+                View and Manage Your Teams Projects {/* Subheading */}
               </p>
             </div>
           )}
         </div>
-        {selectedSidebar === "projects" && (
+        {selectedSidebar === "projects" && ( // Conditional rendering based on selectedSidebar value
           <button
             className="flex items-center gap-2 px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
             onClick={openModal}
           >
-            <FontAwesomeIcon icon={faPlus} />
+            <FontAwesomeIcon icon={faPlus} /> {/* Plus icon */}
             <span className="hidden sm:inline">Add Project</span>
           </button>
         )}
@@ -55,7 +56,8 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
         )}
       </div>
 
-      {selectedSidebar === 'users' && <UsersProject />}
+      {selectedSidebar === 'users' && <UsersProject />} {/* Conditional rendering for UsersProject component */}
+      {selectedSidebar === 'notifications' && <Notifications />}
       {selectedSidebar === 'projects' && (
         <UnifiedProjectTable 
           endpoint="get-my-assigned-projects"
@@ -63,7 +65,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
           filterApproved={true}
         />
       )}
-      {selectedSidebar === "tasks" && <MyTasksTable />}
+      {selectedSidebar === "tasks" && <MyTasksTable />} {/* Conditional rendering for MyTasksTable component */}
       {selectedSidebar === "your-projects" && (
         <UnifiedProjectTable 
           endpoint="my-created-projects"
@@ -73,7 +75,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
       )}
       {selectedSidebar==="created-tasks"&&<MyTasksTable type='created' />}
 
-      <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddProjectModal isOpen={isModalOpen} onClose={closeModal} /> {/* AddProjectModal component */}
     </div>
   );
 };

@@ -4,7 +4,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import { X } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 
+//
+// Functional component for adding a new project
 const AddProjectModal = ({ isOpen, onClose }) => {
+  // State variables for project details and validation
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -20,22 +23,27 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     tags: false,
   });
 
+  // Effect to validate project name when touched
   useEffect(() => {
     if (touched.projectName) validateProjectName(projectName);
   }, [projectName, touched.projectName]);
 
+  // Effect to validate project description when touched
   useEffect(() => {
     if (touched.projectDescription) validateProjectDescription(projectDescription);
   }, [projectDescription, touched.projectDescription]);
 
+  // Effect to validate deadline when touched
   useEffect(() => {
     if (touched.deadline) validateDeadline(deadline);
   }, [deadline, touched.deadline]);
 
+  // Effect to validate tags when touched
   useEffect(() => {
     if (touched.tags) validateTags(tags);
   }, [tags, touched.tags]);
 
+  // Asynchronous function to check if a project name already exists
   const checkProjectNameExists = async (name) => {
     try {
       const response = await axios.get(`http://localhost:3001/project/check-name?name=${name}`);
@@ -46,6 +54,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Handles the key down event for tag input
   const handleTagInputKeyDown = (e) => {
     if (e.key === 'Enter' && tagInput.trim()) {
       e.preventDefault();
@@ -69,10 +78,12 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Removes a tag from the list of tags
   const removeTag = (tagToRemove) => {
     setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
+  // Handles the form submission for creating a new project
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
@@ -85,25 +96,22 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     });
 
     if (Object.keys(validationErrors).length === 0) {
-
       try {
+        const projectNameExists = await checkProjectNameExists(projectName);
+        if (projectNameExists) {
+          toast.error('A project with this name already exists. Please choose a different name.');
+          return;
+        }
+        const token = localStorage.getItem('token');
+        const formattedDeadline = formatDeadline(deadline);
+        const projectData = {
+          name: projectName,
+          description: projectDescription,
+          deadline: formattedDeadline,
+          priority,
+          tags
+        };
 
-      const projectNameExists = await checkProjectNameExists(projectName);
-      if (projectNameExists) {
-        toast.error('A project with this name already exists. Please choose a different name.');
-        return;
-      }
-      const token = localStorage.getItem('token');
-      const formattedDeadline = formatDeadline(deadline);
-      const projectData = {
-        name: projectName,
-        description: projectDescription,
-        deadline: formattedDeadline,
-        priority,
-        tags
-      };
-
-      
         const response = await axios.post('http://localhost:3001/project/create', projectData, {
           headers: {
             Authorization: token,
@@ -136,11 +144,13 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Formats the deadline date from YYYY-MM-DD to DD/MM/YYYY
   const formatDeadline = (date) => {
     const [year, month, day] = date.split('-');
     return `${day}/${month}/${year}`;
   };
 
+  // Validates the project name for minimum length
   const validateProjectName = (name) => {
     if (name.length < 4) {
       setErrors(prev => ({ ...prev, projectName: 'Project name must be at least 4 characters long' }));
@@ -149,6 +159,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Validates the project description for minimum length
   const validateProjectDescription = (description) => {
     if (description.length < 4) {
       setErrors(prev => ({ ...prev, projectDescription: 'Project description must be at least 4 characters long' }));
@@ -157,6 +168,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Validates the deadline to ensure it is at least 2 days ahead
   const validateDeadline = (date) => {
     const selectedDate = new Date(date);
     const currentDate = new Date();
@@ -168,6 +180,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Validates the tags to ensure at least one tag is present
   const validateTags = (tags) => {
     if (tags.length === 0) {
       setErrors(prev => ({ ...prev, tags: 'At least one tag is required' }));
@@ -176,6 +189,7 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Validates the entire form and returns any errors found
   const validateForm = () => {
     const errors = {};
     if (projectName.length < 4) {
@@ -196,10 +210,12 @@ const AddProjectModal = ({ isOpen, onClose }) => {
     return errors;
   };
 
+  // Marks a field as touched for validation purposes
   const handleFocus = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
+  // Closes the modal when clicking outside of it
   const handleOutsideClick = (e) => {
     if (e.target.classList.contains('modal-overlay')) {
       onClose();

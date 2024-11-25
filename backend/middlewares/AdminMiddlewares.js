@@ -191,6 +191,29 @@ async function validateUserStateChange(req,res,next){
     }
 }
 
+const archiveProject = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        console.log('project id:',projectId);
+        // Find the project by ID
+        const project = await Project.findOne({ id: projectId });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found.' });
+        }
+
+        // Update the status to 'archived'
+        project.status = 'archived';
+        await project.save();
+
+        res.status(200).json({ message: 'Project archived successfully.', project });
+    } catch (error) {
+        console.error('Error archiving project:', error);
+        res.status(500).json({ message: 'Failed to archive project.' });
+    }
+};
+
+
 module.exports = {
     validateAdminSignIn,
     validateProjectApproval,
@@ -199,5 +222,6 @@ module.exports = {
     getAllProjects,
     tokenValidationAdmin,
     tokenValidationUser,
-    validateUserStateChange
+    validateUserStateChange,
+    archiveProject
 };

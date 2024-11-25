@@ -1,5 +1,5 @@
 const { z } = require('zod');
-const {User, Project, ProjectUser, Admin} = require("../db/index"); 
+const {User, Project, ProjectUser, Admin, ProjectStatistic} = require("../db/index"); 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -145,13 +145,14 @@ async function checkProjectExists(req,res,next){
         const schema = z.string().length(36, { message: "project_id must be exactly 36 characters long" });
         const resp=schema.safeParse(req.params.project_id);
         if(!resp.success){
-            return res.status(400).json({message:resp.error.errors[0].message});
+            return res.status(401).json({message:resp.error.errors[0].message});
         }
         //check if project exists
         const project=await Project.findOne({id:req.params.project_id});
         if(!project){
-            return res.status(400).json({message:"Project not found"});
+            return res.status(401).json({message:"Project not found"});
         }
+        req.project=project;
         next();
     }else{
         const schema=z.object({

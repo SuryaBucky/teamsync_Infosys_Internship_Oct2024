@@ -5,7 +5,11 @@ import { X } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const ProfileModal = ({ isOpen, onClose, onResetPassword }) => {
+/**
+ * ProfileModal component displays a modal for user profile management.
+ * It allows users to view and edit their profile information.
+ */
+const ProfileModal = ({ isOpen, onClose, onResetPassword }) => { // Retrieve user information from local storage
   const user = {
     name: localStorage.getItem("userName"),
     email: localStorage.getItem("userEmail"),
@@ -13,48 +17,56 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => {
     joinDate: localStorage.getItem("userJoindate")
   };
 
-  const formattedJoinDate = new Date(user.joinDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+   // Format the join date to a more readable format
+   const formattedJoinDate = new Date(user.joinDate).toLocaleDateString('en-US', {
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric', 
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [newName, setNewName] = useState(user.name || '');
+  // State to manage editing mode
+  const [isEditing, setIsEditing] = useState(false);  // State to hold the new name input by the user
+  const [newName, setNewName] = useState(user.name || '');  // State to manage loading status during API calls
   const [loading, setLoading] = useState(false);
 
+  // If the modal is not open, return null to prevent rendering
   if (!isOpen) return null;
 
+  // Function to enable editing mode
   const handleEditProfile = () => {
-    setIsEditing(true);
+    setIsEditing(true); 
   };
 
+  // Function to save the updated profile information
   const handleSave = async () => {
+    // Validate the new name input
     if (newName.length < 2) {
-      toast.error('Username must be at least 2 characters long.');
-      return;
+      toast.error('Username must be at least 2 characters long.'); // Show error if validation fails
+      return; // Exit the function if validation fails
     }
-    setLoading(true);
+    setLoading(true); // Set loading state to true while processing
     try {
+      // Send a PUT request to update the user's name
       const response = await axios.put(
-        'http://localhost:3001/user/edit-name',
-        { name: newName },
-        { headers: { authorization: localStorage.getItem('token') } }
+        'http://localhost:3001/user/edit-name', // API endpoint for editing name
+        { name: newName }, // Data to be sent in the request
+        { headers: { authorization: localStorage.getItem('token') } } // Authorization header
       );
 
+      // Check if the response status is successful
       if (response.status === 200) {
-        localStorage.setItem('userName', newName);
-        toast.success('Username updated successfully!');
+        localStorage.setItem('userName', newName); 
+        toast.success('Username updated successfully!'); 
         setIsEditing(false);
       }
     } catch (error) {
+      // Handle errors based on response status
       if (error.response?.status === 400) {
         toast.error('Invalid input. Please try again.');
-      } else {
-        toast.error('An error occurred. Please try again later.');
+        toast.error('An error occurred. Please try again later.'); 
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state regardless of success or failure
     }
   };
 
@@ -88,20 +100,20 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => {
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="border border-gray-300 rounded-lg p-2 mb-3"
+              className="border-2 border-blue-500 rounded-lg p-2 mb-3"
               placeholder="Enter new username"
             />
             <div className="flex justify-between space-x-2">
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center justify-center w-full bg-indigo-500 text-white py-2 rounded-lg shadow hover:bg-indigo-600"
+                className="flex items-center justify-center w-full bg-indigo-600 text-white py-2 rounded-lg shadow hover:bg-indigo-700"
               >
                 {loading ? 'Saving...' : 'Save'}
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-full bg-gray-500 text-white py-2 rounded-lg shadow hover:bg-gray-600"
+                className="w-full bg-gray-700 text-white py-2 rounded-lg shadow hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -110,11 +122,11 @@ const ProfileModal = ({ isOpen, onClose, onResetPassword }) => {
         ) : (
           <div className="flex space-x-4 mt-4">
             <button onClick={handleEditProfile} className="flex items-center justify-center flex-1 bg-indigo-500 text-white py-2 rounded-lg shadow hover:bg-indigo-600">
-              <FaUserEdit className="mr-2" />
+              <FaUserEdit className="mr-4" />
               Edit Profile
             </button>
-            <button className="flex items-center justify-center flex-1 bg-gray-500 text-white py-2 rounded-lg shadow hover:bg-gray-600" onClick={onResetPassword}>
-              <FaKey className="mr-2" />
+            <button className="flex items-center justify-center flex-1 bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700" onClick={onResetPassword}>
+              <FaKey className="mr-1" />
               Reset Password
             </button>
           </div>

@@ -4,15 +4,16 @@ import { Filter, Edit3, ChevronDown, ChevronRight, X, Trash2, PlusCircle } from 
 import { z } from 'zod';
 import AddAssigneesModal from '../project-view/components/AddAssigneesModal';
 
-// Toast component remains the same as in TaskTable
-const Toast = ({ message, type, onClose }) => {
+// Toast component for displaying success or error messages
+const Toast = ({ message, type, onClose }) => { 
+  // Automatically close the toast after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
     }, 3000);
     return () => clearTimeout(timer);
   }, [onClose]);
-
+ // Define the background color based on the type of message
   const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
   return (
@@ -21,7 +22,7 @@ const Toast = ({ message, type, onClose }) => {
     </div>
   );
 };
-
+// Schema for validating the task details using Zod
 const EditTaskDetailsSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters long' }).optional(),
   description: z.string().min(10, { message: 'Description must be at least 10 characters long' }).optional(),
@@ -35,7 +36,7 @@ const EditTaskDetailsSchema = z.object({
 }).refine(data => Object.values(data).some(value => value !== undefined && value !== ''), {
   message: 'At least one field (title, description, priority, deadline, or status) must be provided'
 });
-
+// Modal for confirming task deletion
 const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
   if (!isOpen) return null;
 
@@ -79,28 +80,28 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, taskTitle }) => {
     </div>
   );
 };
-
+// Modal for editing task details
 const EditModal = ({ isOpen, onClose, task, onSave }) => {
   const [editedTask, setEditedTask] = useState({ ...task });
   const [errors, setErrors] = useState({});
   const [isFormChanged, setIsFormChanged] = useState(false);
-
+// Update the modal form when the task data changes
   useEffect(() => {
       if (task) {
           setEditedTask({ ...task });
       }
   }, [task]);
-
+// Handle form field changes
   const handleChange = (e) => {
       const { name, value } = e.target;
       setEditedTask((prevTask) => {
           const updatedTask = { ...prevTask, [name]: value };
-          validateForm(updatedTask);
+          validateForm(updatedTask);// Validate the updated form
           setIsFormChanged(JSON.stringify(updatedTask) !== JSON.stringify(task)); // Check if the form has changes
           return updatedTask;
       });
   };
-
+// Validate the form using Zod schema
   const validateForm = (formData) => {
       try {
           EditTaskDetailsSchema.parse(formData);
@@ -115,7 +116,7 @@ const EditModal = ({ isOpen, onClose, task, onSave }) => {
           }
       }
   };
-
+// Save the edited task if validation passes
   const handleSave = () => {
       if (Object.keys(errors).length === 0 && isFormChanged) {
           onSave(editedTask);
@@ -233,24 +234,28 @@ const EditModal = ({ isOpen, onClose, task, onSave }) => {
   );
 };
 
-const MyTasksTable = ({ type = 'assigned' }) => {
+const MyTasksTable = ({ type = 'assigned' }) => { 
+// State to manage the list of all tasks fetched from the server
   const [tasks, setTasks] = useState([]);
-  const [filteredTasks, setFilteredTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [filteredTasks, setFilteredTasks] = useState([]);// State to store tasks after applying filters (e.g., search query or other criteria)
+  const [loading, setLoading] = useState(true);// Loading indicator to display a spinner or message while tasks are being fetched
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
-  const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [expandedProjects, setExpandedProjects] = useState(new Set());// State to manage which project rows are expanded in the UI (if tasks are grouped by project)
+  // State to manage the delete modal
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     taskId: null,
     taskTitle: '',
     project_id:''
   });
+  // State to manage the assignees modal
   const [assigneesModal, setAssigneesModal] = useState({
     isOpen: false,
     taskId: null
   });
-  
+   // Function to handle clicks for adding assignees to a specific task
+  // It sets the `assigneesModal` state to open and assigns the task ID
   const handleAddAssigneesClick = (taskId) => {
     setAssigneesModal({
       isOpen: true,
@@ -258,13 +263,15 @@ const MyTasksTable = ({ type = 'assigned' }) => {
     });
   };
   
-
+// Function to display a toast notification
   const showToast = (message, type) => {
+      // Updates the toast state with a message and type (e.g., success or error)
     setToast({ message, type });
   };
+  // State to manage the Edit Task modal visibility and content
   const [editModal, setEditModal] = useState({
-    isOpen: false,
-    task: null
+    isOpen: false,// Tracks whether the modal is open or closed
+    task: null // Holds the task object being edited, or null if no task is selected
   });
   
   // Create axios instance with default config
@@ -274,38 +281,42 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       'Authorization': localStorage.getItem('token')
     }
   });
-
+// Effect hook to fetch tasks whenever the 'type' prop changes
   useEffect(() => {
     fetchTasks();
   }, [type]);
-
+// Function to handle when the Delete button is clicked for a task
   const handleDeleteClick = (taskId, taskTitle, taskProjectId) => {
     if (!taskId) {
+      // Ensure that a valid task ID is provided
       console.error('No task ID provided');
       showToast("Error: Unable to delete task", "error");
       return;
     }
     
-    setDeleteModal({
+    setDeleteModal({ 
+      // Update the state to open the delete modal with the selected task details
       isOpen: true,
       taskId,
       taskTitle,
       project_id:taskProjectId
     });
   };
+// Function to confirm task deletion
 
   const handleDeleteConfirm = useCallback(async () => {
     const taskId = deleteModal.taskId;
     try {
       const projectId = deleteModal.project_id;
-      
+      // Send a DELETE request to the API to remove the task
       await api.delete(`/task/project/${projectId}/delete-task`, {
         data: { task_id: taskId }
       });
-      
+      // Update the tasks state to remove the deleted task
       setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      // Also update the filtered tasks state, in case a filter is applied
       setFilteredTasks(prevFilteredTasks => prevFilteredTasks.filter(task => task.id !== taskId));
-      
+      // Display a success toast notification
       showToast("Task deleted successfully", "success");
     } catch (error) {
       console.error('Delete task error:', error);
@@ -314,7 +325,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
     }
   }, [deleteModal.taskId]);
-
+// Function to fetch tasks from the server
   const fetchTasks = async () => {
     try {
       const userId = localStorage.getItem('userId');
@@ -371,13 +382,15 @@ const MyTasksTable = ({ type = 'assigned' }) => {
     });
   };
   
-
+// Function to handle saving the edited task details
   const handleEditSave = async (editedTask) => {
     try {
+      // Send a PUT request to update the task with the provided edited details
       await api.put(`/task/${editedTask._id}/edit-details`, editedTask);
       const updatedTasks = tasks.map((task) =>
         task._id === editedTask._id ? editedTask : task
-      );
+      ); 
+      // Update both the tasks and filteredTasks state to reflect the changes
       setTasks(updatedTasks);
       setFilteredTasks(updatedTasks);
       showToast("Task updated successfully", "success");
@@ -388,9 +401,10 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       setEditModal({ isOpen: false, task: null });
     }
   };
-
+// Function to handle task search functionality
   const handleSearch = (e) => {
     e.preventDefault();
+    // Filter the tasks based on the search query (case-insensitive search)
     const filtered = tasks.filter((task) => {
       const lowerCaseQuery = searchQuery.toLowerCase();
       return (
@@ -399,11 +413,14 @@ const MyTasksTable = ({ type = 'assigned' }) => {
         task.project_name.toLowerCase().includes(lowerCaseQuery)
       );
     });
+    // Update the filteredTasks state to reflect the filtered results
     setFilteredTasks(filtered);
   };
-
+// Function to toggle the expanded/collapsed state of a project (used for project details or collapsible lists)
   const toggleProject = (projectId) => {
+    // Create a copy of the existing set of expanded project IDs
     const newExpanded = new Set(expandedProjects);
+    // If the project ID is already in the set, remove it to collapse the project
     if (newExpanded.has(projectId)) {
       newExpanded.delete(projectId);
     } else {
@@ -411,7 +428,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
     }
     setExpandedProjects(newExpanded);
   };
-
+// Function to format a date string into a human-readable format (dd/mm/yy)
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -419,7 +436,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       year: '2-digit',
     });
   };
-
+// Function to return different styling based on the task's status value
   const getStatusStyle = (status) => {
     switch (status) {
       case "0": return "bg-gray-100 text-gray-800";
@@ -428,7 +445,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       default: return "bg-gray-100 text-gray-800";
     }
   };
-
+// Function to return a CSS class based on the task's priority value
   const getPriorityStyle = (priority) => {
     switch (priority) {
       case "0": return "bg-blue-100 text-blue-800";
@@ -437,7 +454,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       default: return "bg-gray-100 text-gray-800";
     }
   };
-
+// Function to return the status text based on the task's status value
   const getStatusText = (status) => {
     switch (status) {
       case "0": return "To Do";
@@ -446,7 +463,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
       default: return "Unknown";
     }
   };
-
+// Function to return the priority text based on the task's priority value
   const getPriorityText = (priority) => {
     switch (priority) {
       case "0": return "Low";
@@ -512,7 +529,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-200 hover:shadow-lg transition duration-300">
             <Filter className="h-4 w-4" />
             <span>Search</span>
           </button>
@@ -549,6 +566,8 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                       <th className="text-left py-4 px-6 font-medium text-xs">Created</th>
                       <th className="text-left py-4 px-6 font-medium text-xs">Deadline</th>
                       <th className="w-10"></th>
+                      <th className="w-10"></th>
+                      <th className="w-10"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -566,7 +585,7 @@ const MyTasksTable = ({ type = 'assigned' }) => {
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}`}>
+                          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)} truncate max-w-[100px]`}>
                             {getStatusText(task.status)}
                           </span>
                         </td>

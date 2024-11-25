@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Plus, X, Loader, Edit3 } from 'lucide-react';
+import {  Plus, X, Loader, Edit3 } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -10,8 +10,6 @@ import { sidebarSelection } from '../../../../../store/atoms/adminDashboardAtoms
 export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const setSidebar = useSetRecoilState(sidebarSelection);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -20,6 +18,7 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [updatedStatus, setUpdatedStatus] = useState(project.status);
   const [updatedAbout, setUpdatedAbout] = useState(project.description);
+  const [progress, setProgress] = useState(0);
   const [updatedDeadline, setUpdatedDeadline] = useState(
     project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '' // Set deadline in YYYY-MM-DD format
   );
@@ -247,85 +246,102 @@ export const ProjectRow = ({ project, isCreatedProject = false }) => {
     }
   };
 
+  useEffect(() => {
+    const fetchCompletionPercentage = async () => {
+      const projectid=project.id;
+      try {
+        const token=localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:3001/project/report/${projectid}`, {
+          headers: {
+            authorization: token,
+          },
+        });
+        const value=(response.data.completedTasks/response.data.totalTasks)*100;
+        const completionPercentage = parseFloat(value || 0).toFixed(2);
+        setProgress(completionPercentage);
+      } catch (error) {
+        console.error('Error fetching completion percentage:', error);
+      }
+    };
+
+    fetchCompletionPercentage();
+  }, []);
+
+
   return (
     <>
       <ToastContainer />
       
       <tr className="border-b last:border-b-0 hover:bg-gray-50">
-        <td className="py-4 px-4">
-          <div className="flex items-center gap-2">
-            <div className="cursor-pointer" onClick={handleProjectClick}>
-              <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
-              <div className="text-xs text-gray-500">{project.creator_id}</div>
-            </div>
-          </div>
-        </td>
-        <td className="py-4 px-2">
-          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${project.is_approved ? getStatusStyle(project.status) : getStatusStyle("")}`}>
-            {project.is_approved ? project.status : "Not approved"}
-          </span>
-        </td>
-        <td className="hidden sm:table-cell py-4 px-4 text-black text-xs">
-          <div className="max-w-[200px] truncate" title={project.description}>
-            {project.description}
-          </div>
-        </td>
-        <td className="py-4 px-4">
-          <div className="flex -space-x-2 relative" title={`${members.length} members`}>
-            {members.slice(0, 3).map((member, index) => (
-              <div
-                key={member.id}
-                className="relative"
-                style={{ zIndex: members.length - index }}
-              >
-                <img
-                  src={`https://i.pravatar.cc/32?img=${index + 1}`}
-                  alt={member.name}
-                  className="w-7 h-7 rounded-full border-2 border-white object-cover"
-                />
-                <div className="absolute inset-0 rounded-full border-2 border-white" />
-              </div>
-            ))}
-            {members.length > 3 && (
-              <div 
-                className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative"
-                style={{ zIndex: 0 }}
-              >
-                +{members.length - 3}
-              </div>
-            )}
-          </div>
-        </td>
-        <td className="py-4 px-4">
-          <ProgressBar progress={project.progress || 0} />
-        </td>
-        <td className="py-4 ps-7 px-4">
-          <div className="text-xs text-gray-500">{formattedDeadline}</div>
-        </td>
-        <td className="py-4 px-2">
-          <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getPriorityStyle(project.priority)}`}>
-            {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
-          </span>
-        </td>
-        <td className="py-4 px-2 relative" ref={dropdownRef}>
-          {isCreatedProject && (
-            <div className="flex gap-2">
-              <button 
-                className="p-2 hover:bg-blue-50 rounded-full cursor-pointer"
-                onClick={handleAddUsers}
-              >
-                <Plus className="w-4 h-4 text-green-500" />
-              </button>
-              <button
-                className="p-2 hover:bg-blue-50 rounded-full cursor-pointer"
-                onClick={() => setIsEditModalOpen(true)}
-              >
-                <Edit3 className="w-4 h-4 text-blue-500" />
-              </button>
-            </div>
-          )}
-        </td>
-      </tr>
+  <td className="py-3 px-2 md:px-4 max-w-[150px] truncate">
+    <div className="flex items-center gap-2">
+      <div className="cursor-pointer" onClick={handleProjectClick}>
+        <div className="font-medium text-xs md:text-sm line-clamp-1">
+          {project.name}
+        </div>
+        <div className="text-xs text-gray-500">{project.creator_id}</div>
+      </div>
+    </div>
+  </td>
+  <td className="py-3 px-2 text-xs md:text-sm">
+    <span
+      className={`inline-flex justify-center items-center px-2 py-1 rounded-full ${project.is_approved ? getStatusStyle(project.status) : getStatusStyle("")}`}
+    >
+      {project.is_approved ? project.status : "Not approved"}
+    </span>
+  </td>
+  <td className="py-3 px-2 md:px-4 text-xs md:max-w-[200px] md:truncate md:table-cell">
+    <div className="md:hidden"></div>
+    <div>{project.description}</div>
+  </td>
+  <td className="py-3 px-2 md:px-4">
+    <div className="flex -space-x-2 relative" title={`${members.length} members`}>
+      {members.slice(0, 3).map((member, index) => (
+        <div key={member.id} className="relative" style={{ zIndex: members.length - index }}>
+          <img
+            src={`https://i.pravatar.cc/32?img=${index + 1}`}
+            alt={member.name}
+            className="w-7 h-7 rounded-full border-2 border-white object-cover"
+          />
+        </div>
+      ))}
+      {members.length > 3 && (
+        <div
+          className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative"
+          style={{ zIndex: 0 }}
+        >
+          +{members.length - 3}
+        </div>
+      )}
+    </div>
+  </td>
+  <td className="py-3 px-2 md:px-4">
+    <ProgressBar progress={progress || 0} />
+  </td>
+  <td className="py-3 ps-5 px-2 md:px-4 text-xs text-gray-500">
+    {formattedDeadline}
+  </td>
+  <td className="py-3 px-2 md:px-4">
+    <span
+      className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getPriorityStyle(project.priority)}`}
+    >
+      {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+    </span>
+  </td>
+  <td className="py-3 px-2 relative" ref={dropdownRef}>
+    {isCreatedProject && (
+      <div className="flex gap-1">
+        <button className="p-2 hover:bg-blue-50 rounded-full cursor-pointer" onClick={handleAddUsers}>
+          <Plus className="w-4 h-4 text-green-500" />
+        </button>
+        <button className="p-2 hover:bg-blue-50 rounded-full cursor-pointer" onClick={() => setIsEditModalOpen(true)}>
+          <Edit3 className="w-4 h-4 text-blue-500" />
+        </button>
+      </div>
+    )}
+  </td>
+</tr>
+
 
       {/* User Addition Modal */}
         {isModalOpen && (

@@ -345,8 +345,11 @@ const TaskTable = ({ refreshTrigger }) => {
       
       const { data } = await api.get(`/task/project/${projectId}/view-tasks`);
       
-      setTasks(data);
-      setFilteredTasks(data);
+      // Filter out completed tasks (status "2")
+      const nonCompletedTasks = data.filter(task => task.status !== "2");
+  
+      setTasks(nonCompletedTasks);
+      setFilteredTasks(nonCompletedTasks);
       setLoading(false);
     } catch (error) {
       console.error('Fetch tasks error:', error);
@@ -354,6 +357,7 @@ const TaskTable = ({ refreshTrigger }) => {
       showToast("Failed to fetch tasks", "error");
     }
   };
+  
 
   // Rest of the component remains exactly the same
   const handleSearch = (e) => {
@@ -496,7 +500,7 @@ const TaskTable = ({ refreshTrigger }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
                 <Filter className="h-4 w-4" />
                 <span>Search</span>
               </button>
@@ -544,9 +548,9 @@ const TaskTable = ({ refreshTrigger }) => {
                       </td>
                      
                       <td className="py-4 px-6">
-                      <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)} max-w-xs whitespace-nowrap overflow-hidden text-ellipsis`}>
-                        {getStatusText(task.status)}
-                      </span>
+                         <span className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${getStatusStyle(task.status)}truncate max-w-[100px]`}>
+                          {getStatusText(task.status)}
+                         </span>
                       </td>
 
                       <td className="py-4 px-6">

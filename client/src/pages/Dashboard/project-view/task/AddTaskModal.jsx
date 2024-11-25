@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddAssigneesModal from '../components/AddAssigneesModal';
+import { FaUserPlus } from 'react-icons/fa';
 
+// AddTaskModal component for creating a new task
 const AddTaskModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -11,7 +14,20 @@ const AddTaskModal = ({ isOpen, onClose }) => {
   const [priority, setPriority] = useState('1');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [assigneesModal, setAssigneesModal] = useState({
+    isOpen: false,
+    taskId: null,
+  });
+  
+  // Opens the assignees modal for a specific task
+  const handleAddAssigneesClick = (taskId) => {
+    setAssigneesModal({
+      isOpen: true,
+      taskId,
+    });
+  };
 
+  // Validates the form inputs and returns any errors found
   const validateForm = () => {
     const newErrors = {};
     const currentDate = new Date();
@@ -32,12 +48,14 @@ const AddTaskModal = ({ isOpen, onClose }) => {
     return newErrors;
   };
 
+  // Handles input changes and clears any associated errors
   const handleInputChange = (e, setFieldValue, fieldName) => {
     const { value } = e.target;
     setFieldValue(value);
     setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: '' })); // Clear error for the field
   };
 
+  // Submits the form data to create a new task
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
@@ -86,7 +104,7 @@ const AddTaskModal = ({ isOpen, onClose }) => {
       setLoading(false);
     }
   };
-
+  
   return (
     <>
       <ToastContainer />
@@ -158,11 +176,23 @@ const AddTaskModal = ({ isOpen, onClose }) => {
                 </select>
               </div>
 
+              {/* Add Assignee Button */}
+              <div className="mb-4 flex justify-end">
+                  <button
+                      type="button"
+                      onClick={() => handleAddAssigneesClick(' ')}
+                      className="text-blue-950 hover:text-blue-900 transition-colors"
+                      title="Add Assignee"
+                  >
+                    <FaUserPlus size={24} />
+                  </button>
+              </div>
+
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="w-full py-2 px-4 bg-blue-950 text-white rounded hover:bg-blue-900 transition-colors"
               >
                 {loading ? 'Adding...' : 'Add Task'}
               </button>
@@ -170,6 +200,15 @@ const AddTaskModal = ({ isOpen, onClose }) => {
           </div>
         </div>
       )}
+
+      <AddAssigneesModal
+        isOpen={assigneesModal.isOpen}
+        onClose={() => setAssigneesModal({ isOpen: false, taskId: null })}
+        taskId={assigneesModal.taskId}
+        onSuccess={() => {
+
+        }}
+      />
     </>
   );
 };

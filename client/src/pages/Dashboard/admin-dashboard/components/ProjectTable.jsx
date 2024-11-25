@@ -67,6 +67,7 @@ const ProjectTable = () => {
         <div className="hidden lg:block font-medium text-lg">Table view</div>
         <div className="flex gap-4">
           <SearchBar 
+            placeholder="Search for projects.."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -77,9 +78,9 @@ const ProjectTable = () => {
         </div>
       </form>
 
-      <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
+      <div className="border border-gray-300 rounded-lg overflow-auto">
+        <table className="w-full border-separate border-spacing-0">
+          <thead className="bg-gray-100 border-b border-gray-300">
             <TableHeader />
           </thead>
           <tbody>

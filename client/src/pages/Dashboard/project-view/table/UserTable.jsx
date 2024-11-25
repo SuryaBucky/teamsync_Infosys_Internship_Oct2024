@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, User } from 'lucide-react';
 import { SearchBar } from '../../project-dashboard/components/common/SearchBar';
 
 const UserTable = () => {
@@ -11,6 +11,7 @@ const UserTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch users from the server
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -34,6 +35,13 @@ const UserTable = () => {
 
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (users.length > 0) {
+      localStorage.setItem("project_users", users.length);
+    }
+  }, [users]);
+  
 
   const handleSearch = (e) => {
     e.preventDefault();

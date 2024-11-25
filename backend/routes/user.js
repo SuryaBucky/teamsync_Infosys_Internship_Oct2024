@@ -3,7 +3,7 @@ const router = express.Router();
 const {User} = require("../db/index"); 
 const { validateUserSignup, validateUserSignin, validateUserUpdate, validateUserVerify, tokenValidation } = require("../middlewares/UserMiddlewares");
 const jwt = require("jsonwebtoken");
-const {sendOtpEmail} = require("../mailer/OtpMailer")
+const {sendOtpEmail} = require("../utilities/MailUtility")
 require('dotenv').config();
 const bcrypt = require("bcrypt");
 

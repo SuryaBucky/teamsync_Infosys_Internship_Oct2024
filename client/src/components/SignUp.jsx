@@ -63,13 +63,13 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     try {
       setLoading(true);
       dispatch(loginStart());
-    
+
       const response = await axios.post("http://localhost:3001/user/signup", {
         email,
         name,
         password,
       });
-    
+
       if (response.status === 201) {
         dispatch(
           openSnackbar({
@@ -82,10 +82,10 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     } catch (error) {
       setLoading(false);
       setDisabled(false);
-    
+
       if (error.response) {
         const { status, data } = error.response;
-    
+
         // Handle 400 error for user already exists
         if (status === 400) {
           dispatch(
@@ -97,7 +97,8 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         } else if (status === 500) {
           dispatch(
             openSnackbar({
-              message: "Oops! something is up on the server side, Sorry for the inconvenience. Please try again later.",
+              message:
+                "Oops! something is up on the server side, Sorry for the inconvenience. Please try again later.",
               severity: "error",
             })
           );
@@ -112,7 +113,6 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     } finally {
       setLoading(false);
     }
-    
   };
 
   // Effect to validate fields and enable/disable the submit button
@@ -204,9 +204,9 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
     <Modal open={true} onClose={() => setSignInOpen(false)}>
       {/* Container for the modal background with a dark overlay */}
       <div className="w-full h-full absolute top-0 left-0 bg-black/70 flex items-center justify-center">
-         {/* Main content area of the modal with styling for light and dark themes */}
-        <div className="w-[360px] rounded-[30px] bg-white dark:bg-zinc-900 text-black dark:text-white p-3 flex flex-col relative">
-         {/* Close button for the modal */}
+        {/* Main content area of the modal with styling for light and dark themes */}
+        <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-black dark:text-white p-3 flex flex-col relative">
+          {/* Close button for the modal */}
           <CloseRounded
             className="absolute top-6 right-8 cursor-pointer"
             onClick={() => setSignUpOpen(false)}
@@ -214,13 +214,16 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           {/* Conditional rendering based on whether OTP has been sent */}
           {!otpSent ? (
             <>
-            {/* Header for the sign-up form */}
+              {/* Header for the sign-up form */}
               <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4 text-center">
-                Sign Up
+                Join Teamsync
+              </h1>
+              <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
+                We are so exited to have you here!<br/> Create an account to join us. 
               </h1>
               {/* Input field for full name */}
               <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4 mt-6">
-                <Person sx={{ fontSize: "20px" }} className="pr-3" />
+                <Person className="text-xl mr-3" />
                 <input
                   className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
                   placeholder="Full Name"
@@ -230,7 +233,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
               </div>
               {/* Input field for email */}
               <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4">
-                <EmailRounded sx={{ fontSize: "20px" }} className="pr-3" />
+                <EmailRounded className="text-xl mr-3" />
                 <input
                   className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
                   placeholder="Email"
@@ -245,15 +248,16 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
               )}
               {/* Input field for password */}
               <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 mx-5 my-[3px] text-sm flex justify-center items-center px-4">
-                <PasswordRounded sx={{ fontSize: "20px" }} className="pr-3" />
+                <PasswordRounded className="text-xl mr-3" />
                 <input
                   className="w-full border-none text-sm rounded bg-transparent outline-none text-gray-600 dark:text-gray-300"
                   placeholder="Password"
                   type={values.showPassword ? "text" : "password"} // Toggle password visibility
                   onChange={(e) => setPassword(e.target.value)} // Updating state with the input value
                 />
-                 {/* Icon button to toggle password visibility */}
+                {/* Icon button to toggle password visibility */}
                 <IconButton
+                  color="inherit"
                   onClick={() =>
                     setValues({ ...values, showPassword: !values.showPassword })
                   }
@@ -289,9 +293,9 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
               </div>
               {/* Link to sign in if the user already has an account */}
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 mb-10 flex justify-center items-center">
-                Already have an account?{" "}
+                Already have an account?&nbsp;{" "}
                 <span
-                  className="text-blue-500 cursor-pointer"
+                  className="text-blue-500 cursor-pointer hover:underline"
                   onClick={() => {
                     setSignInOpen(true); // Opening sign-in modal
                     setSignUpOpen(false); // Closing sign-up modal

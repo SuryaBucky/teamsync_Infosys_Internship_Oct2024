@@ -9,19 +9,21 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
 
+  // Fetch users when the modal is opened or taskId changes
   useEffect(() => {
     if (isOpen) {
       fetchUsers();
     }
   }, [isOpen, taskId]);
 
+  // Fetch all users and already assigned users for the task
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-
+      const pid=localStorage.getItem('project_id');
       // Fetch all available users
-      const allUsersResponse = await axios.get('http://localhost:3001/admin/all-users-Users', {
+      const allUsersResponse = await axios.get(`http://localhost:3001/project/get-all-users/${pid}`, {
         headers: { authorization: token }
       });
 
@@ -48,6 +50,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
     }
   };
 
+  // Filter users based on the search query
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -59,6 +62,7 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
     setFilteredUsers(filtered);
   };
 
+  // Handle submit action to add selected users to the task
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
@@ -84,10 +88,12 @@ const AddAssigneesModal = ({ isOpen, onClose, taskId, onSuccess }) => {
     }
   };
 
+  // Remove user from selected users list
   const removeUser = (userToRemove) => {
     setSelectedUsers(selectedUsers.filter(user => user.id !== userToRemove.id));
   };
 
+  // Do not render modal if not open
   if (!isOpen) return null;
 
   return (

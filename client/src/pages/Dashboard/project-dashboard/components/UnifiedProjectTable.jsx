@@ -18,6 +18,7 @@ const UnifiedProjectTable = ({
 
   const isCreatedProjectsView = endpoint === "my-created-projects";
 
+  //fetch projects 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -48,6 +49,7 @@ const UnifiedProjectTable = ({
     fetchProjects();
   }, [endpoint, filterApproved]);
 
+  //search function
   const handleSearch = (e) => {
     e.preventDefault();
     const filtered = projects.filter((project) => {
@@ -71,19 +73,20 @@ const UnifiedProjectTable = ({
         <div className="hidden lg:block font-medium text-lg">{title}</div>
         <div className="flex gap-4">
           <SearchBar 
+            placeholder="Search for projects"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+          <button type="submit" className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-200 hover:shadow-lg transition duration-300">
             <Filter className="h-4 w-4" />
             <span>Search</span>
           </button>
         </div>
       </form>
 
-      <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
+      <div className="border border-gray-300 rounded-lg overflow-auto">
+        <table className="w-full border-separate border-spacing-0">
+          <thead className="bg-gray-100 border-b border-gray-300">
             <TableHeader />
           </thead>
           <tbody>

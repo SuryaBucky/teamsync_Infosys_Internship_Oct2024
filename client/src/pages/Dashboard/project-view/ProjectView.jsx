@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { authenticationState } from '../../../store/atoms/authVerifierSelector';
 import { sidebarSelection } from '../../../store/atoms/adminDashboardAtoms';
 import ChatModal from './components/ChatModal';
+import ReportModal from './components/ReportModal';
 
 const ProjectView = () => {
   let selectedSidebar = useRecoilValue(sidebarSelection);
@@ -27,8 +28,10 @@ const ProjectView = () => {
       <Hero />
 
       {/* Add ChatModal here */}
-      <div className="absolute top-10 right-40 z-10">
-        <ChatModal />
+      <div className="absolute top-10 right-40 z-10 flex gap-4">
+        <ChatModal /> 
+        <ReportModal />
+        
       </div>
       
       {/* Uncomment and modify the main layout if needed */}

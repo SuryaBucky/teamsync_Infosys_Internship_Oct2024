@@ -9,6 +9,25 @@ import Snackbar from '@mui/material/Snackbar'; // Snackbar component for notific
 import Alert from '@mui/material/Alert'; // Alert component inside Snackbar for displaying messages
 import { closeSnackbar } from './redux/actions'; // Redux action to close the snackbar
 
+import './App.css';
+import Home from './pages/Home/Home';
+import { ThemeProvider } from "styled-components";
+import { darkTheme, lightTheme } from "./utils/Theme";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { closeSnackbar } from "./redux/snackbarSlice";
+import ProjectDashboard from './pages/Dashboard/project-dashboard/ProjectDashboard';
+import AdminDashboard from './pages/Dashboard/admin-dashboard/AdminDashboard';
+import { RecoilRoot } from 'recoil';
+// import Profile from './pages/Dashboard/profile/Profile';
+
 // Define the theme for the app (dark theme in this case)
 const darkTheme = {
   // You can define your theme properties here (colors, fonts, etc.)
@@ -39,30 +58,52 @@ function App() {
   return (
     // RecoilRoot provides the Recoil state management context to the application
     <RecoilRoot>
+    <DndProvider backend={HTML5Backend}>
+      <ThemeProvider theme={darkTheme}>
+        <BrowserRouter>
       <BrowserRouter>
         <ThemeProvider theme={darkTheme}>
           {/* Define routes for the app */}
           <Routes>
+            <Route exact path="/">
+              <Route index element={<Home />} />
+            </Route>
+            <Route exact path="/dashboard/user">
+              <Route index element={<ProjectDashboard />} />
+            </Route>
+            {/* <Route exact path="/dashboard/profile">
+              <Route index element={<Profile />} />
+            </Route> */}
+            <Route exact path="/dashboard/admin">
+              <Route index element={<AdminDashboard />} />
+            </Route>
             <Route path="/" element={<Home />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             {/* Add more routes as needed */}
           </Routes>
 
+          {/* Snackbar Component */}
           {/* Snackbar Component - Displays notifications to the user */}
           <Snackbar
+            open={snackbarState.open}
+            autoHideDuration={6000}
+            onClose={handleClose}
             open={snackbarState.open} // Controls visibility of the snackbar
             autoHideDuration={6000}   // Snackbar auto-hides after 6 seconds
             onClose={handleClose}     // Callback function to handle the snackbar close event
           >
             {/* Alert Component inside Snackbar to show the notification message */}
             <Alert onClose={handleClose} severity={snackbarState.severity}>
+              {snackbarState.message}
               {snackbarState.message} {/* Message to be displayed in the alert */}
             </Alert>
           </Snackbar>
+        </BrowserRouter>
+      </ThemeProvider>
+    </DndProvider>
         </ThemeProvider>
       </BrowserRouter>
     </RecoilRoot>
   );
 }
-
 export default App;

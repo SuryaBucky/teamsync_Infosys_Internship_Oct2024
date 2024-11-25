@@ -7,6 +7,7 @@ export const getStatusColor = (status) => {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
   
+  //function to change the color of the progress of the project
   export const getProgressColor = (progress) => {
     if (progress >= 70) return 'bg-green-500';
     if (progress >= 40) return 'bg-yellow-500';

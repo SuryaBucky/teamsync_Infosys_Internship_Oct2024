@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-// Reusable DropdownButton component
+// DropdownButton Component
+// Renders individual dropdown menu items with a label and URL
+// Props:
+// - label: text to display for the menu item
+// - url: link destination for the menu item
 const DropdownButton = ({ label, url }) => {
   return (
     <li>
@@ -14,24 +18,30 @@ const DropdownButton = ({ label, url }) => {
   );
 };
 
-// DropdownMenu component
+// DropdownMenu Component
+// Renders the complete dropdown menu including user info and navigation items
 const DropdownMenu = () => {
+  // Array of menu items with their labels and URLs
   const menuItems = [
-    { label: 'Dashboard', url: '#' },
-    { label: 'Settings', url: '#' },
-    { label: 'Earnings', url: '#' },
-    { label: 'Sign out', url: '#' },
+    { label: "Dashboard", url: "#" },
+    { label: "Settings", url: "#" },
+    { label: "Earnings", url: "#" },
+    { label: "Sign out", url: "#" },
   ];
 
   return (
     <div
       className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden"
-      style={{ top: '100%', zIndex: 50 }}
+      style={{ top: "100%", zIndex: 50 }}
     >
+      {/* User Information Section */}
       <div className="px-4 py-3">
         <p className="text-sm text-gray-900">Neil Sims</p>
-        <p className="text-sm font-medium text-gray-900 truncate">neil.sims@flowbite.com</p>
+        <p className="text-sm font-medium text-gray-900 truncate">
+          neil.sims@flowbite.com
+        </p>
       </div>
+      {/* Navigation Menu Items */}
       <ul className="py-1">
         {menuItems.map((item, index) => (
           <DropdownButton key={index} label={item.label} url={item.url} />
@@ -41,9 +51,12 @@ const DropdownMenu = () => {
   );
 };
 
+// Main Navbar Component
 const Navbar = () => {
+  // State to manage dropdown visibility
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  // Toggle function for dropdown menu
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -52,7 +65,9 @@ const Navbar = () => {
     <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
       <div className="px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
+          {/* Left side - Logo and Sidebar Toggle */}
           <div className="flex items-center justify-start rtl:justify-end">
+            {/* Hamburger menu button for mobile sidebar */}
             <button
               data-drawer-target="logo-sidebar"
               data-drawer-toggle="logo-sidebar"
@@ -61,6 +76,7 @@ const Navbar = () => {
               className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
             >
               <span className="sr-only">Open sidebar</span>
+              {/* Hamburger menu icon */}
               <svg
                 className="w-6 h-6"
                 aria-hidden="true"
@@ -75,6 +91,7 @@ const Navbar = () => {
                 ></path>
               </svg>
             </button>
+            {/* Logo and Brand Name */}
             <a href="https://flowbite.com" className="flex ms-2 md:me-24">
               <img
                 src="https://flowbite.com/docs/images/logo.svg"
@@ -86,8 +103,11 @@ const Navbar = () => {
               </span>
             </a>
           </div>
+
+          {/* Right side - User Profile Section */}
           <div className="flex items-center">
             <div className="flex items-center ms-3 relative">
+              {/* User Profile Button */}
               <div>
                 <button
                   type="button"
@@ -99,12 +119,12 @@ const Navbar = () => {
                   <img
                     className="w-8 h-8 rounded-full"
                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                    alt="user photo"
+                    alt="User profile"
                   />
                 </button>
               </div>
 
-              {/* Dropdown */}
+              {/* Conditional rendering of dropdown menu */}
               {dropdownOpen && <DropdownMenu />}
             </div>
           </div>

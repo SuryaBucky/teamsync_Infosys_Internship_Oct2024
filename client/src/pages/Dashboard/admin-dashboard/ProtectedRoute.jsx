@@ -4,6 +4,11 @@ import { useRecoilValue } from 'recoil';
 import { authenticationState } from '../../../store/atoms/authVerifierSelector';
 import CircularProgress from "@mui/material/CircularProgress";
 
+/**
+ * AuthChecker component checks the authentication state 
+ * and determines if the user is valid or an admin.
+ * If not, it redirects to the home page.
+ */
 const AuthChecker = ({ children }) => {
   const auth = useRecoilValue(authenticationState);
 
