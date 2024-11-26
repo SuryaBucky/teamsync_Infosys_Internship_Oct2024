@@ -346,7 +346,6 @@ const deleteTask = async (req, res) => {
 const getTasksCreatedByUser = async (req, res) => {
     try {
         const { userEmail } = req.params;
-
         // Find tasks where the user is the creator
         const tasks = await Task.find({ creator_id: userEmail });
 
@@ -363,6 +362,7 @@ const getTasksCreatedByUser = async (req, res) => {
 const   getTasksAssignedToUser = async (req, res) => {
     try {
         const { user_id } = req.params; // Extract user ID from URL parameters
+        console.log(user_id)
 
         // Find tasks where the user is an assignee
         const tasks = await Task.find({ assignees: user_id });
