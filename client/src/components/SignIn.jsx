@@ -264,10 +264,11 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
               <>
                 {/* Header for the sign-in form */}
                 <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4 text-center">
-                  Welcome back!
+                Welcome back!
                 </h1>
                 <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
-                  It's great to see you again.
+                  We are so happy to have you here. It's great to see you again.
+                  We hope you had a safe and enjoyable time away.
                 </h1>
 
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
@@ -329,10 +330,16 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   </div>
                 )}
                 <div
-                  className="text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right cursor-pointer hover:text-blue-500 dark:hover:text-blue-400"
-                  onClick={() => setResetPasswordOpen(true)} // Open reset password modal
+                  className={`text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right 
+                    ${isAdmin 
+                      ? 'opacity-30 cursor-not-allowed' 
+                      : 'cursor-pointer hover:text-blue-500 dark:hover:text-blue-400'
+                    }`}
+                  onClick={() => !isAdmin && setResetPasswordOpen(true)}
                 >
-                  <b className="hover:underline">Forgot password?</b>
+                  <b className={`${!isAdmin && 'hover:underline'}`}>
+                    Forgot password?
+                  </b>
                 </div>
 
                 <div className="px-5">
@@ -358,10 +365,16 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 mb-10 flex justify-center items-center">
                   Don't have an account?&nbsp;{" "}
                   <span
-                    className="text-blue-500 cursor-pointer hover:underline"
+                    className={`${
+                      isAdmin
+                        ? 'text-gray-400 opacity-30 cursor-not-allowed'
+                        : 'text-blue-500 cursor-pointer hover:underline'
+                    }`}
                     onClick={() => {
-                      setSignUpOpen(true); // Opening sign-up modal
-                      setSignInOpen(false); // Closing sign-in modal
+                      if (!isAdmin) {
+                        setSignUpOpen(true);
+                        setSignInOpen(false);
+                      }
                     }}
                   >
                     Sign Up
