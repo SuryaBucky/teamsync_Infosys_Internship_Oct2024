@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MoreVertical } from 'lucide-react';
-import { ChevronDown } from 'lucide-react';
+import { MoreVertical, ChevronDown } from 'lucide-react';
 import { ProgressBar } from '../common/ProgressBar';
 
 const ArchivedProjectsTable = () => {
@@ -36,7 +35,7 @@ const ArchivedProjectsTable = () => {
     fetchProjects();
   }, []);
 
-  // Search handler
+  // Handles project search by filtering based on name and status
   const handleSearch = (e) => {
     e.preventDefault();
     const lowerCaseQuery = searchQuery.toLowerCase();
@@ -50,10 +49,11 @@ const ArchivedProjectsTable = () => {
 
   return (
     <div className="pt-2 max-w-[1200px] mx-auto">
+      {/* Collapsible button to toggle table visibility */}
       <div className="border rounded-lg shadow-sm">
         <button
           onClick={() => setIsTableVisible(!isTableVisible)}
-          className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200 rounded-lg"
+          className="w-full px-6 py-4 flex items-center justify-between bg-light-blue hover:bg-gray-50 transition-colors duration-200 rounded-lg"
         >
           <div className="font-medium text-lg flex items-center gap-2">
             <span>Archived Projects</span>
@@ -68,8 +68,10 @@ const ArchivedProjectsTable = () => {
           />
         </button>
 
+        {/* Table content, shown only when `isTableVisible` is true */}
         {isTableVisible && (
           <div className="transition-all duration-300 overflow-hidden">
+            {/* Search input and search button */}
             <div className="px-6 py-4 border-t border-gray-200">
               <div className="flex gap-4">
                 <form onSubmit={handleSearch} className="flex-1">
@@ -91,6 +93,7 @@ const ArchivedProjectsTable = () => {
             </div>
 
             <div className="overflow-x-auto">
+              {/* Loading spinner or error message if data fails to load */}
               {loading ? (
                 <div className="flex justify-center items-center h-32">
                   <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -101,6 +104,7 @@ const ArchivedProjectsTable = () => {
                 </div>
               ) : (
                 <div className="max-h-[500px] overflow-y-auto">
+                  {/* Table with project data */}
                   <table className="w-full">
                     <thead>
                       <tr className="border-t border-b bg-gray-100 sticky" style={{ top: '-1px' }}>
@@ -114,6 +118,7 @@ const ArchivedProjectsTable = () => {
                       </tr>
                     </thead>
                     <tbody>
+                      {/* Render projects or message if no projects are found */}
                       {filteredProjects.length > 0 ? (
                         filteredProjects.map((project, index) => {
                           const formattedDeadline = new Date(project.deadline).toLocaleDateString('en-GB', {
@@ -124,9 +129,18 @@ const ArchivedProjectsTable = () => {
 
                           return (
                             <tr key={index} className="border-b last:border-b-0 hover:bg-gray-50">
-                              <td className="py-4 px-6">
-                                <div className="font-medium text-sm">{project.name}</div>
+                              {/* Project details with creator info */}
+                              <td className="py-4 px-4 md:px-4 max-w-[150px] truncate">
+                                <div className="flex items-center gap-2">
+                                  <div>
+                                    <div className="font-medium text-sm md:text-md line-clamp-1">{project.name}</div>
+                                    <div className="text-xs text-gray-500" title={project.creator_id}>
+                                      {project.creator_id.length > 16 ? project.creator_id.slice(0, 16) + '...' : project.creator_id}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
+                              {/* Project status */}
                               <td className="py-4 px-6">
                                 <span
                                   className={`inline-flex justify-center items-center px-2 py-1 rounded-full text-xs ${
@@ -139,6 +153,7 @@ const ArchivedProjectsTable = () => {
                               <td className="py-4 px-6 text-sm text-gray-600">
                                 {project.description}
                               </td>
+                              {/* Project members */}
                               <td className="py-4 px-4">
                                 <div className="flex -space-x-2">
                                   {[...Array(Math.min(3, project.noUsers))].map((_, i) => (
@@ -156,12 +171,15 @@ const ArchivedProjectsTable = () => {
                                   )}
                                 </div>
                               </td>
+                              {/* Project progress bar */}
                               <td className="py-4 px-6">
                                 <ProgressBar progress={project.progress || 0} />
                               </td>
+                              {/* Project deadline */}
                               <td className="py-4 ps-7 px-4">
                                 <div className="text-xs text-gray-500">{formattedDeadline}</div>
                               </td>
+                              {/* Options button */}
                               <td className="py-4 px-6">
                                 <button className="p-1 hover:bg-gray-100 rounded">
                                   <MoreVertical className="h-5 w-5 text-gray-400" />

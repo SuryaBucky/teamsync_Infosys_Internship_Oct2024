@@ -291,7 +291,7 @@ router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) =
 
 
 //get project report
-router.get('/report/:project_id', tokenValidation, checkProjectExists,  async (req, res) => {
+router.get('/report/:project_id', checkProjectExists,  async (req, res) => {
     try {
         const project_id = req.params.project_id;
 

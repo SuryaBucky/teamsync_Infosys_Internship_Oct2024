@@ -568,14 +568,14 @@ import 'react-toastify/dist/ReactToastify.css';
                   <button
                     onClick={sendMessage}
                     disabled={!message.trim() && !mediaPreview} // Disable the button when there's no message and no media
-                    className={`bg-blue-950 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${!message.trim() && !mediaPreview ? 'cursor-not-allowed bg-gray-300 text-gray-500' : ''
+                    className={`bg-blue-850 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${!message.trim() && !mediaPreview ? 'cursor-not-allowed bg-blue-950 text-gray-500' : ''
                       }`}
                   >
                     ➤
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="text-gray-600 p-2 hover:bg-gray-200 rounded-full"
+                    className="text-gray-800 p-2 hover:bg-gray-200 rounded-full"
                   >
                     ✕
                   </button>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, CheckCircle, XCircle, X } from 'lucide-react';
+import { Search, CheckCircle, XCircle, X, Trash2 } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
 import toast from 'react-simple-toasts';
 
@@ -84,6 +84,22 @@ const Users = () => {
     }
   };
 
+  const handleRemove = async (user) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/admin/user/${user.id}`, {
+        headers: { 'authorization': token }
+      });
+
+      const updatedUsers = users.filter((u) => u.id !== user.id);
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+      toast(`User "${user.name}" removed successfully.`);
+    } catch (error) {
+      toast(error.response ? error.response.data.message : 'Something went wrong!');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -120,6 +136,7 @@ const Users = () => {
                 <th className="text-left py-4 px-6 font-medium text-xs">Joined On</th>
                 <th className="text-left py-4 px-6 font-medium text-xs">State</th>
                 <th className="text-left py-4 px-6 font-medium text-xs">Action</th>
+                <th className="text-left py-4 px-6 font-medium text-xs">Remove</th>
               </tr>
             </thead>
             <tbody>
@@ -146,11 +163,19 @@ const Users = () => {
                         {user.state === 'verified' ? 'Block' : 'Unblock'}
                       </button>
                     </td>
+                    <td className="py-4 px-6">
+                      <button
+                        onClick={() => handleRemove(user)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center py-4 text-gray-500">No users found.</td>
+                  <td colSpan="6" className="text-center py-4 text-gray-500">No users found.</td>
                 </tr>
               )}
             </tbody>

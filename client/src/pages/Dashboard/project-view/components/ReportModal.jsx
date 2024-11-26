@@ -102,11 +102,12 @@ const ReportModal = () => {
                   <div className="bg-blue-100 border border-blue-300 text-blue-800 text-center rounded-md p-4 shadow-md">
                     <p className="font-semibold text-lg">No tasks available</p>
                     <p className="text-sm mt-2">
-                      This project currently has no tasks assigned. Please add tasks to view progress.
+                      This project currently has no tasks assigned. Please add
+                      tasks to view progress.
                     </p>
                   </div>
                 ) : (
-                  <div className="w-full h-[250px]">
+                  <div className="w-full h-[250px] bg-gray-200">
                     <Pie data={chartData} />
                   </div>
                 )}
@@ -114,7 +115,9 @@ const ReportModal = () => {
               {/* Right Side: Details */}
               <div className="w-full md:w-1/2 space-y-4">
                 <div className="bg-gray-200 p-4 rounded-md shadow-sm">
-                  <h3 className="font-semibold text-gray-700 mb-2">Project Overview</h3>
+                  <h3 className="font-semibold text-gray-700 mb-2">
+                    Project Overview
+                  </h3>
                   <p className="text-gray-600">Name: {projectName}</p>
                   <p className="text-gray-600">Priority: {projectPriority}</p>
                   <p className="text-gray-600">Status: {projectStatus}</p>
@@ -122,10 +125,18 @@ const ReportModal = () => {
                 {/* Tasks */}
                 <div className="bg-gray-200 p-4 rounded-md shadow-sm">
                   <h3 className="font-semibold text-gray-700 mb-2">Tasks</h3>
-                  <p className="text-gray-600">Total Tasks: {taskStats.totalTasks}</p>
-                  <p className="text-gray-600">Completed Tasks: {taskStats.completedTasks}</p>
-                  <p className="text-gray-600">Pending Tasks: {taskStats.pendingTasks}</p>
-                  <p className="text-gray-600">Past Due: {taskStats.pastDueTasks}</p>
+                  <p className="text-gray-600">
+                    Total Tasks: {taskStats.totalTasks}
+                  </p>
+                  <p className="text-gray-600">
+                    Completed Tasks: {taskStats.completedTasks}
+                  </p>
+                  <p className="text-gray-600">
+                    Pending Tasks: {taskStats.pendingTasks}
+                  </p>
+                  <p className="text-gray-600">
+                    Past Due: {taskStats.pastDueTasks}
+                  </p>
                 </div>
                 {/* Team */}
                 <div className="bg-gray-200 p-4 rounded-md shadow-sm">
