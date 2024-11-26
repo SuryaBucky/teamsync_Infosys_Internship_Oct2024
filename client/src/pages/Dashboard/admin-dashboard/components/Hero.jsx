@@ -67,7 +67,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
       )}
       {selectedSidebar === 'need-approval' && <PendingProject />}
       {selectedSidebar === 'users' && <Users />}
-      {selectedSidebar === 'admin' && <Admins />}
+      {selectedSidebar === 'admins' && <Admins />}
 
       {/* Add Project Modal */}
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
