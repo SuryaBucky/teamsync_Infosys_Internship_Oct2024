@@ -3,7 +3,7 @@ const { Task, Project,User, ProjectUser,ProjectStatistic } = require('../db/inde
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Define the Zod schema for creating a task
+// Define the Zod schema to create a task  
 const TaskCreationSchema = z.object({
     title: z.string().min(1, { message: 'Title is required' }),
     description: z.string().optional(),
@@ -13,6 +13,7 @@ const TaskCreationSchema = z.object({
     creator_id: z.string().min(1, { message: 'Creator ID is required' }),
     assignees: z.array(z.string()).optional(),
 });
+
 // Define Zod schema for adding an assignee
 const AddAssigneeSchema = z.object({
     assignee_ids: z.array(z.string().min(1, { message: 'Assignee ID is required' }))
@@ -71,7 +72,6 @@ const validateTaskCreation = async (req, res, next) => {
         if (existingTask) {
             return res.status(400).json({ message: 'A task with this title already exists in the specified project' });
         }
-
 
         next(); // Proceed to the next middleware/route handler if valid
     } catch (error) {
@@ -134,6 +134,7 @@ const createTask = async (req, res) => {
         });
     }
 };
+
 // Function to update ProjectStatistics
 async function updateProjectStatistics(projectId) {
     try {
