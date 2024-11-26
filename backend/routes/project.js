@@ -1,8 +1,10 @@
 const express = require("express");
-const { Project, ProjectTag, ProjectUser, User } = require("../db");
-const { validateCreateProject ,checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists } = require("../middlewares/ProjectMiddlewares");
+const { Project, ProjectTag, ProjectUser, User, Task, ProjectStatistic } = require("../db");
+const { validateCreateProject ,checkUserEmailExists, validateTokenProjectOwner, validateUpdateProject, validateAddUsers, checkProjectExists, checkUserAdminExists} = require("../middlewares/ProjectMiddlewares");
+const {tokenValidation}=require("../middlewares/UserMiddlewares");
 const router = express.Router();
 const jwt=require("jsonwebtoken");
+const axios = require("axios");
 //require dotenv
 require("dotenv").config();
 
@@ -73,7 +75,8 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
         },
         {
             $match: {
-                creator_id: email // Filter projects by creator_id matching the email variable
+                creator_id: email, // Filter projects by creator_id matching the email variable
+                status: { $ne: 'archived' } // Exclude projects with status 'archived'
             }
         },
         {
@@ -187,13 +190,13 @@ router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExist
     try {
         // Get project id from the URL params
         const project_id = req.params.project_id;
-        console.log("hii")
+        // console.log("hii")
 
         // Get all users assigned to the project
         const users = await ProjectUser.aggregate([
             {
                 $match: {
-                    project_id: project_id // Filter users by project_id
+                    project_id: project_id, // Filter users by project_id
                 }
             },
             {
@@ -253,7 +256,8 @@ router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) =
             },
             {
                 $match: {
-                    id: { $in: (await ProjectUser.find({ user_id })).map(proj => proj.project_id) }
+                    id: { $in: (await ProjectUser.find({ user_id })).map(proj => proj.project_id) },
+                    status: { $ne: 'archived' } // Exclude projects with status 'archived'
                 }
             },
             {
@@ -284,6 +288,48 @@ router.get("/get-my-assigned-projects", checkUserEmailExists, async (req, res) =
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
+//get project report
+router.get('/report/:project_id', checkProjectExists,  async (req, res) => {
+    try {
+        const project_id = req.params.project_id;
+
+        // Fetch all tasks for the given project ID
+        const tasks = await Task.find({ project_id });
+
+        const totalTasks = tasks.length;
+
+        // Number of completed tasks (status = '2')
+        const completedTasks = tasks.filter(task => task.status === '2').length;
+
+        // Past due tasks (deadline < current date and not completed)
+        const now = new Date();
+        const pastDueTasks = tasks.filter(task => new Date(task.deadline) < now && task.status !== '2').length;
+
+        // Pending tasks (not completed and deadline not passed)
+        const pendingTasks = tasks.filter(task => new Date(task.deadline) >= now && task.status !== '2').length;
+
+        // Response
+        res.status(200).json({
+            totalTasks,
+            completedTasks,
+            pastDueTasks,
+            pendingTasks,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.get("/:project_id",tokenValidation,checkProjectExists, (req,res)=>{
+    try {
+        const project=req.project;
+        res.status(200).json(project);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
 
 
 module.exports = router;

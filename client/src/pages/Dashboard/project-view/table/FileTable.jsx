@@ -38,6 +38,11 @@ const FileTable = () => {
     fetchFiles();
   }, []);
 
+  useEffect(() => {
+      localStorage.setItem("project_files", files.length);
+  }, [files]);
+  
+
   /**
    * Handles file download functionality
    * Converts base64 file data to blob and triggers download
