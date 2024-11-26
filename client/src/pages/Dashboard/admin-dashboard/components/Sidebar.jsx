@@ -113,6 +113,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                 setSidebarSelection("users");
               }}><IconItem icon={faUsers} label="Users" active={active==="users"} /></li>
               {/* <li><IconItem icon={faLifeRing} label="Support" /></li> */}
+              <li onClick={()=>{
+                setactive("admins");
+                setSidebarSelection("admins");
+              }}><IconItem icon={faUsers} label="Admins" active={active==="admins"} /></li>
             </ul>
           </nav>
 

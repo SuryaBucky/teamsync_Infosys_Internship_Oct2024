@@ -81,26 +81,59 @@ router.put("/user-state",tokenValidationAdmin,validateUserStateChange, async (re
 router.put('/archive/:project_id', tokenValidationAdmin, archiveProject);
 
 // Change user role (User to Admin or Admin to User)
-router.patch("/change-role", tokenValidationAdmin, async (req, res) => {
+router.put("/change-role", tokenValidationAdmin, async (req, res) => {
     const { user_id, new_role } = req.body;
-
-    if (!["admin", "user"].includes(new_role)) {
-        return res.status(400).json({ message: "Invalid role specified." });
-    }
-
     try {
-        const user = await User.findById(user_id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
+        if (new_role === "admin") {
+            // Move User to Admin table
+            const user = await User.findById(user_id);
+            if (!user) {
+                return res.status(404).json({ message: "User not found." });
+            }
+
+            // Create an Admin entry
+            const newAdmin = new Admin({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                password_hash: user.password_hash,
+                created_at: user.created_at,
+                last_login: user.last_login,
+            });
+
+            // Save the Admin and delete from User
+            await newAdmin.save();
+            await user.remove();
+
+            return res.status(200).json({ message: "User successfully moved to Admin." });
+        } else if (new_role === "user") {
+            // Move Admin to User table
+            const admin = await Admin.findById(user_id);
+            if (!admin) {
+                return res.status(404).json({ message: "Admin not found." });
+            }
+
+            // Create a User entry
+            const newUser = new User({
+                id: admin.id,
+                name: admin.name,
+                email: admin.email,
+                password_hash: admin.password_hash,
+                created_at: admin.created_at,
+                last_login: admin.last_login,
+            });
+
+            // Save the User and delete from Admin
+            await newUser.save();
+            await admin.remove();
+
+            return res.status(200).json({ message: "Admin successfully moved to User." });
+        } else {
+            return res.status(400).json({ message: "Invalid role specified." });
         }
-
-        user.role = new_role;
-        await user.save();
-
-        return res.status(200).json({ message: `User role updated to ${new_role}.` });
     } catch (error) {
-        console.error("Error updating user role:", error);
-        return res.status(500).json({ message: "Failed to update user role." });
+        console.error("Error changing role:", error);
+        return res.status(500).json({ message: "Failed to change role." });
     }
 });
 
