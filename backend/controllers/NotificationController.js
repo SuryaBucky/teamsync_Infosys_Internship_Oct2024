@@ -105,4 +105,5 @@ const markMessagesAsRead = async (req, res) => {
     }
 };
 
+//export
 module.exports = {getUnreadMessagesByProject, getTotalUnreadMessages,markMessagesAsRead}
