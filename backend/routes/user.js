@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {User, Project} = require("../db/index"); 
+const {User, Project, ProjectUser} = require("../db/index"); 
 const { validateUserSignup, validateUserSignin, validateUserUpdate, validateUserVerify, tokenValidation } = require("../middlewares/UserMiddlewares");
 const jwt = require("jsonwebtoken");
 const {sendOtpEmail} = require("../utilities/MailUtility")
@@ -336,12 +336,20 @@ router.delete("/:user_id",tokenValidationAdmin,async (req,res)=>{
         for(let project of projects){
             project.creator_id=new_user.email;
             await project.save()
-            }
-            //delete the user
-            await User.deleteOne({id:id})
-            return res.status(200).json({
-                message: "User deleted successfully.",
-                });
+        }
+        //delete the user
+        await User.deleteOne({id:id})
+
+        //change user_id in ProjectUsers also
+        const project_users=await ProjectUser.find({user_id:RequestedUser.id})
+        for(let project_user of project_users){
+            project_user.user_id=new_user.id
+            await project_user.save()
+        }
+
+        return res.status(200).json({
+            message: "User deleted successfully.",
+            });
     } catch (error) {
         return res.status(500).json({
             errors: ["Internal server error."],
