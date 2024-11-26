@@ -1,5 +1,5 @@
 const express = require("express");
-// Import the validation and creation middleware
+// Import the validation and creation middleware   
 require("dotenv").config();
 const { validateTaskCreation, createTask,viewTasksByProject,validateAddAssignee,addAssignee,
     validateEditDetails,editTaskDetails,
@@ -17,16 +17,16 @@ router.post('/:task_id/add-assignee', validateAddAssignee, addAssignee);
 router.put('/:task_id/edit-details', validateEditDetails,editTaskDetails);
 
 
-// Route for deleting a task from a project
+// Route for deleting a task from a project 
 router.delete('/project/:project_id/delete-task', deleteTask);
 
-// Route for getting tasks created by the user
+// Route for getting tasks created by the user 
 router.get('/user/:userEmail/created-tasks', getTasksCreatedByUser);
 
-// Route for getting tasks assigned to the user
+// Route for getting tasks assigned to the user  
 router.get('/user/:user_id/assigned-tasks', getTasksAssignedToUser);
 
-//route to get all users assigned to a task
+//route to get all users assigned to a task 
 router.get('/:task_id/assigned-users', getAssignedUsers);
 
 
