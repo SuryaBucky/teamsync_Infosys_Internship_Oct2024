@@ -267,8 +267,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 Welcome back!
                 </h1>
                 <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
-                  We are so happy to have you here. It's great to see you again.
-                  We hope you had a safe and enjoyable time away.
+                Welcome back! <br /> Sign in to seamlessly collaborate with your team.
                 </h1>
 
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
