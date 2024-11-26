@@ -9,7 +9,7 @@ const commentRouter = require("./routes/comment");
 const cors = require("cors");
 const { connectDB } = require('./db');
 
-// Middleware for parsing request bodies
+// Middleware   for parsing request bodies
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/admin", adminRouter)
