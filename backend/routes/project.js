@@ -4,7 +4,7 @@ const { validateCreateProject ,checkUserEmailExists, validateTokenProjectOwner, 
 const {tokenValidation}=require("../middlewares/UserMiddlewares");
 const router = express.Router();
 const jwt=require("jsonwebtoken");
-//require dotenv
+//require dotenv  
 require("dotenv").config();
 
 //create a project route 
@@ -74,7 +74,7 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
         },
         {
             $match: {
-                creator_id: email // Filter projects by creator_id matching the email variable
+                creator_id: email // Filter projects by creator_id matching the email variable  
             }
         },
         {
@@ -194,7 +194,7 @@ router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExist
         const users = await ProjectUser.aggregate([
             {
                 $match: {
-                    project_id: project_id // Filter users by project_id
+                    project_id: project_id // Filter users by project_id 
                 }
             },
             {
