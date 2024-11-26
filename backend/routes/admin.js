@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
-// Define admin sign-in route
+// Define admin sign-in route  
 router.post("/signin", validateAdminSignIn, async (req, res) => {
     try {
         // Destructure the validated data from the request body
@@ -46,7 +46,7 @@ router.post("/signin", validateAdminSignIn, async (req, res) => {
     }
 });
 
-// Additional routes can be defined here
+// Additional routes can be defined here    
 router.post("/approve-project",tokenValidationAdmin, validateProjectApproval, approveProject);
 
 // Route to get all users (excluding passwords) and their projects
@@ -67,6 +67,7 @@ router.put("/user-state",tokenValidationAdmin,validateUserStateChange, async (re
     }else{
         return res.status(400).json({message:"User not verified yet"});
     }
+
 
     try {
         await user.save();
