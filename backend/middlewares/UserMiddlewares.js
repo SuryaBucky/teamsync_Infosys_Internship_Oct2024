@@ -3,6 +3,7 @@ const {User} = require("../db/index");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// Zod schema for user signup validation
 const userSignupSchema = z.object({
     name: z.string().min(1, { message: "Name is required." }),
     email: z.string().email({ message: "Invalid email format." }),
@@ -10,6 +11,7 @@ const userSignupSchema = z.object({
     
 });
 
+// Zod schema for user signin validation
 //signin schema need only email and password
 const userSigninSchema = z.object({
     email: z.string().email({ message: "Invalid email format." }),

@@ -4,45 +4,44 @@ const { validateCreateProject ,checkUserEmailExists, validateTokenProjectOwner, 
 const {tokenValidation}=require("../middlewares/UserMiddlewares");
 const router = express.Router();
 const jwt=require("jsonwebtoken");
-const axios = require("axios");
-//require dotenv
+//require dotenv  
 require("dotenv").config();
 
-//create a project route
-// create a project route
+//create a project route 
+// create a project route 
 router.post("/create", validateCreateProject, async (req, res) => {
-    const user_id = req.user_id; // Assuming req.user_id contains the ID of the logged-in user
+    const user_id = req.user_id; // Assuming req.user_id contains the ID of the logged-in user 
     const email = req.user_email;
 
-    // Get req body and extract name, description, tags, and deadline
+    // Get req body and extract name, description, tags, and deadline 
     const { name, description, tags, deadline, priority } = req.body;
     
-    // Convert deadline from "dd/mm/yyyy" to Date object
+    // Convert deadline from "dd/mm/yyyy" to Date object 
     const [day, month, year] = deadline.split("/").map(Number);
-    const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
-    const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based)
+    const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format 
+    const parsedDate = new Date(fullYear, month - 1, day); // Convert to JS Date (month is 0-based) 
 
-    // Create a new project object
+    // Create a new project object 
     const project = new Project({
         name: name,
         description: description,
         deadline: parsedDate,
-        creator_id: email, // Save the email of the creator as creator_id
+        creator_id: email, // Save the email of the creator as creator_id   
         priority: priority
     });
 
     try {
-        // Save the project in the database
+        // Save the project in the database 
         await project.save();
-        const pid = project.id; // Get the project ID after saving
+        const pid = project.id; // Get the project ID after saving 
 
-        // Add the project creator (user) to the ProjectUser table
+        // Add the project creator (user) to the ProjectUser table 
         await ProjectUser.create({
-            user_id: user_id, // Assign the user to the project
-            project_id: pid   // The project they just created
+            user_id: user_id, // Assign the user to the project 
+            project_id: pid   // The project they just created 
         });
 
-        // If tags are present, add them to the ProjectTag
+        // If tags are present, add them to the ProjectTag  
         if (tags.length > 0) {
             tags.forEach(async (tag) => {
                 await ProjectTag.create({ project_id: pid, tag_name: tag });
@@ -57,26 +56,25 @@ router.post("/create", validateCreateProject, async (req, res) => {
 });
 
 
-//get my created projects
+//get my created projects 
 router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
-    //get the token from headers and decode it to get the email id
+    //get the token from headers and decode it to get the email id  
     const token=req.header("authorization");
     const decoded=jwt.verify(token,process.env.JWT_SECRET);
     const email=decoded.email;
-    //get all the projects created by the user and also get tags of them
+    //get all the projects created by the user and also get tags of them  
     const projects = await Project.aggregate([
         {
             $lookup: {
-                from: 'projecttags', // Name of the tags collection
-                localField: 'id', // Project ID
-                foreignField: 'project_id', // Matching project_id in tags
-                as: 'tags' // The name of the field where the tags will be stored
+                from: 'projecttags', // Name of the tags collection  
+                localField: 'id', // Project ID  
+                foreignField: 'project_id', // Matching project_id in tags  
+                as: 'tags' // The name of the field where the tags will be stored  
             }
         },
         {
             $match: {
-                creator_id: email, // Filter projects by creator_id matching the email variable
-                status: { $ne: 'archived' } // Exclude projects with status 'archived'
+                creator_id: email // Filter projects by creator_id matching the email variable  
             }
         },
         {
@@ -92,18 +90,18 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
                 status: 1,
                 priority: 1,
                 noUsers:1,
-                tags: '$tags.tag_name' // Only return the tag names
+                tags: '$tags.tag_name' // Only return the tag names 
             }
         }
     ]);
     return res.status(200).json(projects);
 })
 
-//update a project 
+//update a project  
 router.put("/update", validateTokenProjectOwner, validateUpdateProject, async (req, res) => {
     const { project_id, description, deadline, status } = req.body;
 
-    // Attempt to retrieve the project by ID
+    // Attempt to retrieve the project by ID 
     let project;
     try {
         project = await Project.findOne({ id: project_id });
@@ -114,7 +112,7 @@ router.put("/update", validateTokenProjectOwner, validateUpdateProject, async (r
         return res.status(500).json({ message: "Error retrieving project", error: error.message });
     }
 
-    // Update project details if provided
+    // Update project details if provided  
     try {
         if (description) project.description = description;
         if (status) project.status = status;
@@ -122,10 +120,10 @@ router.put("/update", validateTokenProjectOwner, validateUpdateProject, async (r
             project.deadline = deadline;
         }
 
-        // Update the updated_at field to the current date
+        // Update the updated_at field to the current date  
         project.updated_at = Date.now();
 
-        // Save the updated project
+        // Save the updated project  
         await project.save();
         return res.status(200).json({ message: "Project updated successfully" });
 
@@ -134,50 +132,50 @@ router.put("/update", validateTokenProjectOwner, validateUpdateProject, async (r
     }
 });
 
-//router to add users to a project
+//router to add users to a project  
 router.post("/addusers", validateTokenProjectOwner, validateAddUsers, async (req, res) => {
     const project_id = req.body.project_id;
     const user_ids = req.body.user_ids;
     
-    const errors = []; // Array to collect errors
+    const errors = []; // Array to collect errors   
   
     try {
       for (const user_id of user_ids) {
-        // Check if the user exists
+        // Check if the user exists  
         const userExists = await User.findOne({ id: user_id });
         if (!userExists) {
           errors.push(`User with id ${user_id} does not exist`);
-          continue; // Skip to the next iteration
+          continue; // Skip to the next iteration  
         }
   
-        // Check if the user is already added to the project
+        // Check if the user is already added to the project  
         const userAlreadyAdded = await ProjectUser.findOne({
           user_id: user_id,
           project_id: project_id
         });
         if (userAlreadyAdded) {
           errors.push(`User with id ${user_id} is already added to the project`);
-          continue; // Skip to the next iteration
+          continue; // Skip to the next iteration  
         }
   
-        // Add the user to the project
+        // Add the user to the project  
         await ProjectUser.create({
           user_id: user_id,
           project_id: project_id
         });
       }
   
-      // If there are any errors, return them as a response
+      // If there are any errors, return them as a response  
       if (errors.length > 0) {
         return res.status(400).json({ message: "Some users could not be added", errors });
       }
 
       const tempProject=req.project;
-      //increment noUsers field by 1 and save
+      //increment noUsers field by 1 and save  
         tempProject.noUsers+=user_ids.length;
         await tempProject.save();
   
-      // If no errors, send success message
+      // If no errors, send success message  
       return res.status(200).json({ message: "Users added successfully" });
   
     } catch (error) {
@@ -185,25 +183,25 @@ router.post("/addusers", validateTokenProjectOwner, validateAddUsers, async (req
     }
   });
   
-//get all users assigned to a project
+//get all users assigned to a project 
 router.get("/get-all-users/:project_id", checkProjectExists, checkUserAdminExists, async (req, res) => {
     try {
-        // Get project id from the URL params
+        // Get project id from the URL params 
         const project_id = req.params.project_id;
         // console.log("hii")
 
-        // Get all users assigned to the project
+        // Get all users assigned to the project 
         const users = await ProjectUser.aggregate([
             {
                 $match: {
-                    project_id: project_id, // Filter users by project_id
+                    project_id: project_id // Filter users by project_id 
                 }
             },
             {
                 $lookup: {
-                    from: 'users', // Name of the users collection
-                    localField: 'user_id', // User ID in ProjectUser collection
-                    foreignField: 'id', // Matching field in Users collection
+                    from: 'users', // Name of the users collection 
+                    localField: 'user_id', // User ID in ProjectUser collection 
+                    foreignField: 'id', // Matching field in Users collection 
                     as: 'user' // The field where the user details will be stored
                 }
             },

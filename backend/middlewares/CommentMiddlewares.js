@@ -74,6 +74,7 @@ async function userAuthorize(req,res,next){
   }
 }
 
+// Middleware function to validate the request body using Zod schema
 async function messageSchemaCheck(req,res,next){
     try {
         const result = CommentZodSchema.parse(req.body);
@@ -83,6 +84,7 @@ async function messageSchemaCheck(req,res,next){
     }
 }
 
+// Middleware function to validate the request body using the getMessagesSchema
 async function getMessagesSchemaCheck(req,res,next){
   try {
     const result = getMessagesSchema.parse(req.body);
@@ -93,7 +95,7 @@ async function getMessagesSchemaCheck(req,res,next){
 }
 
 
-//exort
+//export
 module.exports = {tokenValidate,
     messageSchemaCheck,
     userAuthorize,

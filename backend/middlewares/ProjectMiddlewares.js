@@ -8,6 +8,7 @@ const {User, Project, ProjectUser, Admin, ProjectStatistic} = require("../db/ind
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+// Define schemas for validation
 const projectCreateSchema = z.object({
     name: z.string().min(4, { message: "Name is required" }),   
     description: z.string().min(4, { message: "Description is required" }),
@@ -15,6 +16,7 @@ const projectCreateSchema = z.object({
     deadline: z.optional(
         z.preprocess(
           (val) => {
+            // Convert dd/mm/yy format to Date object
             if (typeof val === "string") {
               const [day, month, year] = val.split("/").map(Number);
               const fullYear = year < 100 ? 2000 + year : year; // Handle two-digit year format
