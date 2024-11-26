@@ -9,7 +9,9 @@ import { sidebarSelection } from '../../../../store/atoms/adminDashboardAtoms';
 import { useRecoilValue } from 'recoil';
 import PendingProject from './PenginProject';
 import Users from './Users';
+import Admins from './Admins';
 import ArchivedProjectsTable from './table/ArchivedProjectsTable'; // Import ArchivedProjectsTable
+//import { Admin } from '../../../../../../backend/db';
 
 // Hero component to manage the main content area
 const Hero = ({ sidebarOpen, setSidebarOpen }) => {
@@ -65,6 +67,7 @@ const Hero = ({ sidebarOpen, setSidebarOpen }) => {
       )}
       {selectedSidebar === 'need-approval' && <PendingProject />}
       {selectedSidebar === 'users' && <Users />}
+      {selectedSidebar === 'admin' && <Admins />}
 
       {/* Add Project Modal */}
       <AddProjectModal isOpen={isModalOpen} onClose={closeModal} />
