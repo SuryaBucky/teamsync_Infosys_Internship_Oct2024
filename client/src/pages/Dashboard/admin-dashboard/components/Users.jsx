@@ -203,8 +203,7 @@ const Users = () => {
                         onClick={() => openDeleteModal(user)}
                         className="text-red-500 hover:text-red-600 flex items-center"
                       >
-                        <UserPlus className="w-5 h-5 mr-2" />
-                        Delete
+                        <Trash2 className="w-5 h-5 mr-2" />
                       </button>
                     </td>
                   </tr>
