@@ -1,18 +1,30 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, CheckCircle, XCircle, X, Trash2 } from 'lucide-react';
+import { Search, CheckCircle, XCircle, X, Trash2, UserPlus } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
 import toast from 'react-simple-toasts';
 
 const Users = () => {
   // State to hold the search query input by the user
-  const [searchQuery, setSearchQuery] = useState('');  // State to hold the list of all users fetched from the server
-  const [users, setUsers] = useState([]);         // State to hold the filtered list of users based on the search query
-  const [filteredUsers, setFilteredUsers] = useState([]);  // State to indicate whether the data is currently being loaded
-  const [loading, setLoading] = useState(true);     // State to hold any error messages encountered during data fetching
-  const [error, setError] = useState(null);        // State to manage the visibility of the modal for user actions
-  const [isModalOpen, setIsModalOpen] = useState(false);  // State to hold the currently selected user for actions
+  const [searchQuery, setSearchQuery] = useState('');
+  // State to hold the list of all users fetched from the server
+  const [users, setUsers] = useState([]);
+  // State to hold the filtered list of users based on the search query
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  // State to indicate whether the data is currently being loaded
+  const [loading, setLoading] = useState(true);
+  // State to hold any error messages encountered during data fetching
+  const [error, setError] = useState(null);
+  // State to manage the visibility of the modal for user actions
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // State to hold the currently selected user for actions
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // New state for delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [selectedNewCreator, setSelectedNewCreator] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     // Fetches the list of users from the server
@@ -84,19 +96,42 @@ const Users = () => {
     }
   };
 
-  const handleRemove = async (user) => {
+  // New function to open delete modal
+  const openDeleteModal = (user) => {
+    setUserToDelete(user);
+    setSelectedNewCreator(null);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Function to handle user deletion with project reassignment
+  const handleUserDelete = async () => {
+    if (!selectedNewCreator) {
+      toast('Please select a new project creator');
+      return;
+    }
+
+    setDeleteLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:3001/admin/user/${user.id}`, {
-        headers: { 'authorization': token }
+      await axios.delete(`http://localhost:3001/user/${userToDelete.id}`, {
+        headers: { 'authorization': token },
+        data: { user_id: selectedNewCreator }
       });
 
-      const updatedUsers = users.filter((u) => u.id !== user.id);
-      setUsers(updatedUsers);
-      setFilteredUsers(updatedUsers);
-      toast(`User "${user.name}" removed successfully.`);
+      // Refetch users to get updated list
+      const response = await axios.get('http://localhost:3001/admin/all-users', {
+        headers: { 'authorization': token, 'Content-Type': 'application/json' },
+      });
+
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+      
+      toast(`User "${userToDelete.name}" deleted successfully`);
+      setIsDeleteModalOpen(false);
     } catch (error) {
-      toast(error.response ? error.response.data.message : 'Something went wrong!');
+      toast(error.response ? error.response.data.message : 'Failed to delete user');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -136,7 +171,7 @@ const Users = () => {
                 <th className="text-left py-4 px-6 font-medium text-xs">Joined On</th>
                 <th className="text-left py-4 px-6 font-medium text-xs">State</th>
                 <th className="text-left py-4 px-6 font-medium text-xs">Action</th>
-                <th className="text-left py-4 px-6 font-medium text-xs">Remove</th>
+                <th className="text-left py-4 px-6 font-medium text-xs">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -165,10 +200,11 @@ const Users = () => {
                     </td>
                     <td className="py-4 px-6">
                       <button
-                        onClick={() => handleRemove(user)}
-                        className="text-red-500 hover:text-red-600"
+                        onClick={() => openDeleteModal(user)}
+                        className="text-red-500 hover:text-red-600 flex items-center"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <UserPlus className="w-5 h-5 mr-2" />
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -183,7 +219,7 @@ const Users = () => {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Existing Block/Unblock Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}></div>
@@ -198,6 +234,70 @@ const Users = () => {
             <div className="flex justify-end gap-3">
               <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
               <button onClick={handleStateChange} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-50" 
+            onClick={() => setIsDeleteModalOpen(false)}
+          ></div>
+          <div className="relative bg-white rounded-lg p-6 w-96 max-w-[90%] shadow-xl">
+            <button 
+              onClick={() => setIsDeleteModalOpen(false)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Delete User</h2>
+            <p className="text-sm mb-6">
+              Select a new creator for projects of user <strong>{userToDelete?.email}</strong>
+            </p>
+            
+            <div className="mb-4">
+              <select 
+                value={selectedNewCreator || ''}
+                onChange={(e) => setSelectedNewCreator(e.target.value)}
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="">Select a new project creator</option>
+                {users
+                  .filter(u => u.id !== userToDelete.id)
+                  .map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.email}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setIsDeleteModalOpen(false)} 
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUserDelete} 
+                disabled={!selectedNewCreator || deleteLoading}
+                className={`px-4 py-2 bg-red-500 text-white rounded-lg 
+                  ${!selectedNewCreator || deleteLoading 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-red-600'
+                  } flex items-center justify-center`}
+              >
+                {deleteLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  'Delete User'
+                )}
+              </button>
             </div>
           </div>
         </div>

@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const {User} = require("../db/index"); 
+const {User, Project} = require("../db/index"); 
 const { validateUserSignup, validateUserSignin, validateUserUpdate, validateUserVerify, tokenValidation } = require("../middlewares/UserMiddlewares");
 const jwt = require("jsonwebtoken");
 const {sendOtpEmail} = require("../utilities/MailUtility")
 require('dotenv').config();
 const bcrypt = require("bcrypt");
+const { tokenValidationAdmin } = require("../middlewares/AdminMiddlewares");
 
 router.post("/signup", validateUserSignup, async (req, res) => {
     try {
@@ -310,6 +311,43 @@ router.get("/profile", tokenValidation, async (req,res)=>{
     }
 
 })
+
+router.delete("/:user_id",tokenValidationAdmin,async (req,res)=>{
+    try {
+        //check ifuser_id exists
+        const id=req.params.user_id;
+        const RequestedUser=await User.findOne({id})
+        if(!RequestedUser){
+            return res.status(400).json({
+                errors: ["No user with this id exists."],
+            });
+        }
+
+        //get request body containing user_id to whom we have to make creator of all projects the deleting user has created
+        const new_user_id=req.body.user_id;
+        const new_user=await User.findOne({id:new_user_id})
+        if(!new_user){
+            return res.status(400).json({
+                errors: ["No user with this id exists."],
+            });
+        }
+        //update all projects of the deleting user to have the new user as creator
+        const projects=await Project.find({creator_id:RequestedUser.email})
+        for(let project of projects){
+            project.creator_id=new_user.email;
+            await project.save()
+            }
+            //delete the user
+            await User.deleteOne({id:id})
+            return res.status(200).json({
+                message: "User deleted successfully.",
+                });
+    } catch (error) {
+        return res.status(500).json({
+            errors: ["Internal server error."],
+            });
+    }
+});
 
 
 
