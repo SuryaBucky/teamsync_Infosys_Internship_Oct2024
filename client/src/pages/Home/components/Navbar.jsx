@@ -99,17 +99,23 @@ const Navbar = ({ setSignInOpen }) => {
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 py-1 px-2 font-bold text-white bg-slate-950 border-2 border-[#6B5BCD] rounded-full hover:bg-white hover:text-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl" onClick={()=>{
-                    localStorage.getItem("isAdmin") === "true" ? navigate("/dashboard/admin") : navigate("/dashboard/user")
-                  }}>
+              <button
+                className="flex items-center gap-2 py-1 px-4 font-bold text-white bg-slate-950 border-2 border-[#6B5BCD] rounded-full hover:bg-white hover:text-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl whitespace-nowrap"
+                title="Dashboard"
+                onClick={() => {
+                  localStorage.getItem("isAdmin") === "true"
+                    ? navigate("/dashboard/admin")
+                    : navigate("/dashboard/user");
+                }}
+              >
                 <img
                   src="https://i.pravatar.cc/150"
                   alt="User Avatar"
-                  className="w-10 h-10 rounded-full object-cover cursor-pointer"
-                  
+                  className="w-8 h-8 rounded-full object-cover cursor-pointer"
                 />
-                Dashboard
+                <span className="truncate">Dashboard</span>
               </button>
+
               <button
                 onClick={() => dispatch(logout())}
                 className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
