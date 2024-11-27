@@ -58,8 +58,8 @@ export const ProjectRow = ({ project, onArchive }) => {
     const toastId = toast.loading('Archiving project...');
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:3001/admin/archive-project',
+      const response = await axios.put(
+        'http://localhost:3001/admin/archive',
         {
           project_id: project.id,
         },

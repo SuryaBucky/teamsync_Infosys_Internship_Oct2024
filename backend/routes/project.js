@@ -74,7 +74,8 @@ router.get("/my-created-projects",checkUserEmailExists,async (req,res)=>{
         },
         {
             $match: {
-                creator_id: email // Filter projects by creator_id matching the email variable  
+                creator_id: email, // Filter projects by creator_id matching the email variable  
+                status: { $ne: 'archived' } // Exclude projects with status 'archived'
             }
         },
         {

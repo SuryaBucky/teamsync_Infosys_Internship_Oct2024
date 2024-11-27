@@ -1,6 +1,7 @@
 const { z } = require('zod');
 const { Project, ProjectApproval, User, ProjectUser, Admin } = require('../db/index'); // Import necessary models
 const jwt = require('jsonwebtoken');
+require("dotenv").config();
 
 // Define the Zod schema for admin sign-in
 const AdminSignInSchema = z.object({
@@ -150,6 +151,11 @@ const getAllProjects = async (req, res) => {
                 }
             },
             {
+                $match: {
+                    status: { $ne: 'archived' } // Exclude projects with status 'archived'
+                }
+            },
+            {
                 $project: {
                     id: 1,
                     name: 1,
@@ -193,10 +199,9 @@ async function validateUserStateChange(req,res,next){
 
 const archiveProject = async (req, res) => {
     try {
-        const { projectId } = req.params;
-        console.log('project id:',projectId);
+        const { project_id } = req.body;
         // Find the project by ID
-        const project = await Project.findOne({ id: projectId });
+        const project = await Project.findOne({ id: project_id });
 
         if (!project) {
             return res.status(404).json({ message: 'Project not found.' });

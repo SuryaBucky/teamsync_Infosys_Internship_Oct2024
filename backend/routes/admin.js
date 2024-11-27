@@ -1,7 +1,7 @@
 // routes/adminRoutes.js
 const express = require("express");
 const router = express.Router();
-const { Admin, User } = require("../db/index"); // Import the Admin model
+const { Admin, User,Project } = require("../db/index"); // Import the Admin model
 const { validateAdminSignIn, tokenValidationAdmin, tokenValidationUser, validateUserStateChange } = require("../middlewares/AdminMiddlewares"); // Import the validation middleware
 const { validateProjectApproval, approveProject, getAllProjects, getAllUsers,archiveProject } = require("../middlewares/AdminMiddlewares");
 const jwt = require("jsonwebtoken");
@@ -77,12 +77,23 @@ router.put("/user-state",tokenValidationAdmin,validateUserStateChange, async (re
     }
 })
 
+router.get('/all-admins',tokenValidationAdmin, async (req, res) => {
+    try {
+      // Fetch all admin documents from the Admin collection
+    const admins = await Admin.find({});
+    res.status(200).json(admins);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching admins.' });
+    }
+  });
+
 // Archive a project (admin only)
-router.put('/archive/:project_id', tokenValidationAdmin, archiveProject);
+router.put('/archive', tokenValidationAdmin, archiveProject);
 
 // Change user role (User to Admin or Admin to User)
 router.put("/change-role", tokenValidationAdmin, async (req, res) => {
     const { user_id, new_role } = req.body;
+    console.log(new_role);
     try {
         if (new_role === "admin") {
             // Move User to Admin table
@@ -136,6 +147,26 @@ router.put("/change-role", tokenValidationAdmin, async (req, res) => {
         return res.status(500).json({ message: "Failed to change role." });
     }
 });
+
+// Route to get archived projects
+router.get('/get-archived-projects', tokenValidationAdmin, async (req, res) => {
+    try {
+        // Find projects with status 'archived'
+        const archivedProjects = await Project.find({ status: 'archived' });
+
+        // If no archived projects are found
+        if (!archivedProjects.length) {
+            return res.status(404).json({ message: 'No archived projects found.' });
+        }
+
+        // Return the archived projects
+        res.status(200).json(archivedProjects);
+    } catch (error) {
+        console.error('Error fetching archived projects:', error);
+        res.status(500).json({ message: 'Failed to fetch archived projects.' });
+    }
+});
+
 
 module.exports = router;
 
