@@ -52,7 +52,7 @@ const Navbar = ({ setSignInOpen }) => {
     <>
       {/* Main Navbar Container */}
       <div
-        className={`w-full max-w-[1320px] h-[80px] px-5 py-0 mx-auto mb-3 mt-2 flex items-center justify-between fixed top-0 left-0 right-0 bg-black/70 shadow-lg rounded-lg backdrop-blur-md z-50 transition-opacity duration-500 ease-in-out transform ${
+        className={`w-full max-w-[1320px] h-[80px] px-5 py-0 mx-auto mb-3 mt-2 flex items-center justify-between fixed top-0 left-0 right-0 bg-blue-100/90 shadow-lg rounded-lg backdrop-blur-md z-50 transition-opacity duration-500 ease-in-out transform ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full"
         }`}
       >
@@ -64,34 +64,34 @@ const Navbar = ({ setSignInOpen }) => {
         {/* Center Menu - Hidden on Mobile */}
         <ul className="hidden md:flex items-center gap-10 list-none mx-auto">
           <li className="group relative">
-            <a href="#features" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#features" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#306EE8]">
               Features
             </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#306EE8] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#benefits" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
-              Benefits
+            <a href="#benefits" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#0056b3]">
+              Benefy
             </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#0056b3] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#testi" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#testi" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#0056b3]">
               Testimonials
             </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#0056b3] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#faq" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#faq" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#0056b3]">
               FAQs
             </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#0056b3] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
           <li className="group relative">
-            <a href="#about" onClick={handleMenuItemClick} className="font-semibold text-lg text-white transition-colors duration-300 group-hover:text-[#6B5BCD]">
+            <a href="#about" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#0056b3]">
               About Us
             </a>
-            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#6B5BCD] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
+            <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#0056b3] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>
         </ul>
 
@@ -100,7 +100,7 @@ const Navbar = ({ setSignInOpen }) => {
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
               <button
-                className="flex items-center gap-2 py-1 px-4 font-bold text-white bg-slate-950 border-2 border-[#6B5BCD] rounded-full hover:bg-white hover:text-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl whitespace-nowrap"
+                className="flex items-center gap-2 py-1 px-4 font-semibold text-lg text-white  bg-slate-950 border-2 border-[#0288d1] rounded-full hover:bg-[#0056b3] hover:text-white transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl whitespace-nowrap"
                 title="Dashboard"
                 onClick={() => {
                   localStorage.getItem("isAdmin") === "true"
@@ -109,16 +109,18 @@ const Navbar = ({ setSignInOpen }) => {
                 }}
               >
                 <img
-                  src="https://i.pravatar.cc/150"
-                  alt="User Avatar"
-                  className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                src="https://i.pravatar.cc/150"
+                 alt="User Avatar"
+                 className="w-10 h-10 rounded-full object-cover border-2 border-[#0288d1] "
                 />
+
                 <span className="truncate">Dashboard</span>
               </button>
 
               <button
                 onClick={() => dispatch(logout())}
-                className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+                className="py-2 px-6 bg-[#001f3d] font-semibold text-lg text-white rounded-full hover:bg-[#0056b3] hover:text-white border-2 border-[#0288d1] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+               
               >
                 Logout
               </button>
@@ -126,7 +128,7 @@ const Navbar = ({ setSignInOpen }) => {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="py-2 px-6 bg-[#6B5BCD] text-white font-bold rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
+              className="py-2 px-6 bg-[#6B5BCD] neon-text font-extrabold cursor-pointer rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
             >
               <AccountCircleOutlinedIcon />
               Sign In
