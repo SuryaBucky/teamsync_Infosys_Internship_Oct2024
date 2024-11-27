@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import StarIcon from '@mui/icons-material/Star';
 
 const TestimonialsContainer = styled.div`
-  background-color: #060B27;
+  background-color:#08143a;
   padding: 60px 20px;
   text-align: center;
-  border-top: 5px solid #854CE6;
+  border-top: 5px solid #5078E6;
 `;
 
 const Title = styled.h2`
@@ -24,16 +24,16 @@ const TestimonialsWrapper = styled.div`
 `;
 
 const TestimonialCard = styled.div`
-  background-color: #1C1E27;
+  background-color: #1C1E27; /* Dark background for the card */
   border-radius: 20px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.4); /* Enhance shadow for dark card */
   padding: 30px;
   width: 350px;
   transition: transform 0.3s, box-shadow 0.3s;
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.6); /* Subtle hover shadow effect */
   }
 `;
 
@@ -49,8 +49,8 @@ const TestimonialAuthor = styled.p`
   font-size: 16px;
   font-weight: bold;
   margin-top: 10px;
-  color: #854CE6;
-`;
+  color: #5078E6; /* Update to blue for better contrast */
+  `;
 
 const JobTitle = styled.span`
   font-size: 14px;
@@ -66,7 +66,7 @@ const RatingContainer = styled.div`
 
 const TestimonialQuote = styled.span`
   font-size: 40px;
-  color: #854CE6;
+  color: #5078E6; /* Blue for quotes to align with theme */
   margin-right: 5px;
 `;
 

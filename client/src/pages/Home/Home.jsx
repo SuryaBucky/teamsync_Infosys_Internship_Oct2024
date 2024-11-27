@@ -22,7 +22,7 @@ const ScrollToTop = styled.div`
   right: 40px;
   height: 50px;
   width: 50px;
-  background: #854ce6;
+  background: #0288d1;  /* Dark blue background for the button */
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -36,7 +36,7 @@ const ScrollToTop = styled.div`
   z-index: 2;
 
   &:hover {
-    background: #9361f6;
+    background: #01579b;  /* Darker blue on hover */
     transform: translateY(-5px);
   }
 
@@ -48,26 +48,25 @@ const ScrollToTop = styled.div`
   }
 `;
 
-//body of the home page
 const Body = styled.div`
-  background: #13111c;
+  background: #001f3d; /* Very dark blue background */
+  color: white; /* Change text color to white */
   display: flex;
   justify-content: center;
   overflow-x: hidden;
 `;
 
-//container for the home page
 const Container = styled.div`
   width: 100%;
   background-image: linear-gradient(
       38.73deg,
-      rgba(204, 0, 187, 0.25) 0%,
-      rgba(201, 32, 184, 0) 50%
+      rgba(0, 31, 61, 0.25) 0%,  /* Very dark blue gradient */
+      rgba(0, 31, 61, 0) 50%
     ),
     linear-gradient(
       141.27deg,
-      rgba(0, 70, 209, 0) 50%,
-      rgba(0, 70, 209, 0.25) 100%
+      rgba(0, 26, 41, 0) 50%,   /* Very dark blue gradient */
+      rgba(0, 26, 41, 0.25) 100%
     );
   display: flex;
   flex-direction: column;
@@ -88,12 +87,12 @@ const Top = styled.div`
   align-items: center;
   background: linear-gradient(
       38.73deg,
-      rgba(204, 0, 187, 0.15) 0%,
-      rgba(201, 32, 184, 0) 50%
+      rgba(0, 123, 255, 0.15) 0%,  /* Lighter blue gradient */
+      rgba(0, 123, 255, 0) 50%
     ),
     linear-gradient(
       141.27deg,
-      rgba(0, 70, 209, 0) 50%,
+      rgba(0, 70, 209, 0) 50%,    /* Dark blue gradient */
       rgba(0, 70, 209, 0.15) 100%
     );
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 95%, 0 100%);
@@ -103,14 +102,15 @@ const Top = styled.div`
   }
 `;
 
-//content section of the home page
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  background: #13111c;
+  background: #001f3d; /* Very dark blue background */
+  color: white; /* White text for contrast */
   display: flex;
   flex-direction: column;
-`;
+`
+
 const Home = () => {
   const [SignInOpen, setSignInOpen] = React.useState(false); // State to manage the visibility of the Sign In modal
   const [SignUpOpen, setSignUpOpen] = React.useState(false); // State to manage the visibility of the Sign Up modal

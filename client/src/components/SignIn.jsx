@@ -247,7 +247,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     <Modal open={true} onClose={() => setSignInOpen(false)}>
       <div className="w-full h-full absolute top-0 left-0 bg-black/70 flex items-center justify-center">
         {!resetPasswordOpen && (
-          <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-3 flex flex-col relative">
+          <div className="w-[360px] rounded-[30px] bg-white dark:bg-black-900 text-black-900 dark:text-black p-3 flex flex-col relative">
             <CloseRounded
               className="absolute top-6 right-8 cursor-pointer"
               onClick={() => setSignInOpen(false)} // Close sign-in modal
@@ -267,7 +267,8 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 Welcome back!
                 </h1>
                 <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
-                Welcome back! <br /> Sign in to seamlessly collaborate with your team.
+                <p>Welcome back!</p>
+                <p>Sign in to seamlessly collaborate with your team.</p>
                 </h1>
 
                 <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
@@ -284,10 +285,10 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                     {emailError}
                   </div>
                 )}
-                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 flex items-center px-4">
+                <div className="h-11 rounded-xl border border-black-300 dark:border-grey-700 text-black-500 dark:text-black-400 mx-5 my-1 flex items-center px-4">
                   <PasswordRounded className="text-xl mr-3" />
                   <input
-                    className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                    className="w-full bg-transparent outline-none text-sm text-black-700 dark:text-black-300"
                     placeholder="Password"
                     type={values.showPassword ? "text" : "password"} // Toggle password visibility
                     onChange={(e) => setPassword(e.target.value)} // Update password state

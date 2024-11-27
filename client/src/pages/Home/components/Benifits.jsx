@@ -10,10 +10,10 @@ const FeaturesWrapper = styled.section`
   flex-direction: column;
   align-items: center;
   background-color: #181622;
-  padding: 20px 0 60px; // Reduced top and bottom padding
+  padding: 20px 0 60px;
   margin-top: -90px;
   min-height: 100vh;
-  background: linear-gradient(343.07deg, rgba(132, 59, 206, 0.06) 5.71%, rgba(132, 59, 206, 0) 64.83%);
+  background: linear-gradient(343.07deg, rgba(80, 120, 230, 0.06) 5.71%, rgba(80, 120, 230, 0) 64.83%);
   
   @media (max-width: 768px) {
     padding: 15px 0 40px;
@@ -22,19 +22,19 @@ const FeaturesWrapper = styled.section`
 `;
 
 const Number = styled.div`
-  width: 60px; // Slightly smaller
-  height: 60px; // Slightly smaller
-  font-size: 32px; // Slightly smaller
+  width: 60px;
+  height: 60px;
+  font-size: 32px;
   font-weight: 800;
-  color: #854CE6;
+  color: #5078E6;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: rgba(133, 76, 230, 0.1);
-  border: 6px solid #854CE6;
-  margin-bottom: 15px; // Reduced margin
+  background-color: rgba(80, 120, 230, 0.1);
+  border: 6px solid #5078E6;
+  margin-bottom: 15px;
   
   @media (max-width: 768px) {
     width: 50px;
@@ -47,9 +47,9 @@ const FeaturesTitle = styled.div`
   font-size: 52px;
   text-align: center;
   font-weight: 800;
-  margin-top: 10px; // Reduced margin
-  margin-bottom: 10px; // Added to reduce space
-  color: #854CE6;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #5078E6;
   
   @media (max-width: 768px) {
     margin-top: 8px;
@@ -63,8 +63,8 @@ const FeatureDescription = styled.p`
   width: 100%;
   max-width: 850px;
   text-align: center;
-  color: hsl(246, 6%, 65%);
-  margin-bottom: 25px; // Reduced margin
+  color: hsl(220, 20%, 70%);
+  margin-bottom: 25px;
   
   @media (max-width: 768px) {
     width: 90%;
@@ -83,8 +83,8 @@ const FeaturesContainer = styled.div`
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px; // Reduced gap between cards
-  max-width: 825px; // Slightly reduced max-width to bring cards closer
+  grid-gap: 20px;
+  max-width: 825px;
   margin: 0 auto;
   padding: 0 20px;
   
@@ -96,12 +96,12 @@ const FeaturesContainer = styled.div`
 
 const FeatureCard = styled.div`
   width: 100%;
-  height: 200px; // Slightly reduced height
+  height: 200px;
   position: relative;
   background-color: hsl(250, 24%, 9%);
-  border: 0.1px solid #854CE6;
+  border: 0.1px solid #5078E6;
   border-radius: 16px;
-  padding: 20px 28px; // Slightly reduced padding
+  padding: 20px 28px;
   box-shadow: rgba(23, 92, 230, 0.15) 0px 4px 24px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -120,32 +120,33 @@ const FeatureCard = styled.div`
 `;
 
 const FeatureIcon = styled.div`
-  width: 50px; // Slightly smaller
-  height: 50px; // Slightly smaller
-  color: #854CE6;
+  width: 50px;
+  height: 50px;
+  color: #5078E6;
   position: absolute;
   bottom: 10px;
   right: 10px;
   border-radius: 50%;
-  border: 2px solid hsl(220, 80%, 75%, 30%);
+  border: 2px solid rgba(80, 120, 230, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(133, 76, 230, 0.1);
+  background-color: rgba(80, 120, 230, 0.1);
 `;
 
 const FeatureTitle = styled.div`
   font-size: 20px;
-  color: #854CE6;
-  margin-bottom: 8px; // Reduced margin
+  color: #5078E6;
+  margin-bottom: 8px;
   font-weight: 600;
 `;
 
 const FeatureCardDescription = styled.div`
   font-size: 16px;
   line-height: 1.5;
-  color: hsl(246, 6%, 65%);
+  color: hsl(220, 20%, 70%);
 `;
+
 const BgImage = styled.div`
   position: absolute;
   top: 50%;
@@ -167,7 +168,7 @@ const Benefits = () => {
   return (
     <FeaturesWrapper>
       <Number id="benefits">2</Number>
-      <FeaturesTitle >Benefits</FeaturesTitle>
+      <FeaturesTitle>Benefits</FeaturesTitle>
       <FeatureDescription>Discover the numerous advantages of using our app for effective project management.</FeatureDescription>
       <Content>
         <FeaturesContainer>
