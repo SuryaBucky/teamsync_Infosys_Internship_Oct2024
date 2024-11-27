@@ -108,9 +108,6 @@ const Admins = () => {
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-500">{formatDate(admin.created_at)}</div>
                     </td>
-                    <td className="py-4 px-6">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    </td>
                   </tr>
                 ))
               ) : (
