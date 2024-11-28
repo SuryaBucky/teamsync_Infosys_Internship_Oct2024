@@ -99,7 +99,7 @@ const AdminSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    last_login: Date
+    last_login: Date,
 });
 
 // Project Schema

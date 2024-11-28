@@ -97,36 +97,34 @@ router.put("/change-role", tokenValidationAdmin, async (req, res) => {
     try {
         if (new_role === "admin") {
             // Move User to Admin table
-            const user = await User.findById(user_id);
+            const user = await User.findOne({id:user_id});
             if (!user) {
                 return res.status(404).json({ message: "User not found." });
             }
 
             // Create an Admin entry
             const newAdmin = new Admin({
-                id: user.id,
                 name: user.name,
                 email: user.email,
                 password_hash: user.password_hash,
                 created_at: user.created_at,
-                last_login: user.last_login,
+                last_login: user.last_login
             });
 
             // Save the Admin and delete from User
             await newAdmin.save();
-            await user.remove();
+            await user.deleteOne({id:user_id});
 
             return res.status(200).json({ message: "User successfully moved to Admin." });
         } else if (new_role === "user") {
             // Move Admin to User table
-            const admin = await Admin.findById(user_id);
+            const admin = await Admin.findOne({id:user_id});
             if (!admin) {
                 return res.status(404).json({ message: "Admin not found." });
             }
 
             // Create a User entry
             const newUser = new User({
-                id: admin.id,
                 name: admin.name,
                 email: admin.email,
                 password_hash: admin.password_hash,
@@ -136,7 +134,7 @@ router.put("/change-role", tokenValidationAdmin, async (req, res) => {
 
             // Save the User and delete from Admin
             await newUser.save();
-            await admin.remove();
+            await admin.deleteOne({id:user_id});
 
             return res.status(200).json({ message: "Admin successfully moved to User." });
         } else {
