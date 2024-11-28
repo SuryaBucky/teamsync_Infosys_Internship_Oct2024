@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, CheckCircle, XCircle, X, Trash2, UserPlus } from 'lucide-react';
+import { Search, CheckCircle, XCircle, X, Trash2, Edit3 } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
 import toast from 'react-simple-toasts';
 
@@ -19,6 +19,8 @@ const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // State to hold the currently selected user for actions
   const [selectedUser, setSelectedUser] = useState(null);
+  const [setIsRoleModalOpen] = useState(false);
+  const [selectedRole] = useState('');
 
   // New state for delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -147,6 +149,35 @@ const Users = () => {
     return <div className="text-red-600 p-4 text-center">Error: {error}</div>;
   }
 
+  const handleRoleChange = async(user) => {
+    const confirmChange = window.confirm(
+      `Do you want to change ${user.name}'s role to Admin?`
+    );
+    if (confirmChange){
+      try{
+          const token = localStorage.getItem('token');
+          const userId = user.id;
+
+          await axios.put('http://localhost:3001/admin/change-role',
+            { user_id: userId, new_role: "admin" },
+            { headers: { authorization: token } }
+          );
+
+          // Update the user role locally
+          const updatedUsers = users.map((u) =>
+            u.id === userId ? { ...u, role: selectedRole } : u
+          );
+          setUsers(updatedUsers);
+          setFilteredUsers(updatedUsers);
+
+          toast(`Role updated to "${selectedRole}" successfully!`);
+          setIsRoleModalOpen(false);
+      } catch (error) {
+          toast(error.response ? error.response.data.message : 'Failed to update role!');
+      }
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6">
@@ -196,6 +227,15 @@ const Users = () => {
                         }`}
                       >
                         {user.state === 'verified' ? 'Block' : 'Unblock'}
+                      </button>
+                    </td>
+                    <td>{/* Edit Role button */}
+                      <button
+                        onClick={() => handleRoleChange(user)}
+                        className="text-blue-500 hover:text-blue-700"
+                        title="Edit Role"
+                      >
+                        <Edit3 className="h-5 w-5" />
                       </button>
                     </td>
                     <td className="py-4 px-6">

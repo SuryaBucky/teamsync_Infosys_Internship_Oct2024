@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, CheckCircle, XCircle, X,Edit3 } from 'lucide-react';
+import { Search, Edit3 } from 'lucide-react';
 import { SearchBar } from './common/SearchBar';
 import toast from 'react-simple-toasts';
 
@@ -10,6 +10,7 @@ const Admins = () => {
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -61,6 +62,34 @@ const Admins = () => {
     return <div className="text-red-600 p-4 text-center">Error: {error}</div>;
   }
 
+  const handleRoleChange = async (admin) => {
+    const confirmChange = window.confirm(
+      `Do you want to change ${admin.name}'s role to User?`
+    );
+    if (confirmChange) {
+      try {
+        const token = localStorage.getItem('token');
+        const adminId = admin.id;
+  
+        await axios.put(
+          'http://localhost:3001/admin/change-role',
+          { user_id: adminId, new_role: "user" },
+          { headers: { authorization: token } }
+        );
+  
+        // Update the admin role locally
+        const updatedAdmins = admins.filter((a) => a.id !== adminId); // Remove the admin from the current list
+        setAdmins(updatedAdmins);
+        setFilteredAdmins(updatedAdmins);
+  
+        toast(`Role updated to "User" successfully!`);
+      } catch (error) {
+        toast(error.response ? error.response.data.message : 'Failed to update role!');
+      }
+    }
+  };
+  
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6">
@@ -107,6 +136,15 @@ const Admins = () => {
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-500">{formatDate(admin.created_at)}</div>
+                    </td>
+                    <td>{/* Edit Role button */}
+                      <button
+                        onClick={() => handleRoleChange(admin)}
+                        className="text-blue-500 hover:text-blue-700"
+                        title="Edit Role"
+                      >
+                        <Edit3 className="h-5 w-5" />
+                      </button>
                     </td>
                   </tr>
                 ))
