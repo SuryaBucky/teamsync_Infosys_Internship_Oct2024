@@ -57,7 +57,7 @@ const Navbar = ({ setSignInOpen }) => {
         }`}
       >
         {/* Left Section: Logo */}
-        <div className="font-bold text-2xl bg-gradient-to-r from-[#4caf50] to-[#00bcd4] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
+        <div className="font-bold text-2xl bg-gradient-to-r from-[#1a73e8] to-[#34a853] bg-clip-text text-transparent cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
           Team Sync
         </div>
 
@@ -111,9 +111,8 @@ const Navbar = ({ setSignInOpen }) => {
                 <img
                 src="https://i.pravatar.cc/150"
                  alt="User Avatar"
-                 className="w-10 h-10 rounded-full object-cover border-2 border-[#0288d1] "
+                 className="w-10 h-10 rounded-full object-cover border-2 border-[#0288d1]"
                 />
-
                 <span className="truncate">Dashboard</span>
               </button>
 
@@ -128,7 +127,7 @@ const Navbar = ({ setSignInOpen }) => {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="py-2 px-6 bg-[#6B5BCD] neon-text font-extrabold cursor-pointer rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#6B5BCD] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
+              className="py-2 px-6 bg-[#0056b3] neon-text font-extrabold cursor-pointer rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#0056b3] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
             >
               <AccountCircleOutlinedIcon />
               Sign In
