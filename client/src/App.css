@@ -46,3 +46,66 @@ to {
 transform: rotate(360deg);/* End rotation at 360 degrees (full circle) */
 }
 }
+/* src/App.css */
+
+/* Base container styling */
+.app-container {
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* Light theme */
+  .app-container.light {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  /* Dark theme */
+  .app-container.dark {
+    background-color: #333;
+    color: #f5f5f5;
+  }
+  
+  /* Navbar styling */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: inherit;
+    color: inherit;
+  }
+  
+  /* Theme toggle button */
+  .theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .theme-toggle:hover {
+    transform: scale(1.2);
+  }
+  /* toggle button  */
+.home-container {
+    transition: background-color 0.5s ease, color 0.5s ease;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  .light-mode {
+    background-color: white;
+    color: blue;
+  }
+  
+  .dark-mode {
+    background-color: #333;
+    color: white;
+  }
+  
+  .content {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
