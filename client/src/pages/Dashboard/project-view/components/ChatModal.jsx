@@ -548,12 +548,15 @@ import 'react-toastify/dist/ReactToastify.css';
                     className="flex-grow border border-gray-300 rounded-full p-2 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Type a message..."
                     onKeyPress={(e) => {
-                      if (e.key === 'Enter' && (message.trim() || mediaPreview)) {
+                      if (
+                        e.key === "Enter" &&
+                        (message.trim() || mediaPreview)
+                      ) {
                         sendMessage();
                       }
                     }}
                   />
-                  
+
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="file"
@@ -568,14 +571,17 @@ import 'react-toastify/dist/ReactToastify.css';
                   <button
                     onClick={sendMessage}
                     disabled={!message.trim() && !mediaPreview} // Disable the button when there's no message and no media
-                    className={`bg-blue-850 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${!message.trim() && !mediaPreview ? 'cursor-not-allowed bg-blue-950 text-gray-500' : ''
-                      }`}
+                    className={`bg-blue-850 text-white rounded-full px-4 py-2 shadow-lg hover:bg-blue-900 ${
+                      !message.trim() && !mediaPreview
+                        ? "cursor-not-allowed bg-blue-950 text-gray-500"
+                        : ""
+                    }`}
                   >
                     ➤
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="text-gray-800 p-2 hover:bg-gray-200 rounded-full"
+                    className="text-gray-800 p-2 hover:text-red-500 rounded-full shadow-2xl font-semibold text-xl"
                   >
                     ✕
                   </button>
