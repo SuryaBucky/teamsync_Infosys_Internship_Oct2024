@@ -117,14 +117,14 @@ const Navbar = ({ setSignInOpen }) => {
                 <img
                   src="https://i.pravatar.cc/150"
                   alt="User Avatar"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-[#0288d1]"
+                  className="  w-10 h-10 rounded-full object-cover border-2 border-[]"
                 />
                 <span className="truncate">Dashboard</span>
               </button>
 
               <button
                 onClick={() => dispatch(logout())}
-                className="py-2 px-6 bg-[#001f3d] font-semibold text-lg text-white rounded-full hover:bg-[#0056b3] hover:text-white border-2 border-[#0288d1] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
+                className="py-2 px-6 bg-[#001f3d] font-semibold text-lg text-white rounded-full hover:bg-[#6B5BCD] hover:text-white border-2 border-[#0288d1] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl"
               >
                 Logout
               </button>
@@ -132,7 +132,7 @@ const Navbar = ({ setSignInOpen }) => {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="py-2 px-6 bg-[#0056b3] neon-text font-extrabold cursor-pointer rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#0056b3] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
+              className="py-2 px-6 bg-[white] neon-text font-extrabold cursor-pointer rounded-full hover:bg-white hover:text-[#6B5BCD] border-2 border-[#0056b3] transition-all duration-300 transform hover:translate-y-[-3px] shadow-lg hover:shadow-2xl flex items-center gap-2"
             >
               <AccountCircleOutlinedIcon />
               Sign In

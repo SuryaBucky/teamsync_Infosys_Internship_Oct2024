@@ -82,13 +82,12 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.15"
   },
-  
-    "compilerOptions": {
-      "baseUrl": "src",
-      "paths": {
-        "HomeComponents/*": ["pages/home/components/*"]
-      }
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "HomeComponents/*": [
+        "pages/home/components/*"
+      ]
     }
-  
-  
+  }
 }

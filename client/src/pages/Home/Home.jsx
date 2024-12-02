@@ -1,4 +1,3 @@
-// imports
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { KeyboardArrowUp } from "@mui/icons-material";
@@ -13,43 +12,76 @@ import SignUp from "../../components/SignUp";
 import SignIn from "../../components/SignIn";
 import Faq from "./components/Faq";
 import { jwtDecode } from "jwt-decode";
-import { Button } from "@mui/material"; // Added import for Button component
-import '../../App.css';
- 
-//Theme Toggle Button at the left side of the page (desktop)
-const ThemeToggle = styled.div`
+import "../../App.css";
+
+// Theme Toggle Button
+const ThemeToggle = styled.button`
   position: fixed;
-  top: 50%;
-  left: 10px; /* Position the button to the left */
-  transform: translateY(-50%); /* Center the button vertically */
-  background-color: transparent;
+  bottom: 90px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   border: none;
   cursor: pointer;
-  z-index: 999;  /* Make sure it's above other elements */
-  transition: left 0.3s ease; /* Smooth transition for moving the button */
-  
-  /* Optionally, you can also transition the color if desired */
-  transition: color 0.3s ease;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+  background-color: ${({ isLightMode }) =>
+    isLightMode ? "#ffd700" : "#001f3d"}; /* Sun and Moon background */
+  color: white; /* Icon color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
 
   &:hover {
-    transform: translateY(-50%) scale(1.1); /* Slightly enlarge the button on hover */
+    transform: scale(1.1);
+  }
+
+  .icon {
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .rotate-left {
+    animation: rotate-left 0.5s ease-in-out;
+  }
+
+  .rotate-right {
+    animation: rotate-right 0.5s ease-in-out;
+  }
+
+  @keyframes rotate-left {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  @keyframes rotate-right {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
-// Updated ScrollToTop button for a prominent desktop position
+// Scroll To Top Button
 const ScrollToTop = styled.div`
   position: fixed;
   bottom: 20px;
   right: 20px;
-  height: 60px;
-  width: 60px;
+  height: 50px;
+  width: 50px;
   background: #0288d1;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
-  align-items: left;
-  justify-content: left;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);  /* Enhance shadow for visibility */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   opacity: ${({ show }) => (show ? "1" : "0")};
   visibility: ${({ show }) => (show ? "visible" : "hidden")};
   transform: translateY(${({ show }) => (show ? "0" : "20px")});
@@ -60,18 +92,12 @@ const ScrollToTop = styled.div`
     background: #01579b;
     transform: translateY(-5px);
   }
-
-  @media (max-width: 768px) {
-    bottom: 30px;
-    right: 30px;
-    height: 50px;
-    width: 50px;
-  }
 `;
 
+// Styled Components for Layout
 const Body = styled.div`
-  background: ${({ isLightMode }) => (isLightMode ? "white" : "#001f3d")}; /* Light mode background */
-  color: ${({ isLightMode }) => (isLightMode ? "blue" : "white")}; /* Light mode text color */
+  background: ${({ isLightMode }) => (isLightMode ? "white" : "#001f3d")};
+  color: ${({ isLightMode }) => (isLightMode ? "blue" : "white")};
   display: flex;
   justify-content: center;
   overflow-x: hidden;
@@ -79,39 +105,23 @@ const Body = styled.div`
 
 const Container = styled.div`
   width: 100%;
-  background-image: ${({ isLightMode }) =>
-    isLightMode
-      ? "none"
-      : `linear-gradient(38.73deg, rgba(0, 31, 61, 0.25) 0%, rgba(0, 31, 61, 0) 50%), linear-gradient(141.27deg, rgba(0, 26, 41, 0) 50%, rgba(0, 26, 41, 0.25) 100%)`}; /* Adjusted gradient for dark mode */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 `;
 
 const Top = styled.div`
   width: 100%;
   display: flex;
-  padding-bottom: 50px;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(38.73deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0) 50%), linear-gradient(141.27deg, rgba(0, 70, 209, 0) 50%, rgba(0, 70, 209, 0.15) 100%);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 95%, 0 100%);
-  @media (max-width: 768px) {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 98%, 0 100%);
-    padding-bottom: 0px;
-  }
+  background: linear-gradient(38.73deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0) 50%);
 `;
 
 const Content = styled.div`
   width: 100%;
-  height: 100%;
-  background: ${({ isLightMode }) => (isLightMode ? "white" : "#001f3d")}; /* Background changes for dark/light mode */
-  color: ${({ isLightMode }) => (isLightMode ? "blue" : "white")}; /* Text color changes */
+  background: ${({ isLightMode }) => (isLightMode ? "white" : "#001f3d")};
+  color: ${({ isLightMode }) => (isLightMode ? "blue" : "white")};
   display: flex;
   flex-direction: column;
 `;
@@ -120,7 +130,8 @@ const Home = () => {
   const [SignInOpen, setSignInOpen] = useState(false);
   const [SignUpOpen, setSignUpOpen] = useState(false);
   const [showScroll, setShowScroll] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(false); // State for light/dark mode
+  const [isLightMode, setIsLightMode] = useState(false);
+  const [rotateDirection, setRotateDirection] = useState("rotate-left");
 
   useEffect(() => {
     const checkScrollTop = () => {
@@ -157,7 +168,12 @@ const Home = () => {
   };
 
   const toggleTheme = () => {
-    setIsLightMode((prevMode) => !prevMode); // Toggle light/dark mode
+    setIsLightMode((prevMode) => !prevMode);
+
+    // Toggle rotation direction
+    setRotateDirection((prev) =>
+      prev === "rotate-left" ? "rotate-right" : "rotate-left"
+    );
   };
 
   return (
@@ -174,20 +190,27 @@ const Home = () => {
             <Testimonials />
             <Faq />
             <About />
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Footer />
-            </div>
+            <Footer />
           </Content>
-          
-          {/* Theme Toggle Button in the center */}
           <ThemeToggle onClick={toggleTheme}>
-            {isLightMode ? (
-              <span style={{ fontSize: "40px" }}>🌞</span>  // Sun emoji for light mode
-            ) : (
-              <span style={{ fontSize: "40px" }}>🌙</span>  // Moon emoji for dark mode
-            )}
+            <img
+              className={`icon ${rotateDirection}`}
+              width="40"
+              height="40"
+              src={
+                isLightMode
+                  ? "https://img.icons8.com/ios-filled/50/summer.png"
+                  : "https://img.icons8.com/pastel-glyph/64/moon-satellite.png"
+              }
+              alt={isLightMode ? "sun" : "moon"}
+              style={{
+                filter: isLightMode
+                  ? "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)"
+                  : "invert(24%) sepia(98%) saturate(2119%) hue-rotate(205deg) brightness(85%) contrast(85%)",
+                cursor: "pointer",
+              }}
+            />
           </ThemeToggle>
-
           {SignUpOpen && <SignUp setSignUpOpen={setSignUpOpen} setSignInOpen={setSignInOpen} />}
           {SignInOpen && <SignIn setSignInOpen={setSignInOpen} setSignUpOpen={setSignUpOpen} />}
           <ScrollToTop show={showScroll} onClick={scrollToTop}>
