@@ -113,7 +113,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="h-0.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 mx-6"></div>
 
           <nav className="flex-1 px-3 py-4 overflow-y-auto">
-            <ul className="space-y-2 font-medium">
+            <ul className="space-y-1 font-medium">
               <li onClick={() => {
                   navigate('/');
                 }}><IconItem icon={faHome} label="Home" />
@@ -157,12 +157,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               }}>
                 <IconItem icon={faUsers} label="Users" active={active === "users"} />
               </li>
-
-              <li  onClick={() => {
-                setActive("notes");
-                setSidebarSelection("notes");
-              }}
-              ><IconItem icon={faClipboard} label="Create Notes"  active={active === "notes"} /></li>
             </ul>
           </nav>
 
