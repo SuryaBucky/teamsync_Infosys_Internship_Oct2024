@@ -77,7 +77,7 @@ const Navbar = ({ setSignInOpen }) => {
           </li>
           <li className="group relative">
             <a href="#benefits" onClick={handleMenuItemClick} className="neon-text font-extrabold cursor-pointer transition-colors duration-300 group-hover:text-[#0056b3]">
-              Benefy
+              Benefits
             </a>
             <span className="absolute bottom-[-6px] left-1/2 w-0 h-[2px] bg-[#0056b3] group-hover:w-full transition-all duration-300 ease-in-out origin-center group-hover:left-0"></span>
           </li>

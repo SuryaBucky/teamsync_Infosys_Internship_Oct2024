@@ -124,6 +124,7 @@ const Content = styled.div`
   color: ${({ isLightMode }) => (isLightMode ? "blue" : "white")};
   display: flex;
   flex-direction: column;
+  margin-top: "25px"
 `;
 
 const Home = () => {
@@ -182,7 +183,9 @@ const Home = () => {
       <Body isLightMode={isLightMode}>
         <Container isLightMode={isLightMode}>
           <Top id="home">
-            <Hero setSignInOpen={setSignInOpen} />
+            <div style={{ paddingBottom: '115px'}}>
+              <Hero setSignInOpen={setSignInOpen} />
+            </div>
           </Top>
           <Content isLightMode={isLightMode}>
             <Features />

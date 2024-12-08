@@ -167,8 +167,7 @@ const featuresData = [
 const Benefits = () => {
   return (
     <FeaturesWrapper>
-      <Number id="benefits">2</Number>
-      <FeaturesTitle>Benefits</FeaturesTitle>
+      <FeaturesTitle id="benefits">Benefits</FeaturesTitle>
       <FeatureDescription>Discover the numerous advantages of using our app for effective project management.</FeatureDescription>
       <Content>
         <FeaturesContainer>
