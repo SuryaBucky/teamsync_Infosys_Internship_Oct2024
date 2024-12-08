@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import styled from "styled-components";
-import { useTheme } from "styled-components";
 import OtpInput from "react-otp-input";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useDispatch } from "react-redux";
@@ -16,87 +14,12 @@ import {
 } from "../store/atoms/authAtoms";
 import { jwtDecode } from "jwt-decode";
 
-// Styled component for the Title with specific font properties
-const Title = styled.div`
-  font-size: 22px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  margin: 16px 22px;
-`;
-
-// Styled component for an outlined box with various properties and conditional styles
-const OutlinedBox = styled.div`
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.soft2};
-  color: ${({ theme }) => theme.soft2};
-  margin: 3px 20px;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-  padding: 0px 14px;
-  ${({ googleButton, theme }) =>
-    googleButton && `user-select: none; gap: 16px;`}
-  ${({ button, theme }) =>
-    button &&
-    `user-select: none; border: none; background: ${theme.itemHover}; color: '${theme.soft2}';`}
-  ${({ activeButton, theme }) =>
-    activeButton &&
-    `user-select: none; border: none; background: ${theme.primary}; color: white;`}
-`;
-
-// Styled component for the Login text with specific font properties
-const LoginText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.soft2};
-  margin: 0px 26px 0px 26px;
-`;
-
-// Styled component for a span element with specific color and font size
-const Span = styled.span`
-  color: ${({ theme }) => theme.primary};
-  font-size: 12px;
-  margin: 0px 26px 0px 26px;
-`;
-
-// Styled component for displaying error messages with conditional display
-const Error = styled.div`
-  color: red;
-  font-size: 12px;
-  margin: 2px 26px 8px 26px;
-  display: block;
-  ${({ error }) => error === "" && `display: none;`}
-`;
-
-// Styled component for a timer display with specific font properties
-const Timer = styled.div`
-  color: ${({ theme }) => theme.soft2};
-  font-size: 12px;
-  margin: 2px 26px 8px 26px;
-  display: block;
-`;
-
-// Styled component for a resend action with specific font properties and cursor style
-const Resend = styled.div`
-  color: ${({ theme }) => theme.primary};
-  font-size: 14px;
-  margin: 2px 26px 8px 26px;
-  display: block;
-  cursor: pointer;
-`;
-
 // OTP component for verifying user email with a one-time password
 const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
   // Setting up Recoil state management for user email, admin status, and user ID
   const setEmailRecoil = useSetRecoilState(userEmailState);
   const setIsAdminRecoil = useSetRecoilState(isAdminState);
   const setUserIdRecoil = useSetRecoilState(userIdState);
-
-  // Using theme and dispatch from context
-  const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -290,39 +213,29 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     }
   }, [otp]);
 
-  // Render the OTP verification component
   return (
     <div>
-      <Title>VERIFY OTP</Title> {/* Title of the component */}
-      <LoginText>
+      <div className="text-[22px] font-medium text-[color:var(--text-color)] my-4 mx-[22px]">
+        VERIFY OTP
+      </div>
+      <div className="text-[14px] font-medium text-[color:var(--soft2-color)] mx-[26px]">
         A verification <b>&nbsp;OTP &nbsp;</b> has been sent to:
-      </LoginText>{" "}
-      {/* Instruction text */}
-      <Span>{email}</Span> {/* Display the email to which OTP was sent */}
+      </div>{" "}
+      <span className="text-[12px] text-[color:var(--primary-color)] mx-[26px]">
+        {email}
+      </span>
       {!otpSent ? (
-        <div
-          style={{
-            padding: "12px 26px",
-            marginBottom: "20px",
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "14px",
-            justifyContent: "center",
-          }}
-        >
+        <div className="p-3 mb-5 text-center flex flex-col items-center gap-[14px] justify-center">
           Sending OTP
           <CircularProgress color="inherit" size={20} />{" "}
-          {/* Loading indicator while sending OTP */}
         </div>
       ) : (
         <div>
           <OtpInput
-            value={otp} // Bind OTP input value
-            onChange={setOtp} // Update OTP state on change
-            numInputs={6} // Number of input fields for OTP
-            shouldAutoFocus={true} // Autofocus on the first input
+            value={otp}
+            onChange={setOtp}
+            numInputs={6}
+            shouldAutoFocus={true}
             inputStyle={{
               fontSize: "22px",
               width: "38px",
@@ -332,35 +245,68 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
               textAlign: "center",
               margin: "6px 4px",
               backgroundColor: "transparent",
-              color: theme.text,
-            }} // Style for OTP input
-            containerStyle={{ padding: "8px 2px", justifyContent: "center" }} // Style for input container
-            renderInput={(props) => <input {...props} />} // Render custom input
+              color: "white",
+            }}
+            containerStyle={{ 
+              padding: "8px 2px", 
+              justifyContent: "center" 
+            }}
+            renderInput={(props) => <input {...props} />}
           />
-          <Error error={otpError}>
+          <div 
+            className={`text-red-500 text-[12px] mx-[26px] my-2 ${otpError ? 'block' : 'hidden'}`}
+          >
             <b>{otpError}</b>
-          </Error>{" "}
-          {/* Display error message if any */}
-          <OutlinedBox
-            button={true} // Indicate this is a button
-            activeButton={!disabled} // Enable button based on disabled state
-            style={{ marginTop: "12px", marginBottom: "12px" }} // Style for the button
-            onClick={validateOtp} // Validate OTP on button click
+          </div>
+          <div
+            className={`
+              h-[44px] 
+              rounded-[12px] 
+              border 
+              border-[color:var(--soft2-color)] 
+              text-[color:var(--soft2-color)] 
+              mx-[20px] 
+              my-[3px] 
+              text-[14px] 
+              flex 
+              justify-center 
+              items-center 
+              font-medium 
+              px-[14px]
+              mt-3 
+              mb-3
+              cursor-pointer
+              ${!disabled 
+                ? 'bg-[color:var(--item-hover-color)] text-[color:var(--soft2-color)]' 
+                : 'bg-[color:var(--primary-color)] text-white'
+              }
+            `}
+            onClick={validateOtp}
           >
             {otpLoading ? (
-              <CircularProgress color="inherit" size={20} /> // Show loading indicator if OTP is being validated
+              <CircularProgress color="inherit" size={20} />
             ) : (
-              "Submit" // Button text
+              "Submit"
             )}
-          </OutlinedBox>
+          </div>
           {showTimer ? (
-            <Timer>
+            <div className="text-[color:var(--soft2-color)] text-[12px] mx-[26px] my-2 block">
               Resend in <b>{timer}</b>
-            </Timer> // Display timer for resending OTP
+            </div>
           ) : (
-            <Resend onClick={resendOtp}>
+            <div 
+              className="
+                text-[color:var(--primary-color)] 
+                text-[14px] 
+                mx-[26px] 
+                my-2 
+                block 
+                cursor-pointer
+              "
+              onClick={resendOtp}
+            >
               <b>Resend</b>
-            </Resend> // Resend button if timer is not visible
+            </div>
           )}
         </div>
       )}

@@ -1,4 +1,3 @@
-// Required imports
 import React, { useState, useEffect } from "react";
 import {
   CloseRounded,
@@ -12,9 +11,10 @@ import { IconButton, Modal, CircularProgress } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { loginStart, loginFailure } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
-import validator from "validator"; // Validates the inputs
-import axios from "axios"; // For backend communication
-import OTP from "./OTP"; // OTP verification component
+import validator from "validator";
+import axios from "axios";
+import OTP from "./OTP";
+import { ThemeProvider } from "styled-components";
 
 const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
   // State management for the form
@@ -23,6 +23,15 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
+
+  // New states to track field interactions
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    password: false
+  });
+
+  // Error states
   const [emailError, setEmailError] = useState("");
   const [credentialError, setCredentialError] = useState("");
   const [passwordCorrect, setPasswordCorrect] = useState(false);
@@ -88,11 +97,20 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
 
   // Validates the email
   const validateEmail = () => {
-    setEmailError(validator.isEmail(email) ? "" : "Enter a valid email ID!");
+    setEmailError(
+      touched.email && !validator.isEmail(email) 
+        ? "Enter a valid email ID!" 
+        : ""
+    );
   };
 
   // Validates the password
   const validatePassword = () => {
+    if (!touched.password) {
+      setCredentialError("");
+      return;
+    }
+
     if (password.length < 8) {
       setCredentialError("Password must be at least 8 characters long!");
       setPasswordCorrect(false);
@@ -117,7 +135,17 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
 
   // Validates the name
   const validateName = () => {
-    setNameCorrect(name.length >= 4);
+    setNameCorrect(
+      touched.name && name.length >= 4
+    );
+  };
+
+  // Handle field blur (when user moves away from input)
+  const handleBlur = (field) => {
+    setTouched(prev => ({
+      ...prev,
+      [field]: true
+    }));
   };
 
   // Updates disabled state based on validations
@@ -134,7 +162,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         nameCorrect
       )
     );
-  }, [name, email, passwordCorrect]);
+  }, [name, email, password, touched]);
 
   // Account creation after OTP verification
   const createAccount = () => {
@@ -162,8 +190,12 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   placeholder="Full Name"
                   className="w-full bg-transparent outline-none"
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={() => handleBlur('name')}
                 />
               </div>
+              {touched.name && name.length > 0 && name.length < 4 && (
+                <p className="text-red-500 text-xs mx-6">Name must be at least 4 characters long!</p>
+              )}
               <div className="h-11 rounded-xl border mx-5 mt-3 px-4 flex items-center">
                 <EmailRounded className="mr-3" />
                 <input
@@ -171,6 +203,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   placeholder="Email"
                   className="w-full bg-transparent outline-none"
                   onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => handleBlur('email')}
                 />
               </div>
               {emailError && <p className="text-red-500 text-xs mx-6">{emailError}</p>}
@@ -181,6 +214,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   placeholder="Password"
                   className="w-full bg-transparent outline-none"
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => handleBlur('password')}
                 />
                 <IconButton onClick={() => setValues({ showPassword: !values.showPassword })}>
                   {values.showPassword ? <VisibilityOff /> : <Visibility />}
@@ -212,7 +246,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
               </p>
             </>
           ) : (
-            <OTP email={email} setOtpVerified={setOtpVerified} createAccount={createAccount} />
+              <OTP email={email} setOtpVerified={setOtpVerified} createAccount={createAccount} />
           )}
         </div>
       </div>
