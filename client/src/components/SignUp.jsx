@@ -150,10 +150,12 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
 
   // Updates disabled state based on validations
   useEffect(() => {
+    // Validate fields
     validateEmail();
     validatePassword();
     validateName();
 
+    // Determine button state
     setDisabled(
       !(
         name &&
@@ -162,7 +164,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         nameCorrect
       )
     );
-  }, [name, email, password, touched]);
+  }, [name, email, password, touched, nameCorrect, passwordCorrect]);
 
   // Account creation after OTP verification
   const createAccount = () => {
@@ -189,8 +191,13 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   type="text"
                   placeholder="Full Name"
                   className="w-full bg-transparent outline-none"
+                  value={name}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => handleBlur('name')}
+                  onInput={(e) => {
+                    setName(e.target.value);
+                    setTouched(prev => ({ ...prev, name: true }));
+                  }}
                 />
               </div>
               {touched.name && name.length > 0 && name.length < 4 && (
@@ -202,8 +209,13 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   type="email"
                   placeholder="Email"
                   className="w-full bg-transparent outline-none"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => handleBlur('email')}
+                  onInput={(e) => {
+                    setEmail(e.target.value);
+                    setTouched(prev => ({ ...prev, email: true }));
+                  }}
                 />
               </div>
               {emailError && <p className="text-red-500 text-xs mx-6">{emailError}</p>}
@@ -213,8 +225,13 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   type={values.showPassword ? "text" : "password"}
                   placeholder="Password"
                   className="w-full bg-transparent outline-none"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => handleBlur('password')}
+                  onInput={(e) => {
+                    setPassword(e.target.value);
+                    setTouched(prev => ({ ...prev, password: true }));
+                  }}
                 />
                 <IconButton onClick={() => setValues({ showPassword: !values.showPassword })}>
                   {values.showPassword ? <VisibilityOff /> : <Visibility />}
