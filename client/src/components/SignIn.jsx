@@ -247,10 +247,10 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     <Modal open={true} onClose={() => setSignInOpen(false)}>
       <div className="w-full h-full absolute top-0 left-0 bg-black/70 flex items-center justify-center">
         {!resetPasswordOpen && (
-          <div className="w-[360px] rounded-[30px] bg-white dark:bg-black-900 text-black-900 dark:text-black p-3 flex flex-col relative">
+          <div className="w-[360px] rounded-[30px] bg-white dark:bg-gray-900 text-black dark:text-white p-3 flex flex-col relative">
             <CloseRounded
-              className="absolute top-6 right-8 cursor-pointer"
-              onClick={() => setSignInOpen(false)} // Close sign-in modal
+              className="absolute top-6 right-8 cursor-pointer text-black dark:text-white"
+              onClick={() => setSignInOpen(false)}
             />
             {needsOTPVerification && showOTP ? (
               <OTP
@@ -258,26 +258,24 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                 name="User"
                 otpVerified={otpVerified}
                 setOtpVerified={setOtpVerified}
-                reason="LOGIN" // Reason for OTP
+                reason="LOGIN"
               />
             ) : (
               <>
-                {/* Header for the sign-in form */}
-                <h1 className="text-[22px] font-medium text-black dark:text-white mx-7 my-4 text-center">
-                Welcome back!
+                <h1 className="text-[22px] font-medium mx-7 my-4 text-center text-black dark:text-white">
+                  Welcome back!
                 </h1>
-                <h1 className="text-[13px]  text-black dark:text-blue-500 text-center text-gradient-to-r from-sky-500/20 to-sky-500/75">
-                <p>Welcome back!</p>
-                <p>Sign in to seamlessly collaborate with your team.</p>
+                <h1 className="text-[13px] text-center text-gray-600 dark:text-blue-500">
+                  Sign in to seamlessly collaborate with your team.
                 </h1>
 
-                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 my-1 mt-6 flex items-center px-4">
-                  <EmailRounded className="text-xl mr-3" />
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 mx-5 my-1 mt-6 px-4 flex items-center">
+                  <EmailRounded className="mr-3 text-gray-600 dark:text-white" />
                   <input
-                    className="w-full bg-transparent outline-none text-sm text-gray-700 dark:text-gray-300"
+                    className="w-full bg-transparent outline-none text-sm text-gray-950 dark:text-white"
                     placeholder="Email Id"
                     type="email"
-                    onChange={(e) => setEmail(e.target.value)} // Update email state
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 {emailError && (
@@ -285,39 +283,39 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                     {emailError}
                   </div>
                 )}
-                <div className="h-11 rounded-xl border border-black-300 dark:border-grey-700 text-black-500 dark:text-black-400 mx-5 my-1 flex items-center px-4">
-                  <PasswordRounded className="text-xl mr-3" />
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 mx-5 my-1 px-4 flex items-center">
+                  <PasswordRounded className="mr-3 text-gray-600 dark:text-white" />
                   <input
-                    className="w-full bg-transparent outline-none text-sm text-black-700 dark:text-black-300"
+                    className="w-full bg-transparent outline-none text-sm text-gray-950 dark:text-white"
                     placeholder="Password"
-                    type={values.showPassword ? "text" : "password"} // Toggle password visibility
-                    onChange={(e) => setPassword(e.target.value)} // Update password state
+                    type={values.showPassword ? "text" : "password"}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <IconButton
-                    color="inherit"
+                  <IconButton 
+                    color="inherit" 
                     onClick={() =>
                       setValues({
                         ...values,
                         showPassword: !values.showPassword,
                       })
-                    } // Toggle show password state
+                    }
                   >
                     {values.showPassword ? (
-                      <Visibility className="text-xl" />
+                      <Visibility className="text-gray-600 dark:text-white" />
                     ) : (
-                      <VisibilityOff className="text-xl" />
+                      <VisibilityOff className="text-gray-600 dark:text-white" />
                     )}
                   </IconButton>
                 </div>
-                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 mx-5 mt-3 flex items-center px-4">
+                <div className="h-11 rounded-xl border border-gray-300 dark:border-gray-700 mx-5 mt-3 px-4 flex items-center">
                   <input
                     type="checkbox"
                     id="admin"
                     checked={isAdmin}
-                    onChange={(e) => setIsAdmin(e.target.checked)} // Update admin status
+                    onChange={(e) => setIsAdmin(e.target.checked)}
                     className="mr-3"
                   />
-                  <label htmlFor="admin">Admin</label>
+                  <label htmlFor="admin" className="text-black dark:text-white">Admin</label>
                 </div>
                 {credentialError && (
                   <div className="text-red-500 text-xs mx-7 my-0.5">
@@ -330,26 +328,24 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   </div>
                 )}
                 <div
-                  className={`text-gray-500 dark:text-gray-400 text-sm mx-7 my-2 text-right 
+                  className={`text-sm mx-7 my-2 text-right 
                     ${isAdmin 
-                      ? 'opacity-30 cursor-not-allowed' 
-                      : 'cursor-pointer hover:text-blue-500 dark:hover:text-blue-400'
+                      ? 'text-gray-400 opacity-30 cursor-not-allowed' 
+                      : 'text-blue-500 dark:text-blue-400 cursor-pointer hover:underline'
                     }`}
                   onClick={() => !isAdmin && setResetPasswordOpen(true)}
                 >
-                  <b className={`${!isAdmin && 'hover:underline'}`}>
-                    Forgot password?
-                  </b>
+                  <b>Forgot password?</b>
                 </div>
 
                 <div className="px-5">
                   <button
-                    onClick={handleLogin} // Trigger login on click
-                    disabled={disabled} // Disable button if necessary
+                    onClick={handleLogin}
+                    disabled={disabled}
                     className={`w-full h-11 rounded-md text-white text-base mt-3 transition-colors
                     ${
                       disabled
-                        ? "bg-gray-400  text-gray-500 cursor-not-allowed"
+                        ? "bg-gray-400 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                     }`}
                   >
@@ -361,11 +357,10 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   </button>
                 </div>
 
-                {/* Link to sign up if the user already has not an account */}
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mx-5 my-5 mb-10 flex justify-center items-center">
-                  Don't have an account?&nbsp;{" "}
+                  Don't have an account?{" "}
                   <span
-                    className={`${
+                    className={`ml-1 ${
                       isAdmin
                         ? 'text-gray-400 opacity-30 cursor-not-allowed'
                         : 'text-blue-500 cursor-pointer hover:underline'
@@ -386,13 +381,13 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         )}
         {resetPasswordOpen && (
           <ResetPassword
-            setResetPasswordOpen={setResetPasswordOpen} // Pass function to close reset password modal
-            setSignInOpen={setSignInOpen} // Pass function to close sign-in modal
+            setResetPasswordOpen={setResetPasswordOpen}
+            setSignInOpen={setSignInOpen}
           />
         )}
       </div>
     </Modal>
-  ) : null; // Return null if logged in
+  ) : null;
 };
 
 export default SignIn; // Export SignIn component
